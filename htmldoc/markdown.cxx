@@ -1,7 +1,7 @@
 /*
  * Markdown parsing definitions for HTMLDOC, a HTML document processing program.
  *
- * Copyright © 2017-2018 by Michael R Sweet.
+ * Copyright © 2017-2019 by Michael R Sweet.
  *
  * This program is free software.  Distribution and use rights are outlined in
  * the file "COPYING".
@@ -72,7 +72,7 @@ mdReadFile(tree_t     *parent,		/* I - Parent node */
   }
   if ((meta = mmdGetMetadata(doc, "language")) != NULL)
   {
-    htmlSetVariable(temp, (uchar *)"lang", get_text((uchar *)meta));
+    htmlSetVariable(html, (uchar *)"lang", get_text((uchar *)meta));
   }
   if ((meta = mmdGetMetadata(doc, "subject")) != NULL)
   {

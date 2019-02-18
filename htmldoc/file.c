@@ -1,8 +1,8 @@
 /*
  * Filename routines for HTMLDOC, a HTML document processing program.
  *
- * Copyright 2011-2017 by Michael R Sweet.
- * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
+ * Copyright © 2011-2019 by Michael R Sweet.
+ * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
  * the file "COPYING".
@@ -243,7 +243,7 @@ file_directory(const char *s)	/* I - Filename or URL */
   static char	buf[1024];	/* Buffer for files with targets */
 
 
-  if (s == NULL)
+  if (s == NULL || !strncmp(s, "data:", 5))
     return (NULL);
 
   if (strncmp(s, "http://", 7) == 0 || strncmp(s, "https://", 8) == 0)
@@ -308,8 +308,15 @@ file_extension(const char *s)	/* I - Filename or URL */
 
   if (s == NULL)
     return (NULL);
-
-  if ((extension = strrchr(s, '/')) != NULL)
+  else if (!strncmp(s, "data:image/bmp;", 15))
+    return ("bmp");
+  else if (!strncmp(s, "data:image/gif;", 15))
+    return ("gif");
+  else if (!strncmp(s, "data:image/jpeg;", 16))
+    return ("jpg");
+  else if (!strncmp(s, "data:image/png;", 15))
+    return ("png");
+  else if ((extension = strrchr(s, '/')) != NULL)
     extension ++;
   else if ((extension = strrchr(s, '\\')) != NULL)
     extension ++;
@@ -362,10 +369,10 @@ file_find_check(const char *filename)	/* I - File or URL */
 
   if (strncmp(filename, "http:", 5) == 0 || strncmp(filename, "//", 2) == 0)
     strlcpy(scheme, "http", sizeof(scheme));
-#ifdef HAVE_SSL
   else if (strncmp(filename, "https:", 6) == 0)
     strlcpy(scheme, "https", sizeof(scheme));
-#endif /* HAVE_SSL */
+  else if (strncmp(filename, "data:", 5) == 0)
+    strlcpy(scheme, "data", sizeof(scheme));
   else
     strlcpy(scheme, "file", sizeof(scheme));
 
@@ -388,6 +395,49 @@ file_find_check(const char *filename)	/* I - File or URL */
       return (filename);
     }
   }
+  else if (!strcmp(scheme, "data"))
+  {
+   /*
+    * Data URI; look it up in the web cache, then save to a temporary file...
+    */
+
+    const char	*data;			/* Pointer to data */
+    int		len;			/* Number of bytes */
+    char	buffer[8192];		/* Data buffer */
+
+    for (i = 0; i < (int)web_files; i ++)
+    {
+      if (web_cache[i].url && strcmp(web_cache[i].url, filename) == 0)
+      {
+        DEBUG_printf(("file_find_check: Returning \"%s\" for \"%s\".\n", web_cache[i].name, filename));
+        return (web_cache[i].name);
+      }
+    }
+
+    if ((data = strstr(filename, ";base64,")) != NULL)
+    {
+      len = sizeof(buffer);
+      httpDecode64_2(buffer, &len, data + 8);
+
+      if ((fp = file_temp(tempname, sizeof(tempname))) == NULL)
+      {
+	progress_hide();
+	progress_error(HD_ERROR_WRITE_ERROR, "Unable to create temporary file \"%s\": %s", tempname, strerror(errno));
+	return (NULL);
+      }
+
+      fwrite(buffer, 1, (size_t)len, fp);
+      fclose(fp);
+
+      progress_hide();
+
+      web_cache[web_files - 1].url = strdup(filename);
+
+      DEBUG_printf(("file_find_check: Returning \"%s\" for \"%s\".\n", tempname, filename));
+
+      return (web_cache[web_files - 1].name);
+    }
+  }
   else
   {
    /*
@@ -396,12 +446,13 @@ file_find_check(const char *filename)	/* I - File or URL */
     */
 
     for (i = 0; i < (int)web_files; i ++)
+    {
       if (web_cache[i].url && strcmp(web_cache[i].url, filename) == 0)
       {
-        DEBUG_printf(("file_find_check: Returning \"%s\" for \"%s\"!\n",
-	              web_cache[i].name, filename));
+        DEBUG_printf(("file_find_check: Returning \"%s\" for \"%s\".\n", web_cache[i].name, filename));
         return (web_cache[i].name);
       }
+    }
 
     httpSeparateURI(HTTP_URI_CODING_ALL, filename, scheme, sizeof(scheme),
                     username, sizeof(username), hostname, sizeof(hostname),
@@ -543,8 +594,7 @@ file_find_check(const char *filename)	/* I - File or URL */
 
     web_cache[web_files - 1].url = strdup(filename);
 
-    DEBUG_printf(("file_find_check: Returning \"%s\" for \"%s\"!\n",
-		  tempname, filename));
+    DEBUG_printf(("file_find_check: Returning \"%s\" for \"%s\".\n", tempname, filename));
 
     return (web_cache[web_files - 1].name);
   }

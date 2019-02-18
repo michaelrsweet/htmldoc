@@ -6412,6 +6412,7 @@ parse_table(tree_t *t,			// I - Tree to parse
       {
 	progress_error(HD_ERROR_OUT_OF_MEMORY,
                        "Unable to allocate memory for table!");
+        free(cells);
 	return;
       }
 

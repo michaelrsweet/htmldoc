@@ -1100,7 +1100,7 @@ mmd_parse_inline(_mmd_doc_t *doc,	/* I - Document */
 
         mmd_add(parent, type, whitespace, text, NULL);
 
-        *lineptr   = delim;
+        *lineptr   = (char )delim;
         text       = NULL;
         whitespace = 0;
       }
