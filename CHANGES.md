@@ -6,6 +6,8 @@
 - Updated the markdown support with external links, additional inline markup,
   and hard line breaks.
 - Fixed a buffer underflow bug discovered by AddressSanitizer.
+- PDF output now includes the base language of the input document(s)
+  (Issue #350)
 
 
 # Changes in HTMLDOC v1.9.5

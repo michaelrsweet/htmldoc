@@ -256,13 +256,13 @@ static void	pspdf_prepare_heading(int page, int print_page, uchar **format,
 		                      int y, char *page_text, int page_len);
 static void	ps_write_document(uchar *author, uchar *creator,
 		                  uchar *copyright, uchar *keywords,
-				  uchar *subject);
+				  uchar *subject, uchar *lang);
 static void	ps_write_outpage(FILE *out, int outpage);
 static void	ps_write_page(FILE *out, int page);
 static void	ps_write_background(FILE *out);
 static void	pdf_write_document(uchar *author, uchar *creator,
 		                   uchar *copyright, uchar *keywords,
-				   uchar *subject, tree_t *doc, tree_t *toc);
+				   uchar *subject, uchar *lang, tree_t *doc, tree_t *toc);
 static void	pdf_write_outpage(FILE *out, int outpage);
 static void	pdf_write_page(FILE *out, int page);
 static void	pdf_write_resources(FILE *out, int page);
@@ -355,7 +355,7 @@ static void	write_image(FILE *out, render_t *r, int write_obj = 0);
 static void	write_imagemask(FILE *out, render_t *r);
 static void	write_string(FILE *out, uchar *s, int compress);
 static void	write_text(FILE *out, render_t *r);
-static void	write_trailer(FILE *out, int pages);
+static void	write_trailer(FILE *out, int pages, uchar *lang);
 static int	write_type1(FILE *out, typeface_t typeface,
 			    style_t style);
 static void	write_utf16(FILE *out, uchar *s);
@@ -376,7 +376,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 		*copyright,	/* File copyright */
 		*docnumber,	/* Document number */
 		*keywords,	/* Search keywords */
-		*subject;	/* Subject */
+		*subject,	/* Subject */
+		*lang;		/* Language */
   tree_t	*t;		/* Title page document tree */
   FILE		*fp;		/* Title page file */
   float		x, y,		/* Current page position */
@@ -438,6 +439,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   docnumber   = htmlGetMeta(document, (uchar *)"docnumber");
   keywords    = htmlGetMeta(document, (uchar *)"keywords");
   subject     = htmlGetMeta(document, (uchar *)"subject");
+  lang        = htmlGetMeta(document, (uchar *)"lang");
   logo_image  = image_load(LogoImage, !OutputColor);
   maxhfheight = 0.0f;
 
@@ -873,9 +875,9 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     progress_error(HD_ERROR_NONE, "PAGES: %d", num_outpages);
 
     if (PSLevel > 0)
-      ps_write_document(author, creator, copyright, keywords, subject);
+      ps_write_document(author, creator, copyright, keywords, subject, lang);
     else
-      pdf_write_document(author, creator, copyright, keywords, subject,
+      pdf_write_document(author, creator, copyright, keywords, subject, lang,
                          document, toc);
   }
   else
@@ -1754,7 +1756,8 @@ ps_write_document(uchar *author,	/* I - Author of document */
         	  uchar *creator,	/* I - Application that generated the HTML file */
         	  uchar *copyright,	/* I - Copyright (if any) on the document */
                   uchar *keywords,	/* I - Search keywords */
-		  uchar *subject)	/* I - Subject */
+		  uchar *subject,	/* I - Subject */
+		  uchar *lang)		/* I - Language */
 {
   FILE		*out;			/* Output file */
   int		page;			/* Current page # */
@@ -1801,7 +1804,7 @@ ps_write_document(uchar *author,	/* I - Author of document */
 
     if (OutputFiles)
     {
-      write_trailer(out, 0);
+      write_trailer(out, 0, lang);
 
       progress_error(HD_ERROR_NONE, "BYTES: %ld", ftell(out));
 
@@ -1839,7 +1842,7 @@ ps_write_document(uchar *author,	/* I - Author of document */
 
     if (OutputFiles)
     {
-      write_trailer(out, 0);
+      write_trailer(out, 0, lang);
 
       progress_error(HD_ERROR_NONE, "BYTES: %ld", ftell(out));
 
@@ -1853,7 +1856,7 @@ ps_write_document(uchar *author,	/* I - Author of document */
 
   if (!OutputFiles)
   {
-    write_trailer(out, 0);
+    write_trailer(out, 0, lang);
 
     progress_error(HD_ERROR_NONE, "BYTES: %ld", ftell(out));
 
@@ -2192,6 +2195,7 @@ pdf_write_document(uchar  *author,	// I - Author of document
         	   uchar  *copyright,	// I - Copyright (if any) on the document
                    uchar  *keywords,	// I - Search keywords
 		   uchar  *subject,	// I - Subject
+		   uchar  *lang,	// I - Language
 		   tree_t *doc,		// I - Document
                    tree_t *toc)		// I - Table of contents tree
 {
@@ -2299,7 +2303,7 @@ pdf_write_document(uchar  *author,	// I - Author of document
   * Write the trailer and close the output file...
   */
 
-  write_trailer(out, 0);
+  write_trailer(out, 0, lang);
 
   progress_error(HD_ERROR_NONE, "BYTES: %ld", ftell(out));
 
@@ -12017,8 +12021,9 @@ write_text(FILE     *out,	/* I - Output file */
  */
 
 static void
-write_trailer(FILE *out,		/* I - Output file */
-              int  num_file_pages)	/* I - Number of pages in file */
+write_trailer(FILE  *out,		/* I - Output file */
+              int   num_file_pages,	/* I - Number of pages in file */
+	      uchar *lang)		/* I - Language */
 {
   int		i, j, k,		/* Looping vars */
 		type,			/* Type of number */
@@ -12072,6 +12077,9 @@ write_trailer(FILE *out,		/* I - Output file */
 
       fprintf(out, "/PageLayout/%s", layouts[PDFPageLayout]);
     }
+
+    if (lang)
+      fprintf(out, "/Lang(%s)", (char *)lang);
 
     if (outline_object > 0)
       fprintf(out, "/Outlines %d 0 R", outline_object);

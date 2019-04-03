@@ -45,6 +45,8 @@ mdReadFile(tree_t     *parent,		/* I - Parent node */
 
 
   html = htmlAddTree(parent, MARKUP_HTML, NULL);
+  if ((meta = mmdGetMetadata(doc, "lang")) != NULL)
+    htmlSetVariable(html, (uchar *)"lang", get_text((uchar *)meta));
 
   head = htmlAddTree(html, MARKUP_HEAD, NULL);
   if ((meta = mmdGetMetadata(doc, "title")) != NULL)
