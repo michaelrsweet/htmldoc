@@ -713,6 +713,7 @@ enable_cdsassl
 enable_localjpeg
 enable_localzlib
 enable_localpng
+enable_sanitizer
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1343,6 +1344,7 @@ Optional Features:
   --enable-localjpeg      use local JPEG library, default=auto
   --enable-localzlib      use local ZLIB library, default=auto
   --enable-localpng       use local PNG library, default=auto
+  --enable-sanitizer      build with AddressSanitizer
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -5604,7 +5606,23 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 
+# Check whether --enable-sanitizer was given.
+if test "${enable_sanitizer+set}" = set; then :
+  enableval=$enable_sanitizer;
+fi
+
+
 if test -n "$GXX"; then
+    if test x$enable_sanitizer = xyes; then
+	# Use -fsanitize=address with debugging...
+	OPTIM="$OPTIM -g -fsanitize=address"
+    else
+	# Otherwise use the Fortify enhancements to catch any unbounded
+	# string operations...
+	CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=2"
+	CXXFLAGS="$CXXFLAGS -D_FORTIFY_SOURCE=2"
+    fi
+
         if test -z "$OPTIM"; then
         OPTIM="-Os -g"
     fi

@@ -343,7 +343,19 @@ AC_DEFINE_UNQUOTED(DOCUMENTATION, "$datadir/doc/htmldoc")
 AC_DEFINE_UNQUOTED(HTML_DATA, "$datadir/htmldoc")
 
 dnl Update compiler options...
+AC_ARG_ENABLE(sanitizer, [  --enable-sanitizer      build with AddressSanitizer])
+
 if test -n "$GXX"; then
+    if test x$enable_sanitizer = xyes; then
+	# Use -fsanitize=address with debugging...
+	OPTIM="$OPTIM -g -fsanitize=address"
+    else
+	# Otherwise use the Fortify enhancements to catch any unbounded
+	# string operations...
+	CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=2"
+	CXXFLAGS="$CXXFLAGS -D_FORTIFY_SOURCE=2"
+    fi
+
     dnl Set optimization flags...
     if test -z "$OPTIM"; then
         OPTIM="-Os -g"
