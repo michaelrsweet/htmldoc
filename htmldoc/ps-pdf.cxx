@@ -6,7 +6,7 @@
  * broken into more manageable pieces once we make all of the output
  * "drivers" into classes...
  *
- * Copyright © 2011-2018 by Michael R Sweet.
+ * Copyright © 2011-2019 by Michael R Sweet.
  * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -9058,7 +9058,7 @@ get_cell_size(tree_t *t,		// I - Cell
 	  }
           else if (!temp->preformatted && temp->data != NULL &&
 	           (isspace(temp->data[0]) ||
-	 	    isspace(temp->data[strlen((char *)temp->data) - 1])))
+	 	    (temp->data[0] && isspace(temp->data[strlen((char *)temp->data) - 1]))))
 	  {
 	    // Check required width...
 	    if (isspace(temp->data[0]))
