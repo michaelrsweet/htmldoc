@@ -5,6 +5,7 @@
   web page (Issue #344)
 - Updated the markdown support with external links, additional inline markup,
   and hard line breaks.
+- Fixed a buffer underflow bug discovered by AddressSanitizer.
 
 
 # Changes in HTMLDOC v1.9.5
