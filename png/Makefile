@@ -10,6 +10,9 @@
 
 include ../Makedefs
 
+# See PNG_NO_CONFIG_H comments in pngpriv.h
+CFLAGS += -DPNG_NO_CONFIG_H
+
 #
 # Object files...
 #
