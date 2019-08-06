@@ -6,6 +6,7 @@
 - Updated the markdown support with external links, additional inline markup,
   and hard line breaks.
 - Fixed a buffer underflow bug discovered by AddressSanitizer.
+- Fixed a bug in UTF-8 support (Issue #348)
 - PDF output now includes the base language of the input document(s)
   (Issue #350)
 

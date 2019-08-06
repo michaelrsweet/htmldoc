@@ -11921,38 +11921,44 @@ write_string(FILE  *out,		/* I - Output file */
   }
   else
   {
+    uchar nbsp = 160;			// Non-breaking space char
+
     if (compress)
       flate_write(out, (uchar *)"(", 1);
     else
       putc('(', out);
 
+    if (_htmlUTF8)
+      nbsp = _htmlCharacters[160];
+
     while (*s != '\0')
     {
-      if (*s == 160) /* &nbsp; */
+      if (*s == nbsp)
       {
+       /* &nbsp; */
 	if (compress)
-          flate_write(out, (uchar *)" ", 1);
+	  flate_write(out, (uchar *)" ", 1);
 	else
-          putc(' ', out);
+	  putc(' ', out);
       }
       else if (*s < 32 || *s > 126)
       {
 	if (compress)
-          flate_printf(out, "\\%o", *s);
+	  flate_printf(out, "\\%o", *s);
 	else
-          fprintf(out, "\\%o", *s);
+	  fprintf(out, "\\%o", *s);
       }
       else if (compress)
       {
 	if (*s == '(' || *s == ')' || *s == '\\')
-          flate_write(out, (uchar *)"\\", 1);
+	  flate_write(out, (uchar *)"\\", 1);
 
 	flate_write(out, s, 1);
       }
       else
       {
 	if (*s == '(' || *s == ')' || *s == '\\')
-          putc('\\', out);
+	  putc('\\', out);
 
 	putc(*s, out);
       }
