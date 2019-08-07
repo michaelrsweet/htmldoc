@@ -15,7 +15,8 @@ servers.  However, it does not support many things in "the modern web", such as:
 
 - Encryption: HTMLDOC currently supports the older (and very insecure) PDF 1.4
   (128-bit RC4) encryption.  I have looked at supporting AES (256-bit)
-  encryption...
+  encryption, however it is not widely supported and there are incompatible
+  changes in PDF 2.0, so it is unlikely to be added to HTMLDOC.
 
 - Forms: HTML forms and PDF forms are very different things.  While I have had
   many requests to add support for PDF forms over the years, I have not found a
