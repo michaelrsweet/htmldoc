@@ -2246,9 +2246,12 @@ htmlLoadFontWidths(void)
     {
       for (ch = 0; ch < 256; ch ++)
         _htmlWidths[i][j][ch] = 0.6f;
+
       if (_htmlUTF8)
+      {
         for (ch = 0; ch < 65536; ch ++)
           _htmlWidthsAll[i][j][ch] = 0.6f;
+      }
 
       snprintf(filename, sizeof(filename), "%s/fonts/%s.afm", _htmlData,
                _htmlFonts[i][j]);
@@ -2277,13 +2280,25 @@ htmlLoadFontWidths(void)
 	    continue;
 
           for (ch = 0; ch < 256; ch ++)
+          {
 	    if (_htmlGlyphs[ch] && !strcmp(_htmlGlyphs[ch], glyph))
+	    {
 	      _htmlWidths[i][j][ch] = width * 0.001f;
+	      break;
+	    }
+	  }
 
           if (_htmlUTF8)
+          {
             for (ch = 0; ch < 65536; ch ++)
+            {
               if (_htmlGlyphsAll[ch] && !strcmp(_htmlGlyphsAll[ch], glyph))
+              {
                 _htmlWidthsAll[i][j][ch] = width * 0.001f;
+                break;
+              }
+            }
+          }
 	}
 	else
 	{

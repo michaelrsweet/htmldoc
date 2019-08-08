@@ -9,6 +9,7 @@
 - Fixed a bug in UTF-8 support (Issue #348)
 - PDF output now includes the base language of the input document(s)
   (Issue #350)
+- Optimized the loading of font widths (Issue #354)
 
 
 # Changes in HTMLDOC v1.9.5
