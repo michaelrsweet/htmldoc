@@ -269,10 +269,12 @@ add_leaf(tree_t *html,                  /* I - Parent HTML node */
   uchar         buffer[1024],           /* Text with any added whitespace */
                 *text,                  /* Text to write */
                 *url;                   /* URL to write */
+  int		whitespace;		/* Whitespace before text? */
 
 
-  text = get_text((uchar *)mmdGetText(node));
-  url  = (uchar *)mmdGetURL(node);
+  text       = get_text((uchar *)mmdGetText(node));
+  url        = (uchar *)mmdGetURL(node);
+  whitespace = mmdGetWhitespace(node);
 
   switch (mmdGetType(node))
   {
@@ -326,6 +328,12 @@ add_leaf(tree_t *html,                  /* I - Parent HTML node */
     parent = html;
   else if ((parent = html->last_child) == NULL || parent->markup != element)
   {
+    if (whitespace)
+    {
+      htmlAddTree(html, MARKUP_NONE, (uchar *)" ");
+      whitespace = 0;
+    }
+
     parent = htmlAddTree(html, element, NULL);
 
     if (element == MARKUP_A && url)
@@ -337,7 +345,7 @@ add_leaf(tree_t *html,                  /* I - Parent HTML node */
     }
   }
 
-  if (mmdGetWhitespace(node))
+  if (whitespace)
   {
     buffer[0] = ' ';
     strlcpy((char *)buffer + 1, (char *)text, sizeof(buffer) - 1);

@@ -5,6 +5,8 @@
   web page (Issue #344)
 - Updated the markdown support with external links, additional inline markup,
   and hard line breaks.
+- Links in markdown text no longer render with a leading space as part of the
+  link (Issue #346)
 - Fixed a buffer underflow bug discovered by AddressSanitizer.
 - Fixed a bug in UTF-8 support (Issue #348)
 - PDF output now includes the base language of the input document(s)
