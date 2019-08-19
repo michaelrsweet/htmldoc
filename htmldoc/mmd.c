@@ -139,7 +139,7 @@ static void     mmd_free(mmd_t *node);
 static int	mmd_has_continuation(const char *line, _mmd_filebuf_t *file, int indent);
 static size_t	mmd_is_chars(const char *lineptr, const char *chars, size_t minchars);
 static size_t	mmd_is_codefence(char *lineptr, char fence, size_t fencelen, char **language);
-static int	mmd_is_table(_mmd_filebuf_t *file);
+static int	mmd_is_table(_mmd_filebuf_t *file, int indent);
 static void     mmd_parse_inline(_mmd_doc_t *doc, mmd_t *parent, char *lineptr);
 static char     *mmd_parse_link(_mmd_doc_t *doc, char *lineptr, char **text, char **url, char **title, char **refname);
 static void	mmd_read_buffer(_mmd_filebuf_t *file);
@@ -519,6 +519,8 @@ mmdLoadFile(FILE *fp)                   /* I - File to load */
   * Create an empty document...
   */
 
+  DEBUG_printf("mmdLoadFile: mmd_options=%d%s%s\n", mmd_options, (mmd_options & MMD_OPTION_METADATA) ? " METADATA" : "", (mmd_options & MMD_OPTION_TABLES) ? " TABLES" : "");
+
   memset(&doc, 0, sizeof(doc));
 
   doc.root = mmd_add(NULL, MMD_TYPE_DOCUMENT, 0, NULL, NULL);
@@ -555,6 +557,9 @@ mmdLoadFile(FILE *fp)                   /* I - File to load */
 
     while (isspace(*lineptr & 255))
       lineptr ++;
+
+    DEBUG2_printf("     line indent=%d\n", (int)(lineptr - line));
+    DEBUG2_printf("     stackptr=%d\n", (int)(stackptr - stack));
 
     if (*lineptr == '>' && (lineptr - linestart) < 4)
     {
@@ -596,6 +601,16 @@ mmdLoadFile(FILE *fp)                   /* I - File to load */
       block    = NULL;
       stackptr = stack;
     }
+
+   /*
+    * Now handle all other markup not related to block quotes...
+    */
+
+    DEBUG2_printf("     stackptr=%d (%s), block=%p (%s)\n", (int)(stackptr - stack), mmd_type_string(stackptr->parent->type) + 9, block, block ? mmd_type_string(block->type) + 9 : "");
+    DEBUG2_printf("     strchr(lineptr, '|')=%p, mmd_is_table(&file, stackptr->indent)=%d\n", strchr(lineptr, '|'), mmd_is_table(&file, stackptr->indent));
+    DEBUG2_printf("     linestart=%d, lineptr=%d\n", (int)(linestart - line), (int)(lineptr - line));
+    DEBUG2_printf("     mmd_is_chars(lineptr, \"-\", 1)=%d\n", (int)mmd_is_chars(lineptr, "-", 1));
+    DEBUG2_printf("     mmd_is_chars(lineptr, \"=\", 1)=%d\n", (int)mmd_is_chars(lineptr, "=", 1));
 
     if ((lineptr - line - stackptr->indent) < 4 && ((stackptr->parent->type != MMD_TYPE_CODE_BLOCK && !stackptr->fence && mmd_is_codefence(lineptr, '\0', 0, NULL)) || (stackptr->fence && mmd_is_codefence(lineptr, stackptr->fence, stackptr->fencelen, NULL))))
     {
@@ -652,6 +667,8 @@ mmdLoadFile(FILE *fp)                   /* I - File to load */
     }
     else if (stackptr->parent->type == MMD_TYPE_CODE_BLOCK && stackptr->fence)
     {
+      DEBUG2_printf("     fence='%c'\n", stackptr->fence);
+
       if (!*lineptr)
       {
         blank_code ++;
@@ -692,9 +709,11 @@ mmdLoadFile(FILE *fp)                   /* I - File to load */
       }
       continue;
     }
-    else if (block && block->type == MMD_TYPE_PARAGRAPH && (lineptr - linestart) < 4 && (lineptr - linestart) >= stackptr->indent && (mmd_is_chars(lineptr, "-", 1) || mmd_is_chars(lineptr, "=", 1)))
+    else if (block && block->type == MMD_TYPE_PARAGRAPH && (lineptr - linestart) < 4 && (lineptr - line) >= stackptr->indent && (mmd_is_chars(lineptr, "-", 1) || mmd_is_chars(lineptr, "=", 1)))
     {
       int ch = *lineptr;
+
+      DEBUG_puts("     SETEXT HEADING\n");
 
       lineptr += 3;
       while (*lineptr == ch)
@@ -734,6 +753,8 @@ mmdLoadFile(FILE *fp)                   /* I - File to load */
      /*
       * Bulleted list...
       */
+
+      DEBUG_puts("     UNORDERED LIST\n");
 
       lineptr   += 2;
       linestart = lineptr;
@@ -784,6 +805,8 @@ mmdLoadFile(FILE *fp)                   /* I - File to load */
      /*
       * Ordered list?
       */
+
+      DEBUG_puts("     ORDERED LIST?\n");
 
       temp = lineptr + 1;
 
@@ -849,6 +872,8 @@ mmdLoadFile(FILE *fp)                   /* I - File to load */
       * Heading, count the number of '#' for the heading level...
       */
 
+      DEBUG_puts("     HEADING?\n");
+
       newindent = lineptr - line;
       temp      = lineptr + 1;
 
@@ -907,6 +932,8 @@ mmdLoadFile(FILE *fp)                   /* I - File to load */
     }
     else if (block && block->type >= MMD_TYPE_HEADING_1 && block->type <= MMD_TYPE_HEADING_6)
     {
+      DEBUG_puts("     PARAGRAPH\n");
+
       type  = MMD_TYPE_PARAGRAPH;
       block = NULL;
     }
@@ -914,7 +941,7 @@ mmdLoadFile(FILE *fp)                   /* I - File to load */
     {
       type = MMD_TYPE_PARAGRAPH;
 
-      if (lineptr == line)
+      if (lineptr == line && stackptr->parent->type != MMD_TYPE_TABLE)
         stackptr = stack;
     }
     else
@@ -943,7 +970,7 @@ mmdLoadFile(FILE *fp)                   /* I - File to load */
       }
       continue;
     }
-    else if ((mmd_options & MMD_OPTION_TABLES) && strchr(lineptr, '|') && (stackptr->parent->type == MMD_TYPE_TABLE || mmd_is_table(&file)))
+    else if ((mmd_options & MMD_OPTION_TABLES) && strchr(lineptr, '|') && (stackptr->parent->type == MMD_TYPE_TABLE || mmd_is_table(&file, stackptr->indent)))
     {
      /*
       * Table...
@@ -1077,6 +1104,7 @@ mmdLoadFile(FILE *fp)                   /* I - File to load */
       {
         stackptr[1].parent = mmd_add(stackptr->parent, MMD_TYPE_CODE_BLOCK, 0, NULL, NULL);
         stackptr[1].indent = stackptr->indent + 4;
+        stackptr[1].fence  = '\0';
         stackptr ++;
 
         blank_code = 0;
@@ -1456,20 +1484,33 @@ mmd_is_codefence(char   *lineptr,	/* I - Line */
  */
 
 static int				/* O - 1 if this is a table, 0 otherwise */
-mmd_is_table(_mmd_filebuf_t *file)	/* I - File to read from */
+mmd_is_table(_mmd_filebuf_t *file,	/* I - File to read from */
+             int            indent)	/* I - Indentation of table line */
 {
   const char	*ptr;			/* Pointer into buffer */
 
 
-  for (ptr = file->bufptr; *ptr; ptr ++)
+  ptr = file->bufptr;
+  while (*ptr)
   {
-    if (*ptr == '>' && ptr == file->bufptr)
-      continue;
-    else if (!strchr(" \t\n\r:-|", *ptr))
+    if (!strchr(" \t>", *ptr))
       break;
+
+    ptr ++;
   }
 
-  return (!*ptr);
+  if ((ptr - file->bufptr - indent) >= 4)
+    return (0);
+
+  while (*ptr)
+  {
+    if (!strchr(" \t:-|", *ptr))
+      break;
+
+    ptr ++;
+  }
+
+  return (*ptr == '\r' || *ptr == '\n');
 }
 
 
