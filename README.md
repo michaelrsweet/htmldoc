@@ -127,17 +127,11 @@ Adobe Systems, Incorporated.
 The Graphics Interchange Format is the copyright and GIF is the service mark
 property of CompuServe Incorporated.
 
-Intel is a registered trademark of Intel Corporation.
-
 Linux is a registered trademark of Linus Torvalds.
 
 macOS is a registered trademark of Apple Inc.
 
 Microsoft and Windows are registered trademarks of Microsoft Corporation.
-
-Solaris is a registered trademark of Sun Microsystems, Inc.
-
-SPARC is a registered trademark of SPARC International, Inc.
 
 UNIX is a registered trademark of the X/Open Company, Ltd.
 
