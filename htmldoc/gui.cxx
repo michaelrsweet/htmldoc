@@ -1391,20 +1391,20 @@ GUI::newBook(void)
     pageSize->value("Letter");
   else
   {
-    sprintf(size, "%.2fx%.2fin", PageWidth / 72.0f, PageLength / 72.0f);
+    snprintf(size, sizeof(size), "%.2fx%.2fin", PageWidth / 72.0f, PageLength / 72.0f);
     pageSize->value(size);
   }
 
-  sprintf(size, "%.2fin", PageLeft / 72.0f);
+  snprintf(size, sizeof(size), "%.2fin", PageLeft / 72.0f);
   pageLeft->value(size);
 
-  sprintf(size, "%.2fin", PageRight / 72.0f);
+  snprintf(size, sizeof(size), "%.2fin", PageRight / 72.0f);
   pageRight->value(size);
 
-  sprintf(size, "%.2fin", PageTop / 72.0f);
+  snprintf(size, sizeof(size), "%.2fin", PageTop / 72.0f);
   pageTop->value(size);
 
-  sprintf(size, "%.2fin", PageBottom / 72.0f);
+  snprintf(size, sizeof(size), "%.2fin", PageBottom / 72.0f);
   pageBottom->value(size);
 
   pageDuplex->value(PageDuplex);
@@ -3654,7 +3654,7 @@ GUI::bodyColorCB(Fl_Widget *w,		// I - Widget
 
     if (fl_color_chooser("Body Color?", r, g, b))
     {
-      sprintf(newcolor, "#%02x%02x%02x", r, g, b);
+      snprintf(newcolor, sizeof(newcolor), "#%02x%02x%02x", r, g, b);
       gui->bodyColor->value(newcolor);
       gui->title(gui->book_filename, 1);
     }
@@ -3722,7 +3722,7 @@ GUI::textColorCB(Fl_Widget *w,		// I - Widget
 
     if (fl_color_chooser("Text Color?", r, g, b))
     {
-      sprintf(newcolor, "#%02x%02x%02x", r, g, b);
+      snprintf(newcolor, sizeof(newcolor), "#%02x%02x%02x", r, g, b);
       gui->textColor->value(newcolor);
       gui->title(gui->book_filename, 1);
     }
@@ -3762,7 +3762,7 @@ GUI::linkColorCB(Fl_Widget *w,		// I - Widget
 
     if (fl_color_chooser("Link Color?", r, g, b))
     {
-      sprintf(newcolor, "#%02x%02x%02x", r, g, b);
+      snprintf(newcolor, sizeof(newcolor), "#%02x%02x%02x", r, g, b);
       gui->linkColor->value(newcolor);
       gui->title(gui->book_filename, 1);
     }

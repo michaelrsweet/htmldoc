@@ -1,7 +1,7 @@
 /*
  * Utility functions for HTMLDOC, a HTML document processing program.
  *
- * Copyright © 2011-2018 by Michael R Sweet.
+ * Copyright © 2011-2019 by Michael R Sweet.
  * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -68,38 +68,36 @@ format_number(int  n,		/* I - Number */
         if (n >= (26 * 26))
 	  buffer[0] = '\0';
         else if (n > 26)
-          sprintf(buffer, "%c%c", 'a' + (n / 26) - 1, 'a' + (n % 26) - 1);
+          snprintf(buffer, sizeof(buffer), "%c%c", 'a' + (n / 26) - 1, 'a' + (n % 26) - 1);
         else
-          sprintf(buffer, "%c", 'a' + n - 1);
+          snprintf(buffer, sizeof(buffer), "%c", 'a' + n - 1);
         break;
 
     case 'A' :
         if (n >= (26 * 26))
 	  buffer[0] = '\0';
         else if (n > 26)
-          sprintf(buffer, "%c%c", 'A' + (n / 26) - 1, 'A' + (n % 26) - 1);
+          snprintf(buffer, sizeof(buffer), "%c%c", 'A' + (n / 26) - 1, 'A' + (n % 26) - 1);
         else
-          sprintf(buffer, "%c", 'A' + n - 1);
+          snprintf(buffer, sizeof(buffer), "%c", 'A' + n - 1);
         break;
 
     case '1' :
-        sprintf(buffer, "%d", n);
+        snprintf(buffer, sizeof(buffer), "%d", n);
         break;
 
     case 'i' :
         if (n >= 1000)
 	  buffer[0] = '\0';
 	else
-          sprintf(buffer, "%s%s%s", hundreds[n / 100], tens[(n / 10) % 10],
-                  ones[n % 10]);
+          snprintf(buffer, sizeof(buffer), "%s%s%s", hundreds[n / 100], tens[(n / 10) % 10], ones[n % 10]);
         break;
 
     case 'I' :
         if (n >= 1000)
 	  buffer[0] = '\0';
 	else
-          sprintf(buffer, "%s%s%s", HUNDREDS[n / 100], TENS[(n / 10) % 10],
-                  ONES[n % 10]);
+          snprintf(buffer, sizeof(buffer), "%s%s%s", HUNDREDS[n / 100], TENS[(n / 10) % 10], ONES[n % 10]);
         break;
   }
 

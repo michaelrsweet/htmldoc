@@ -1,7 +1,7 @@
 /*
  * HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
- * Copyright 2011-2018 by Michael R Sweet.
+ * Copyright 2011-2019 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -3215,8 +3215,7 @@ compute_size(tree_t *t)		/* I - Tree entry */
       t->width  = (float)(atoi((char *)width_ptr) / _htmlPPI * 72.0f);
       t->height = (float)(t->width * img->height / img->width);
 
-      sprintf(number, "%d",
-              atoi((char *)width_ptr) * img->height / img->width);
+      snprintf(number, sizeof(number), "%d", atoi((char *)width_ptr) * img->height / img->width);
       if (strchr((char *)width_ptr, '%') != NULL)
         strlcat(number, "%", sizeof(number));
       htmlSetVariable(t, (uchar *)"HEIGHT", (uchar *)number);
@@ -3226,7 +3225,7 @@ compute_size(tree_t *t)		/* I - Tree entry */
       t->height = (float)(atoi((char *)height_ptr) / _htmlPPI * 72.0f);
       t->width  = (float)(t->height * img->width / img->height);
 
-      sprintf(number, "%d", atoi((char *)height_ptr) * img->width / img->height);
+      snprintf(number, sizeof(number), "%d", atoi((char *)height_ptr) * img->width / img->height);
       if (strchr((char *)height_ptr, '%') != NULL)
         strlcat(number, "%", sizeof(number));
       htmlSetVariable(t, (uchar *)"WIDTH", (uchar *)number);
@@ -3236,10 +3235,10 @@ compute_size(tree_t *t)		/* I - Tree entry */
       t->width  = (float)(img->width / _htmlPPI * 72.0f);
       t->height = (float)(img->height / _htmlPPI * 72.0f);
 
-      sprintf(number, "%d", img->width);
+      snprintf(number, sizeof(number), "%d", img->width);
       htmlSetVariable(t, (uchar *)"WIDTH", (uchar *)number);
 
-      sprintf(number, "%d", img->height);
+      snprintf(number, sizeof(number), "%d", img->height);
       htmlSetVariable(t, (uchar *)"HEIGHT", (uchar *)number);
     }
 

@@ -2,7 +2,7 @@
  * ISO-8859-1 conversion routines for HTMLDOC, an HTML document
  * processing program.
  *
- * Copyright 2011-2017 by Michael R Sweet.
+ * Copyright 2011-2019 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -341,7 +341,7 @@ iso8859(uchar *name)			/* I - Glyph name */
 
     if ((glyph = _htmlGlyphsAll[ch]) == NULL)
     {
-      sprintf(uniglyph, "uni%04x", ch);
+      snprintf(uniglyph, sizeof(uniglyph), "uni%04x", ch);
       glyph = uniglyph;
     }
 
@@ -410,7 +410,7 @@ iso8859(uchar value)	/* I - ISO-8859-1 equivalent */
 
         if ((glyph = _htmlGlyphsAll[ch]) == NULL)
 	{
-	  sprintf(uniglyph, "uni%04x", ch);
+	  snprintf(uniglyph, sizeof(uniglyph), "uni%04x", ch);
 	  glyph = uniglyph;
 	}
 
@@ -431,7 +431,7 @@ iso8859(uchar value)	/* I - ISO-8859-1 equivalent */
     buf[1] = '\0';
   }
   else
-    sprintf((char *)buf, "&%s;", iso8859_names[value]->name);
+    snprintf((char *)buf, sizeof(buf), "&%s;", iso8859_names[value]->name);
 
   return (buf);
 }

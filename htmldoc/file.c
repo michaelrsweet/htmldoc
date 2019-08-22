@@ -875,7 +875,7 @@ file_localize(const char *filename,	/* I - Filename */
         *slash = '\0';
 #endif /* WIN32 || __EMX__ */
 
-    sprintf(temp, "%s/%s", cwd, newslash);
+    snprintf(temp, sizeof(temp), "%s/%s", cwd, newslash);
   }
   else
     strlcpy(temp, filename, sizeof(temp));

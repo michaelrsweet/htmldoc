@@ -2,7 +2,7 @@
  * Table of contents generator for HTMLDOC, a HTML document processing
  * program.
  *
- * Copyright 2011, 2014 by Michael R Sweet.
+ * Copyright 2011-2019 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -204,45 +204,36 @@ parse_tree(tree_t *t)		/* I - Document tree */
 
           for (i = 0; i <= level; i ++)
           {
+            uchar	*baseptr = baselink + strlen((char *)baselink);
+            uchar	*headptr = heading + strlen((char *)heading);
+
             if (i == 0)
-              sprintf((char *)baselink + strlen((char *)baselink), "%d", TocDocCount);
+              snprintf((char *)baseptr, sizeof(baselink) - (size_t)(baseptr - baselink), "%d", TocDocCount);
             else
-              sprintf((char *)baselink + strlen((char *)baselink), "%d", heading_numbers[i]);
+              snprintf((char *)baseptr, sizeof(baselink) - (size_t)(baseptr - baselink), "%d", heading_numbers[i]);
 
             switch (heading_types[i])
             {
               case '1' :
-                  sprintf((char *)heading + strlen((char *)heading), "%d", heading_numbers[i]);
+                  snprintf((char *)headptr, sizeof(heading) - (size_t)(headptr - heading), "%d", heading_numbers[i]);
                   break;
               case 'a' :
                   if (heading_numbers[i] > 26)
-                    sprintf((char *)heading + strlen((char *)heading), "%c%c",
-                            'a' + (heading_numbers[i] / 26) - 1,
-                            'a' + (heading_numbers[i] % 26) - 1);
+                    snprintf((char *)headptr, sizeof(heading) - (size_t)(headptr - heading), "%c%c", 'a' + (heading_numbers[i] / 26) - 1, 'a' + (heading_numbers[i] % 26) - 1);
                   else
-                    sprintf((char *)heading + strlen((char *)heading), "%c",
-                            'a' + heading_numbers[i] - 1);
+                    snprintf((char *)headptr, sizeof(heading) - (size_t)(headptr - heading), "%c", 'a' + heading_numbers[i] - 1);
                   break;
               case 'A' :
                   if (heading_numbers[i] > 26)
-                    sprintf((char *)heading + strlen((char *)heading), "%c%c",
-                            'A' + (heading_numbers[i] / 26) - 1,
-                            'A' + (heading_numbers[i] % 26) - 1);
+                    snprintf((char *)headptr, sizeof(heading) - (size_t)(headptr - heading), "%c%c", 'A' + (heading_numbers[i] / 26) - 1, 'A' + (heading_numbers[i] % 26) - 1);
                   else
-                    sprintf((char *)heading + strlen((char *)heading), "%c",
-                            'A' + heading_numbers[i] - 1);
+                    snprintf((char *)headptr, sizeof(heading) - (size_t)(headptr - heading), "%c", 'A' + heading_numbers[i] - 1);
                   break;
               case 'i' :
-                  sprintf((char *)heading + strlen((char *)heading), "%s%s%s",
-                          hundreds[heading_numbers[i] / 100],
-                          tens[(heading_numbers[i] / 10) % 10],
-                          ones[heading_numbers[i] % 10]);
+                  snprintf((char *)headptr, sizeof(heading) - (size_t)(headptr - heading), "%s%s%s", hundreds[heading_numbers[i] / 100], tens[(heading_numbers[i] / 10) % 10], ones[heading_numbers[i] % 10]);
                   break;
               case 'I' :
-                  sprintf((char *)heading + strlen((char *)heading), "%s%s%s",
-                          HUNDREDS[heading_numbers[i] / 100],
-                          TENS[(heading_numbers[i] / 10) % 10],
-                          ONES[heading_numbers[i] % 10]);
+                  snprintf((char *)headptr, sizeof(heading) - (size_t)(headptr - heading), "%s%s%s", HUNDREDS[heading_numbers[i] / 100], TENS[(heading_numbers[i] / 10) % 10], ONES[heading_numbers[i] % 10]);
                   break;
             }
 
@@ -282,9 +273,9 @@ parse_tree(tree_t *t)		/* I - Document tree */
 	    existing = NULL;
 
           if (existing != NULL)
-	    sprintf((char *)link, "#%s", existing);
+	    snprintf((char *)link, sizeof(link), "#%s", existing);
 	  else
-	    sprintf((char *)link, "#%s", baselink);
+	    snprintf((char *)link, sizeof(link), "#%s", baselink);
 
          /*
 	  * Number the headings as needed...
