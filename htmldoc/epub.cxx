@@ -1,7 +1,7 @@
 /*
  * EPUB exporting functions for HTMLDOC, a HTML document processing program.
  *
- * Copyright 2017-2018 by Michael R Sweet.
+ * Copyright 2017-2019 by Michael R Sweet.
  *
  * This program is free software.  Distribution and use rights are outlined in
  * the file "COPYING".
@@ -292,8 +292,8 @@ epub_export(tree_t *document,           /* I - Document to export */
                            "    <dc:subject>%s</dc:subject>\n"
                            "    <dc:rights>%s</dc:rights>\n"
                            "    <dc:publisher>htmldoc</dc:publisher>\n"
-                           "    <dc:identifier id=\"%s\">%s</dc:identifier>\n",
-                           uid, title, author, get_iso_date(time(NULL)), language, subject, copyright, uid, uid);
+                           "    <dc:identifier id=\"bookid\">%s</dc:identifier>\n",
+                           uid, title, author, get_iso_date(time(NULL)), language, subject, copyright, uid);
 
     if (cover_image)
       status |= write_xhtmlf(epubf, "    <meta name=\"cover\" content=\"%s\" />\n", cover_image);
