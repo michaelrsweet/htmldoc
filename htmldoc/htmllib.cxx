@@ -124,25 +124,25 @@ const char	*_htmlMarkups[] =
 const char	*_htmlCurrentFile = "UNKNOWN";
 					/* Current file */
 const char	*_htmlData = HTML_DATA;	/* Data directory */
-double		_htmlPPI = 80.0;	/* Image resolution */
+float		_htmlPPI = 80.0f;	/* Image resolution */
 int		_htmlGrayscale = 0;	/* Grayscale output? */
 uchar		_htmlTextColor[255] =	/* Default text color */
 		{ 0 };
-double		_htmlBrowserWidth = 680.0f;
+float		_htmlBrowserWidth = 680.0f;
 					/* Browser width for pixel scaling */
-double		_htmlSizes[8] =		/* Point size for each HTML size */
-		{ 6.0, 8.0, 9.0, 11.0, 14.0, 17.0, 20.0, 24.0 };
-double		_htmlSpacings[8] =	/* Line height for each HTML size */
-		{ 7.2, 9.6, 10.8, 13.2, 16.8, 20.4, 24.0, 28.8 };
+float		_htmlSizes[8] =		/* Point size for each HTML size */
+		{ 6.0f, 8.0f, 9.0f, 11.0f, 14.0f, 17.0f, 20.0f, 24.0f };
+float		_htmlSpacings[8] =	/* Line height for each HTML size */
+		{ 7.2f, 9.6f, 10.8f, 13.2f, 16.8f, 20.4f, 24.0f, 28.8f };
 typeface_t	_htmlBodyFont = TYPE_TIMES,
 		_htmlHeadingFont = TYPE_HELVETICA;
 
 int		_htmlInitialized = 0;	/* Initialized glyphs yet? */
 char		_htmlCharSet[256] = "iso-8859-1";
 					/* Character set name */
-double		_htmlWidths[TYPE_MAX][STYLE_MAX][256];
+short		_htmlWidths[TYPE_MAX][STYLE_MAX][256];
 					/* Character widths of fonts */
-double          _htmlWidthsAll[TYPE_MAX][STYLE_MAX][65536];
+short		_htmlWidthsAll[TYPE_MAX][STYLE_MAX][65536];
                                         /* Unicode widths of fonts */
 int		_htmlUnicode[256];	/* Character to Unicode mapping */
 uchar           _htmlCharacters[65536]; /* Unicode to character mapping */
@@ -2245,12 +2245,12 @@ htmlLoadFontWidths(void)
     for (j = 0; j < STYLE_MAX; j ++)
     {
       for (ch = 0; ch < 256; ch ++)
-        _htmlWidths[i][j][ch] = 0.6f;
+        _htmlWidths[i][j][ch] = 600;
 
       if (_htmlUTF8)
       {
         for (ch = 0; ch < 65536; ch ++)
-          _htmlWidthsAll[i][j][ch] = 0.6f;
+          _htmlWidthsAll[i][j][ch] = 600;
       }
 
       snprintf(filename, sizeof(filename), "%s/fonts/%s.afm", _htmlData,
@@ -2283,7 +2283,7 @@ htmlLoadFontWidths(void)
           {
 	    if (_htmlGlyphs[ch] && !strcmp(_htmlGlyphs[ch], glyph))
 	    {
-	      _htmlWidths[i][j][ch] = width * 0.001f;
+	      _htmlWidths[i][j][ch] = (short)width;
 	      break;
 	    }
 	  }
@@ -2294,7 +2294,7 @@ htmlLoadFontWidths(void)
             {
               if (_htmlGlyphsAll[ch] && !strcmp(_htmlGlyphsAll[ch], glyph))
               {
-                _htmlWidthsAll[i][j][ch] = width * 0.001f;
+                _htmlWidthsAll[i][j][ch] = (short)width;
                 break;
               }
             }
@@ -2311,8 +2311,8 @@ htmlLoadFontWidths(void)
 
           if (ch < 256 && ch >= 0)
           {
-            _htmlWidths[i][j][ch]    = width * 0.001f;
-            _htmlWidthsAll[i][j][ch] = width * 0.001f;
+            _htmlWidths[i][j][ch]    = (short)width;
+            _htmlWidthsAll[i][j][ch] = (short)width;
           }
 	}
       }
@@ -3178,8 +3178,8 @@ static int			/* O - 0 = success, -1 = failure */
 compute_size(tree_t *t)		/* I - Tree entry */
 {
   uchar		*ptr;		/* Current character */
-  float		width,		/* Current width */
-		max_width;	/* Maximum width */
+  float		width;		/* Current width */
+  int		int_width;	/* Integer width */
   uchar		*width_ptr,	/* Pointer to width string */
 		*height_ptr,	/* Pointer to height string */
 		*size_ptr,	/* Pointer to size string */
@@ -3284,31 +3284,42 @@ compute_size(tree_t *t)		/* I - Tree entry */
   }
   else if (t->preformatted && t->data)
   {
-    for (max_width = 0.0, width = 0.0, ptr = t->data; *ptr != '\0'; ptr ++)
+    int		max_width = 0;		/* Maximum width */
+
+    for (int_width = 0, ptr = t->data; *ptr != '\0'; ptr ++)
+    {
       if (*ptr == '\n')
       {
-        if (width > max_width)
-          max_width = width;
+        if (int_width > max_width)
+          max_width = int_width;
+
+	int_width = 0;
       }
       else if (*ptr == '\t')
-        width = (float)(((int)width + 7) & ~7);
+        int_width = (int_width + 7) & ~7;
       else
-        width += (float)_htmlWidths[t->typeface][t->style][(int)*ptr & 255];
+        int_width ++;
+    }
 
-   if (width < max_width)
-     width = max_width;
+    if (int_width > max_width)
+      max_width = int_width;
+
+    width = _htmlWidths[t->typeface][t->style][0x20] * max_width * 0.001f;
   }
   else if (t->data)
-    for (width = 0.0, ptr = t->data; *ptr != '\0'; ptr ++)
-      width += _htmlWidths[t->typeface][t->style][(int)*ptr & 255];
+  {
+    for (int_width = 0, ptr = t->data; *ptr != '\0'; ptr ++)
+      int_width += _htmlWidths[t->typeface][t->style][(int)*ptr & 255];
+
+    width = 0.001f * int_width;
+  }
   else
     width = 0.0f;
 
   t->width  = (float)(width * _htmlSizes[t->size]);
   t->height = (float)_htmlSizes[t->size];
 
-  DEBUG_printf(("%swidth = %.1f, height = %.1f\n",
-                indent, t->width, t->height));
+  DEBUG_printf(("%swidth = %.1f, height = %.1f\n", indent, t->width, t->height));
 
   return (0);
 }

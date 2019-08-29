@@ -3557,7 +3557,7 @@ render_contents(tree_t *t,		/* I - Tree to parse */
 		*temp,
 		*next;
   render_t	*r;
-#define dot_width  (_htmlSizes[SIZE_P] * _htmlWidths[t->typeface][t->style]['.'])
+  float		dot_width = _htmlSizes[SIZE_P] * _htmlWidths[t->typeface][t->style]['.'] * 0.001f;
 
 
   DEBUG_printf(("render_contents(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, y=%.1f, page=%d, heading=%d, chap=%p)\n",
@@ -4928,7 +4928,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	{
           if (temp == start)
             temp_width -= _htmlWidths[temp->typeface][temp->style][' '] *
-                          _htmlSizes[temp->size];
+                          _htmlSizes[temp->size] * 0.001f;
           else if (temp_width > 0.0f)
 	    whitespace = 1;
 	}
@@ -5053,7 +5053,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         *dataptr = dataptr[1];
       *dataptr = '\0';
 
-      temp_width = (float)(_htmlWidths[temp->typeface][temp->style][' '] * _htmlSizes[temp->size]);
+      temp_width = _htmlWidths[temp->typeface][temp->style][' '] * _htmlSizes[temp->size] * 0.001f;
       temp->width -= temp_width;
       num_chars --;
     }
@@ -9606,7 +9606,7 @@ get_width(uchar *s,		/* I - String to scan */
           int   size)		/* I - Size */
 {
   uchar	*ptr;			/* Current character */
-  float	width;			/* Current width */
+  int	width;			/* Current width */
 
 
   DEBUG_printf(("get_width(\"%s\", %d, %d, %d)\n",
@@ -9616,10 +9616,10 @@ get_width(uchar *s,		/* I - String to scan */
   if (s == NULL)
     return (0.0);
 
-  for (width = 0.0, ptr = s; *ptr != '\0'; ptr ++)
+  for (width = 0, ptr = s; *ptr != '\0'; ptr ++)
     width += _htmlWidths[typeface][style][*ptr];
 
-  return ((float)(width * _htmlSizes[size]));
+  return (width * _htmlSizes[size] * 0.001f);
 }
 
 
