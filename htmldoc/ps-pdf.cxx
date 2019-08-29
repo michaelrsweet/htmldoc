@@ -2410,7 +2410,6 @@ pdf_write_resources(FILE *out,		/* I - Output file */
 
 
   memset(fonts_used, 0, sizeof(fonts_used));
-  fonts_used[HeadFootType * 4 + HeadFootStyle] = 1;
   images_used = background_image != NULL;
   text_used   = 0;
 

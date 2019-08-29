@@ -12,6 +12,7 @@
 - PDF output now includes the base language of the input document(s)
   (Issue #350)
 - Optimized the loading of font widths (Issue #354)
+- Optimized PDF page resources (Issue #356)
 - Optimized the base memory used for font widths (Issue #357)
 - Title files can now be markdown.
 
