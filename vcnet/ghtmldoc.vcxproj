@@ -21,27 +21,27 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A45127A6-7A50-48AE-820A-E0D821516AD4}</ProjectGuid>
     <RootNamespace>ghtmldoc</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -76,8 +76,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Program Files\FLTK\include;C:\Program Files\zlib\include;C:\Program Files\Bonjour SDK\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files\FLTK\x64;C:\Program Files\zlib\x64;C:\Program Files\Bonjour SDK\Lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Program Files\Bonjour SDK\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>packages\fltk.1.3.3.33\lib\native\v140\windesktop\msvcstl\x64\Release;C:\Program Files\Bonjour SDK\Lib\x64;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\ghtmldoc\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\ghtmldoc\</IntDir>
   </PropertyGroup>
@@ -90,8 +90,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Program Files\FLTK\include;C:\Program Files\zlib\include;C:\Program Files\Bonjour SDK\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files\FLTK\x64;C:\Program Files\zlib\x64;C:\Program Files\Bonjour SDK\Lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Program Files\Bonjour SDK\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>packages\fltk.1.3.3.33\lib\native\v140\windesktop\msvcstl\x64\Release;C:\Program Files\Bonjour SDK\Lib\x64;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\ghtmldoc\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\ghtmldoc\</IntDir>
   </PropertyGroup>

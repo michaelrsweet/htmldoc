@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DOCUMENT Type="Advanced Installer" CreateVersion="15.3" version="16.2" Modules="simple" RootPath="." Language="en" Id="{8101414C-E32A-4865-B7D9-ABB4FFFB336F}">
+  <COMPONENT cid="caphyon.advinst.msicomp.ProjectOptionsComponent">
+    <ROW Name="HiddenItems" Value="AppXProductDetailsComponent;AppXDependenciesComponent;AppXAppDetailsComponent;AppXVisualAssetsComponent;AppXCapabilitiesComponent;AppXAppDeclarationsComponent;AppXUriRulesComponent;FixupComponent"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
+    <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_ghtmldoc.exe" Value="x64\Release\ghtmldoc"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_htmldoc.exe" Value="x64\Release\htmldoc"/>
+    <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_ghtmldoc.exe" Value="ghtmldoc.exe"/>
+    <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_htmldoc.exe" Value="htmldoc.exe"/>
+    <ROW Property="AI_RUN_AS_ADMIN" Value="0"/>
+    <ROW Property="ALLUSERS" Value="1"/>
+    <ROW Property="ARPCOMMENTS" Value="This installer contains the 64-bit version of HTMLDOC for Windows" ValueLocId="*"/>
+    <ROW Property="ARPNOMODIFY" MultiBuildValue="DefaultBuild:1"/>
+    <ROW Property="ARPPRODUCTICON" Value="htmldoc.exe" Type="8"/>
+    <ROW Property="ARPURLINFOABOUT" Value="https://www.msweet.org/htmldoc"/>
+    <ROW Property="Manufacturer" Value="Michael R Sweet"/>
+    <ROW Property="ProductCode" Value="1033:{F0E632A9-6CA6-46A7-A1F8-EEE97E836B15} " Type="16"/>
+    <ROW Property="ProductLanguage" Value="1033"/>
+    <ROW Property="ProductName" Value="HTMLDOC"/>
+    <ROW Property="ProductVersion" Value="1.9.6" Type="32"/>
+    <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
+    <ROW Property="UpgradeCode" Value="{4016A37E-404B-4785-B768-D4FF161DE6E9}"/>
+    <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
+    <ROW Property="WindowsType9XDisplay" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT40" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT40Display" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT50" MultiBuildValue="DefaultBuild:Windows 2000" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT50Display" MultiBuildValue="DefaultBuild:Windows 2000" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT5X" MultiBuildValue="DefaultBuild:Windows XP/2003 RTM, Windows XP/2003 SP1, Windows XP SP2 x86" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT5XDisplay" MultiBuildValue="DefaultBuild:Windows XP/2003 RTM, Windows XP/2003 SP1, Windows XP SP2 x86" ValueLocId="-"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
+    <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
+    <ROW Directory="SHORTCUTDIR" Directory_Parent="TARGETDIR" DefaultDir="SHORTC~1|SHORTCUTDIR" IsPseudoRoot="1"/>
+    <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
+    <ROW Directory="data_Dir" Directory_Parent="APPDIR" DefaultDir="data"/>
+    <ROW Directory="doc_Dir" Directory_Parent="APPDIR" DefaultDir="doc"/>
+    <ROW Directory="fonts_Dir" Directory_Parent="APPDIR" DefaultDir="fonts"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
+    <ROW Component="APPDIR" ComponentId="{C9EB019D-E864-400B-82A2-5FEDB4716F95}" Directory_="APPDIR" Attributes="0"/>
+    <ROW Component="CourierBold.afm" ComponentId="{97E69645-8F51-4EDA-9DF6-471DAB115181}" Directory_="fonts_Dir" Attributes="0" KeyPath="CourierBold.afm" Type="0"/>
+    <ROW Component="ProductInformation" ComponentId="{6F4AE7EA-A32B-4072-A65C-0047BBFDF5EA}" Directory_="APPDIR" Attributes="260" KeyPath="Version"/>
+    <ROW Component="SHORTCUTDIR" ComponentId="{481B0954-66D5-49F5-94B6-6907B318F6E0}" Directory_="SHORTCUTDIR" Attributes="0"/>
+    <ROW Component="cp1250" ComponentId="{6FD3DB1C-C13B-4E65-8497-A4A9EBF11338}" Directory_="data_Dir" Attributes="0" KeyPath="cp1250" Type="0"/>
+    <ROW Component="doc" ComponentId="{DF98BC9F-3357-4DD7-91FC-774A6218B252}" Directory_="APPDIR" Attributes="260" KeyPath="doc"/>
+    <ROW Component="ghtmldoc_PrimaryOutput" ComponentId="{7E9BB6EF-0ABB-4FF7-BD43-333BBCF9A7B2}" Directory_="APPDIR" Attributes="256" KeyPath="ghtmldoc.exe"/>
+    <ROW Component="htmldoc.pdf" ComponentId="{727C2B17-2068-4706-B4D9-CB895039A183}" Directory_="doc_Dir" Attributes="0" KeyPath="htmldoc.pdf"/>
+    <ROW Component="htmldoc_PrimaryOutput" ComponentId="{B82BB384-4AC5-4703-8DBB-5C2DDBD44646}" Directory_="APPDIR" Attributes="256" KeyPath="htmldoc.exe"/>
+    <ROW Component="intro.html" ComponentId="{4E719658-FD98-431E-B0C9-B002A78CE6EC}" Directory_="doc_Dir" Attributes="0" KeyPath="help.html" Type="0"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0"/>
+    <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
+    <ROW File="ghtmldoc.exe" Component_="ghtmldoc_PrimaryOutput" FileName="[|AI_PROPPATH_FILENAME_PERBUILD_ghtmldoc.exe]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_ghtmldoc.exe&gt;" SelfReg="false" DigSign="true"/>
+    <ROW File="htmldoc.exe" Component_="htmldoc_PrimaryOutput" FileName="[|AI_PROPPATH_FILENAME_PERBUILD_htmldoc.exe]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_htmldoc.exe&gt;" SelfReg="false" DigSign="true"/>
+    <ROW File="cp1250" Component_="cp1250" FileName="cp-1250" Attributes="0" SourcePath="..\data\cp-1250" SelfReg="false"/>
+    <ROW File="cp1251" Component_="cp1250" FileName="cp-1251" Attributes="0" SourcePath="..\data\cp-1251" SelfReg="false"/>
+    <ROW File="cp1252" Component_="cp1250" FileName="cp-1252" Attributes="0" SourcePath="..\data\cp-1252" SelfReg="false"/>
+    <ROW File="cp1253" Component_="cp1250" FileName="cp-1253" Attributes="0" SourcePath="..\data\cp-1253" SelfReg="false"/>
+    <ROW File="cp1254" Component_="cp1250" FileName="cp-1254" Attributes="0" SourcePath="..\data\cp-1254" SelfReg="false"/>
+    <ROW File="cp1255" Component_="cp1250" FileName="cp-1255" Attributes="0" SourcePath="..\data\cp-1255" SelfReg="false"/>
+    <ROW File="cp1256" Component_="cp1250" FileName="cp-1256" Attributes="0" SourcePath="..\data\cp-1256" SelfReg="false"/>
+    <ROW File="cp1257" Component_="cp1250" FileName="cp-1257" Attributes="0" SourcePath="..\data\cp-1257" SelfReg="false"/>
+    <ROW File="cp1258" Component_="cp1250" FileName="cp-1258" Attributes="0" SourcePath="..\data\cp-1258" SelfReg="false"/>
+    <ROW File="cp874" Component_="cp1250" FileName="cp-874" Attributes="0" SourcePath="..\data\cp-874" SelfReg="false"/>
+    <ROW File="iso88591" Component_="cp1250" FileName="ISO-88~1|iso-8859-1" Attributes="0" SourcePath="..\data\iso-8859-1" SelfReg="false"/>
+    <ROW File="iso885914" Component_="cp1250" FileName="ISO-88~2|iso-8859-14" Attributes="0" SourcePath="..\data\iso-8859-14" SelfReg="false"/>
+    <ROW File="iso885915" Component_="cp1250" FileName="ISO-88~3|iso-8859-15" Attributes="0" SourcePath="..\data\iso-8859-15" SelfReg="false"/>
+    <ROW File="iso88592" Component_="cp1250" FileName="ISO-88~4|iso-8859-2" Attributes="0" SourcePath="..\data\iso-8859-2" SelfReg="false"/>
+    <ROW File="iso88593" Component_="cp1250" FileName="ISO-88~5|iso-8859-3" Attributes="0" SourcePath="..\data\iso-8859-3" SelfReg="false"/>
+    <ROW File="iso88594" Component_="cp1250" FileName="ISO-88~6|iso-8859-4" Attributes="0" SourcePath="..\data\iso-8859-4" SelfReg="false"/>
+    <ROW File="iso88595" Component_="cp1250" FileName="ISO-88~7|iso-8859-5" Attributes="0" SourcePath="..\data\iso-8859-5" SelfReg="false"/>
+    <ROW File="iso88596" Component_="cp1250" FileName="ISO-88~8|iso-8859-6" Attributes="0" SourcePath="..\data\iso-8859-6" SelfReg="false"/>
+    <ROW File="iso88597" Component_="cp1250" FileName="ISO-88~9|iso-8859-7" Attributes="0" SourcePath="..\data\iso-8859-7" SelfReg="false"/>
+    <ROW File="iso88598" Component_="cp1250" FileName="ISO-8~10|iso-8859-8" Attributes="0" SourcePath="..\data\iso-8859-8" SelfReg="false"/>
+    <ROW File="iso88599" Component_="cp1250" FileName="ISO-8~11|iso-8859-9" Attributes="0" SourcePath="..\data\iso-8859-9" SelfReg="false"/>
+    <ROW File="koi8r" Component_="cp1250" FileName="koi8-r" Attributes="0" SourcePath="..\data\koi8-r" SelfReg="false"/>
+    <ROW File="prolog.ps" Component_="cp1250" FileName="prolog.ps" Attributes="0" SourcePath="..\data\prolog.ps" SelfReg="false"/>
+    <ROW File="psglyphs" Component_="cp1250" FileName="psglyphs" Attributes="0" SourcePath="..\data\psglyphs" SelfReg="false"/>
+    <ROW File="CourierBold.afm" Component_="CourierBold.afm" FileName="COURIE~1.AFM|Courier-Bold.afm" Attributes="0" SourcePath="..\fonts\Courier-Bold.afm" SelfReg="false"/>
+    <ROW File="CourierBold.pfa" Component_="CourierBold.afm" FileName="COURIE~1.PFA|Courier-Bold.pfa" Attributes="0" SourcePath="..\fonts\Courier-Bold.pfa" SelfReg="false"/>
+    <ROW File="CourierBoldOblique.afm" Component_="CourierBold.afm" FileName="COURIE~2.AFM|Courier-BoldOblique.afm" Attributes="0" SourcePath="..\fonts\Courier-BoldOblique.afm" SelfReg="false"/>
+    <ROW File="CourierBoldOblique.pfa" Component_="CourierBold.afm" FileName="COURIE~2.PFA|Courier-BoldOblique.pfa" Attributes="0" SourcePath="..\fonts\Courier-BoldOblique.pfa" SelfReg="false"/>
+    <ROW File="CourierOblique.afm" Component_="CourierBold.afm" FileName="COURIE~3.AFM|Courier-Oblique.afm" Attributes="0" SourcePath="..\fonts\Courier-Oblique.afm" SelfReg="false"/>
+    <ROW File="CourierOblique.pfa" Component_="CourierBold.afm" FileName="COURIE~3.PFA|Courier-Oblique.pfa" Attributes="0" SourcePath="..\fonts\Courier-Oblique.pfa" SelfReg="false"/>
+    <ROW File="Courier.afm" Component_="CourierBold.afm" FileName="Courier.afm" Attributes="0" SourcePath="..\fonts\Courier.afm" SelfReg="false"/>
+    <ROW File="Courier.pfa" Component_="CourierBold.afm" FileName="Courier.pfa" Attributes="0" SourcePath="..\fonts\Courier.pfa" SelfReg="false"/>
+    <ROW File="Dingbats.afm" Component_="CourierBold.afm" FileName="Dingbats.afm" Attributes="0" SourcePath="..\fonts\Dingbats.afm" SelfReg="false"/>
+    <ROW File="Dingbats.pfa" Component_="CourierBold.afm" FileName="Dingbats.pfa" Attributes="0" SourcePath="..\fonts\Dingbats.pfa" SelfReg="false"/>
+    <ROW File="HelveticaBold.afm" Component_="CourierBold.afm" FileName="HELVET~1.AFM|Helvetica-Bold.afm" Attributes="0" SourcePath="..\fonts\Helvetica-Bold.afm" SelfReg="false"/>
+    <ROW File="HelveticaBold.pfa" Component_="CourierBold.afm" FileName="HELVET~1.PFA|Helvetica-Bold.pfa" Attributes="0" SourcePath="..\fonts\Helvetica-Bold.pfa" SelfReg="false"/>
+    <ROW File="HelveticaBoldOblique.afm" Component_="CourierBold.afm" FileName="HELVET~2.AFM|Helvetica-BoldOblique.afm" Attributes="0" SourcePath="..\fonts\Helvetica-BoldOblique.afm" SelfReg="false"/>
+    <ROW File="HelveticaBoldOblique.pfa" Component_="CourierBold.afm" FileName="HELVET~2.PFA|Helvetica-BoldOblique.pfa" Attributes="0" SourcePath="..\fonts\Helvetica-BoldOblique.pfa" SelfReg="false"/>
+    <ROW File="HelveticaOblique.afm" Component_="CourierBold.afm" FileName="HELVET~3.AFM|Helvetica-Oblique.afm" Attributes="0" SourcePath="..\fonts\Helvetica-Oblique.afm" SelfReg="false"/>
+    <ROW File="HelveticaOblique.pfa" Component_="CourierBold.afm" FileName="HELVET~3.PFA|Helvetica-Oblique.pfa" Attributes="0" SourcePath="..\fonts\Helvetica-Oblique.pfa" SelfReg="false"/>
+    <ROW File="Helvetica.afm" Component_="CourierBold.afm" FileName="HELVET~4.AFM|Helvetica.afm" Attributes="0" SourcePath="..\fonts\Helvetica.afm" SelfReg="false"/>
+    <ROW File="Helvetica.pfa" Component_="CourierBold.afm" FileName="HELVET~4.PFA|Helvetica.pfa" Attributes="0" SourcePath="..\fonts\Helvetica.pfa" SelfReg="false"/>
+    <ROW File="MonospaceBold.afm" Component_="CourierBold.afm" FileName="MONOSP~1.AFM|Monospace-Bold.afm" Attributes="0" SourcePath="..\fonts\Monospace-Bold.afm" SelfReg="false"/>
+    <ROW File="MonospaceBold.pfa" Component_="CourierBold.afm" FileName="MONOSP~1.PFA|Monospace-Bold.pfa" Attributes="0" SourcePath="..\fonts\Monospace-Bold.pfa" SelfReg="false"/>
+    <ROW File="MonospaceBoldOblique.afm" Component_="CourierBold.afm" FileName="MONOSP~2.AFM|Monospace-BoldOblique.afm" Attributes="0" SourcePath="..\fonts\Monospace-BoldOblique.afm" SelfReg="false"/>
+    <ROW File="MonospaceBoldOblique.pfa" Component_="CourierBold.afm" FileName="MONOSP~2.PFA|Monospace-BoldOblique.pfa" Attributes="0" SourcePath="..\fonts\Monospace-BoldOblique.pfa" SelfReg="false"/>
+    <ROW File="MonospaceOblique.afm" Component_="CourierBold.afm" FileName="MONOSP~3.AFM|Monospace-Oblique.afm" Attributes="0" SourcePath="..\fonts\Monospace-Oblique.afm" SelfReg="false"/>
+    <ROW File="MonospaceOblique.pfa" Component_="CourierBold.afm" FileName="MONOSP~3.PFA|Monospace-Oblique.pfa" Attributes="0" SourcePath="..\fonts\Monospace-Oblique.pfa" SelfReg="false"/>
+    <ROW File="Monospace.afm" Component_="CourierBold.afm" FileName="MONOSP~4.AFM|Monospace.afm" Attributes="0" SourcePath="..\fonts\Monospace.afm" SelfReg="false"/>
+    <ROW File="Monospace.pfa" Component_="CourierBold.afm" FileName="MONOSP~4.PFA|Monospace.pfa" Attributes="0" SourcePath="..\fonts\Monospace.pfa" SelfReg="false"/>
+    <ROW File="SansBold.afm" Component_="CourierBold.afm" FileName="SANS-B~1.AFM|Sans-Bold.afm" Attributes="0" SourcePath="..\fonts\Sans-Bold.afm" SelfReg="false"/>
+    <ROW File="SansBold.pfa" Component_="CourierBold.afm" FileName="SANS-B~1.PFA|Sans-Bold.pfa" Attributes="0" SourcePath="..\fonts\Sans-Bold.pfa" SelfReg="false"/>
+    <ROW File="SansBoldOblique.afm" Component_="CourierBold.afm" FileName="SANS-B~2.AFM|Sans-BoldOblique.afm" Attributes="0" SourcePath="..\fonts\Sans-BoldOblique.afm" SelfReg="false"/>
+    <ROW File="SansBoldOblique.pfa" Component_="CourierBold.afm" FileName="SANS-B~2.PFA|Sans-BoldOblique.pfa" Attributes="0" SourcePath="..\fonts\Sans-BoldOblique.pfa" SelfReg="false"/>
+    <ROW File="SansOblique.afm" Component_="CourierBold.afm" FileName="SANS-O~1.AFM|Sans-Oblique.afm" Attributes="0" SourcePath="..\fonts\Sans-Oblique.afm" SelfReg="false"/>
+    <ROW File="SansOblique.pfa" Component_="CourierBold.afm" FileName="SANS-O~1.PFA|Sans-Oblique.pfa" Attributes="0" SourcePath="..\fonts\Sans-Oblique.pfa" SelfReg="false"/>
+    <ROW File="Sans.afm" Component_="CourierBold.afm" FileName="Sans.afm" Attributes="0" SourcePath="..\fonts\Sans.afm" SelfReg="false"/>
+    <ROW File="Sans.pfa" Component_="CourierBold.afm" FileName="Sans.pfa" Attributes="0" SourcePath="..\fonts\Sans.pfa" SelfReg="false"/>
+    <ROW File="SerifBold.afm" Component_="CourierBold.afm" FileName="SERIF-~1.AFM|Serif-Bold.afm" Attributes="0" SourcePath="..\fonts\Serif-Bold.afm" SelfReg="false"/>
+    <ROW File="SerifBold.pfa" Component_="CourierBold.afm" FileName="SERIF-~1.PFA|Serif-Bold.pfa" Attributes="0" SourcePath="..\fonts\Serif-Bold.pfa" SelfReg="false"/>
+    <ROW File="SerifBoldOblique.afm" Component_="CourierBold.afm" FileName="SERIF-~2.AFM|Serif-BoldOblique.afm" Attributes="0" SourcePath="..\fonts\Serif-BoldOblique.afm" SelfReg="false"/>
+    <ROW File="SerifBoldOblique.pfa" Component_="CourierBold.afm" FileName="SERIF-~2.PFA|Serif-BoldOblique.pfa" Attributes="0" SourcePath="..\fonts\Serif-BoldOblique.pfa" SelfReg="false"/>
+    <ROW File="SerifOblique.afm" Component_="CourierBold.afm" FileName="SERIF-~3.AFM|Serif-Oblique.afm" Attributes="0" SourcePath="..\fonts\Serif-Oblique.afm" SelfReg="false"/>
+    <ROW File="SerifOblique.pfa" Component_="CourierBold.afm" FileName="SERIF-~3.PFA|Serif-Oblique.pfa" Attributes="0" SourcePath="..\fonts\Serif-Oblique.pfa" SelfReg="false"/>
+    <ROW File="SerifRoman.afm" Component_="CourierBold.afm" FileName="SERIF-~4.AFM|Serif-Roman.afm" Attributes="0" SourcePath="..\fonts\Serif-Roman.afm" SelfReg="false"/>
+    <ROW File="SerifRoman.pfa" Component_="CourierBold.afm" FileName="SERIF-~4.PFA|Serif-Roman.pfa" Attributes="0" SourcePath="..\fonts\Serif-Roman.pfa" SelfReg="false"/>
+    <ROW File="Symbol.afm" Component_="CourierBold.afm" FileName="Symbol.afm" Attributes="0" SourcePath="..\fonts\Symbol.afm" SelfReg="false"/>
+    <ROW File="Symbol.pfa" Component_="CourierBold.afm" FileName="Symbol.pfa" Attributes="0" SourcePath="..\fonts\Symbol.pfa" SelfReg="false"/>
+    <ROW File="TimesBold.afm" Component_="CourierBold.afm" FileName="TIMES-~1.AFM|Times-Bold.afm" Attributes="0" SourcePath="..\fonts\Times-Bold.afm" SelfReg="false"/>
+    <ROW File="TimesBold.pfa" Component_="CourierBold.afm" FileName="TIMES-~1.PFA|Times-Bold.pfa" Attributes="0" SourcePath="..\fonts\Times-Bold.pfa" SelfReg="false"/>
+    <ROW File="TimesBoldItalic.afm" Component_="CourierBold.afm" FileName="TIMES-~2.AFM|Times-BoldItalic.afm" Attributes="0" SourcePath="..\fonts\Times-BoldItalic.afm" SelfReg="false"/>
+    <ROW File="TimesBoldItalic.pfa" Component_="CourierBold.afm" FileName="TIMES-~2.PFA|Times-BoldItalic.pfa" Attributes="0" SourcePath="..\fonts\Times-BoldItalic.pfa" SelfReg="false"/>
+    <ROW File="TimesItalic.afm" Component_="CourierBold.afm" FileName="TIMES-~3.AFM|Times-Italic.afm" Attributes="0" SourcePath="..\fonts\Times-Italic.afm" SelfReg="false"/>
+    <ROW File="TimesItalic.pfa" Component_="CourierBold.afm" FileName="TIMES-~3.PFA|Times-Italic.pfa" Attributes="0" SourcePath="..\fonts\Times-Italic.pfa" SelfReg="false"/>
+    <ROW File="TimesRoman.afm" Component_="CourierBold.afm" FileName="TIMES-~4.AFM|Times-Roman.afm" Attributes="0" SourcePath="..\fonts\Times-Roman.afm" SelfReg="false"/>
+    <ROW File="TimesRoman.pfa" Component_="CourierBold.afm" FileName="TIMES-~4.PFA|Times-Roman.pfa" Attributes="0" SourcePath="..\fonts\Times-Roman.pfa" SelfReg="false"/>
+    <ROW File="help.html" Component_="intro.html" FileName="HELP~1.HTM|help.html" Attributes="0" SourcePath="..\doc\help.html" SelfReg="false"/>
+    <ROW File="htmldoc.pdf" Component_="htmldoc.pdf" FileName="htmldoc.pdf" Attributes="0" SourcePath="..\doc\htmldoc.pdf" SelfReg="false"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.AppPathsComponent">
+    <ROW Name="AI_APPPATH_PERBUILD_ghtmldoc.exe" Path="[|AI_PROPPATH_DIR_PERBUILD_ghtmldoc.exe]\[|AI_PROPPATH_FILENAME_PERBUILD_ghtmldoc.exe]" Type="2" Content="0"/>
+    <ROW Name="AI_APPPATH_PERBUILD_htmldoc.exe" Path="[|AI_PROPPATH_DIR_PERBUILD_htmldoc.exe]\[|AI_PROPPATH_FILENAME_PERBUILD_htmldoc.exe]" Type="2" Content="0"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.BootstrOptComponent">
+    <ROW BootstrOptKey="GlobalOptions" DownloadFolder="[AppDataFolder][|Manufacturer]\[|ProductName]\prerequisites" Options="2"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" Languages="en" InstallationType="4" UseLargeSchema="true" MsiPackageType="x64"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
+    <ROW Path="&lt;AI_DICTS&gt;ui.ail"/>
+    <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.FragmentComponent">
+    <ROW Fragment="CommonUI.aip" Path="&lt;AI_FRAGS&gt;CommonUI.aip"/>
+    <ROW Fragment="FolderDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\FolderDlg.aip"/>
+    <ROW Fragment="MaintenanceTypeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\MaintenanceTypeDlg.aip"/>
+    <ROW Fragment="MaintenanceWelcomeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\MaintenanceWelcomeDlg.aip"/>
+    <ROW Fragment="SequenceDialogs.aip" Path="&lt;AI_THEMES&gt;classic\fragments\SequenceDialogs.aip"/>
+    <ROW Fragment="Sequences.aip" Path="&lt;AI_FRAGS&gt;Sequences.aip"/>
+    <ROW Fragment="StaticUIStrings.aip" Path="&lt;AI_FRAGS&gt;StaticUIStrings.aip"/>
+    <ROW Fragment="UI.aip" Path="&lt;AI_THEMES&gt;classic\fragments\UI.aip"/>
+    <ROW Fragment="Validation.aip" Path="&lt;AI_FRAGS&gt;Validation.aip"/>
+    <ROW Fragment="VerifyRemoveDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\VerifyRemoveDlg.aip"/>
+    <ROW Fragment="VerifyRepairDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\VerifyRepairDlg.aip"/>
+    <ROW Fragment="WelcomeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\WelcomeDlg.aip"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
+    <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
+    <ROW Dialog_="WelcomeDlg" Control_="Next" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="FolderDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_INSTALL" Ordering="201"/>
+    <ROW Dialog_="FolderDlg" Control_="Back" Event="NewDialog" Argument="WelcomeDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="MaintenanceWelcomeDlg" Control_="Next" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT" Ordering="99"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_MAINT" Ordering="198"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_MAINT" Ordering="202"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_INSTALL" Ordering="197"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="201"/>
+    <ROW Dialog_="CustomizeDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_MAINT" Ordering="101"/>
+    <ROW Dialog_="CustomizeDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="ChangeButton" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_MAINT" Ordering="501"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceWelcomeDlg" Condition="AI_MAINT" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="RemoveButton" Event="NewDialog" Argument="VerifyRemoveDlg" Condition="AI_MAINT AND InstallMode=&quot;Remove&quot;" Ordering="601"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT AND InstallMode=&quot;Remove&quot;" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="RepairButton" Event="NewDialog" Argument="VerifyRepairDlg" Condition="AI_MAINT AND InstallMode=&quot;Repair&quot;" Ordering="601"/>
+    <ROW Dialog_="VerifyRepairDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT AND InstallMode=&quot;Repair&quot;" Ordering="1"/>
+    <ROW Dialog_="VerifyRepairDlg" Control_="Repair" Event="EndDialog" Argument="Return" Condition="AI_MAINT AND InstallMode=&quot;Repair&quot;" Ordering="399" Options="1"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control_="Remove" Event="EndDialog" Argument="Return" Condition="AI_MAINT AND InstallMode=&quot;Remove&quot;" Ordering="299" Options="1"/>
+    <ROW Dialog_="PatchWelcomeDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_PATCH" Ordering="201"/>
+    <ROW Dialog_="ResumeDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_RESUME" Ordering="299"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_PATCH" Ordering="199"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="PatchWelcomeDlg" Condition="AI_PATCH" Ordering="203"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCreateFolderComponent">
+    <ROW Directory_="SHORTCUTDIR" Component_="SHORTCUTDIR" ManualDelete="false"/>
+    <ROW Directory_="APPDIR" Component_="APPDIR" ManualDelete="true"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
+    <ROW Action="AI_DOWNGRADE" Type="19" Target="4010"/>
+    <ROW Action="AI_DpiContentScale" Type="1" Source="aicustact.dll" Target="DpiContentScale"/>
+    <ROW Action="AI_EnableDebugLog" Type="321" Source="aicustact.dll" Target="EnableDebugLog"/>
+    <ROW Action="AI_InstallModeCheck" Type="1" Source="aicustact.dll" Target="UpdateInstallMode" WithoutSeq="true"/>
+    <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
+    <ROW Action="AI_RESTORE_LOCATION" Type="65" Source="aicustact.dll" Target="RestoreLocation"/>
+    <ROW Action="AI_ResolveKnownFolders" Type="1" Source="aicustact.dll" Target="AI_ResolveKnownFolders"/>
+    <ROW Action="AI_SHOW_LOG" Type="65" Source="aicustact.dll" Target="LaunchLogFile" WithoutSeq="true"/>
+    <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
+    <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[ProgramFiles64Folder][ProductName]"/>
+    <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
+    <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiEnvComponent">
+    <ROW Environment="Path" Name="=-Path" Value="[~];" Component_="APPDIR"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatCompsComponent">
+    <ROW Feature_="MainFeature" Component_="CourierBold.afm"/>
+    <ROW Feature_="MainFeature" Component_="ProductInformation"/>
+    <ROW Feature_="MainFeature" Component_="SHORTCUTDIR"/>
+    <ROW Feature_="MainFeature" Component_="cp1250"/>
+    <ROW Feature_="MainFeature" Component_="ghtmldoc_PrimaryOutput"/>
+    <ROW Feature_="MainFeature" Component_="htmldoc_PrimaryOutput"/>
+    <ROW Feature_="MainFeature" Component_="APPDIR"/>
+    <ROW Feature_="MainFeature" Component_="doc"/>
+    <ROW Feature_="MainFeature" Component_="intro.html"/>
+    <ROW Feature_="MainFeature" Component_="htmldoc.pdf"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
+    <ROW Name="htmldoc.exe" SourcePath="..\desktop\htmldoc.ico" Index="0"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
+    <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
+    <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
+    <ROW Action="AI_STORE_LOCATION" Condition="(Not Installed) OR REINSTALL" Sequence="1501"/>
+    <ROW Action="AI_PREPARE_UPGRADE" Condition="AI_UPGRADE=&quot;No&quot; AND (Not Installed)" Sequence="1399"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
+    <ROW Action="AI_EnableDebugLog" Sequence="51"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
+    <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="53"/>
+    <ROW Action="AI_DpiContentScale" Sequence="52"/>
+    <ROW Action="AI_EnableDebugLog" Sequence="51"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
+    <ROW Condition="(VersionNT &lt;&gt; 400)" Description="[ProductName] cannot be installed on [WindowsTypeNT40Display]." DescriptionLocId="AI.LaunchCondition.NoNT40" IsPredefined="true" Builds="DefaultBuild"/>
+    <ROW Condition="(VersionNT &lt;&gt; 500)" Description="[ProductName] cannot be installed on [WindowsTypeNT50Display]." DescriptionLocId="AI.LaunchCondition.NoNT50" IsPredefined="true" Builds="DefaultBuild"/>
+    <ROW Condition="(VersionNT64 OR ((VersionNT &lt;&gt; 501) OR (ServicePackLevel = 3))) AND ((VersionNT &lt;&gt; 502) OR (ServicePackLevel = 2))" Description="[ProductName] cannot be installed on [WindowsTypeNT5XDisplay]." DescriptionLocId="AI.LaunchCondition.NoNT5X" IsPredefined="true" Builds="DefaultBuild"/>
+    <ROW Condition="VersionNT" Description="[ProductName] cannot be installed on [WindowsType9XDisplay]." DescriptionLocId="AI.LaunchCondition.No9X" IsPredefined="true" Builds="DefaultBuild"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
+    <ROW Registry="Path" Root="-1" Key="Software\[ProductName]" Name="data" Value="[APPDIR]" Component_="ProductInformation"/>
+    <ROW Registry="Version" Root="-1" Key="Software\[ProductName]" Name="version" Value="[ProductVersion]" Component_="ProductInformation"/>
+    <ROW Registry="doc" Root="-1" Key="Software\[ProductName]" Name="doc" Value="[APPDIR]\doc" Component_="doc"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiShortsComponent">
+    <ROW Shortcut="HTMLDOCUsersManual" Directory_="SHORTCUTDIR" Name="HTMLDO~1|HTMLDOC Users Manual" Component_="htmldoc.pdf" Target="[#htmldoc.pdf]" Hotkey="0" IconIndex="0" ShowCmd="1" WkDir="doc_Dir"/>
+    <ROW Shortcut="ghtmldoc" Directory_="SHORTCUTDIR" Name="HTMLDOC" Component_="ghtmldoc_PrimaryOutput" Target="[#ghtmldoc.exe]" Hotkey="0" IconIndex="0" ShowCmd="1"/>
+    <ROW Shortcut="htmldoc" Directory_="SHORTCUTDIR" Name="htmldoc" Component_="htmldoc_PrimaryOutput" Target="[#htmldoc.exe]" Hotkey="0" IconIndex="0" ShowCmd="1"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
+    <ATTRIBUTE name="UsedTheme" value="classic"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiUpgradeComponent">
+    <ROW UpgradeCode="[|UpgradeCode]" VersionMin="0.0.1" VersionMax="[|ProductVersion]" Attributes="257" ActionProperty="OLDPRODUCTS"/>
+    <ROW UpgradeCode="[|UpgradeCode]" VersionMin="[|ProductVersion]" Attributes="2" ActionProperty="AI_NEWERPRODUCTFOUND"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.VsProjectComponent">
+    <ROW ProjectId="{a45127a6-7a50-48ae-820a-e0d821516ad4}" ProjectName="ghtmldoc" OutputGroup="PrimaryOutput" OutputFile="ghtmldoc.exe" OutputFileShortcut="ghtmldoc"/>
+    <ROW ProjectId="{287d2fb4-9941-4b64-b973-55a6ec04eafc}" ProjectName="htmldoc" OutputGroup="PrimaryOutput" OutputFile="htmldoc.exe" OutputFileShortcut="htmldoc"/>
+  </COMPONENT>
+</DOCUMENT>
