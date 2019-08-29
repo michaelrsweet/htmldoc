@@ -279,6 +279,7 @@ extern typeface_t	_htmlBodyFont,
 			_htmlHeadingFont;
 extern int		_htmlInitialized;
 extern char		_htmlCharSet[];
+extern int		_htmlWidthsLoaded[TYPE_MAX][STYLE_MAX];
 extern short		_htmlWidths[TYPE_MAX][STYLE_MAX][256];
 extern short		_htmlWidthsAll[TYPE_MAX][STYLE_MAX][65536];
 extern int		_htmlUnicode[];
@@ -318,7 +319,7 @@ extern void	htmlSetBaseSize(double p, double s);
 extern void	htmlSetCharSet(const char *cs);
 extern void	htmlSetTextColor(uchar *color);
 
-extern void	htmlLoadFontWidths(void);
+extern void	htmlLoadFontWidths(int typeface, int style);
 
 extern void	htmlDebugStats(const char *title, tree_t *t);
 

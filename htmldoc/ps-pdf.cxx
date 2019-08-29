@@ -9615,6 +9615,9 @@ get_width(uchar *s,		/* I - String to scan */
   if (s == NULL)
     return (0.0);
 
+  if (!_htmlWidthsLoaded[typeface][style])
+    htmlLoadFontWidths(typeface, style);
+
   for (width = 0, ptr = s; *ptr != '\0'; ptr ++)
     width += _htmlWidths[typeface][style][*ptr];
 

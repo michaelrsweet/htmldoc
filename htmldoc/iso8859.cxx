@@ -364,8 +364,17 @@ iso8859(uchar *name)			/* I - Glyph name */
 
           _htmlUnicode[newch] = ch;
 
-          // Reload font widths...
-	  htmlLoadFontWidths();
+          // Update font widths...
+          for (int typeface = 0; typeface < TYPE_MAX; typeface ++)
+	  {
+	    for (int style = 0; style < STYLE_MAX; style ++)
+	    {
+	      if (_htmlWidthsLoaded[typeface][style])
+	      {
+	        _htmlWidths[typeface][style][newch] = _htmlWidthsAll[typeface][style][ch];
+	      }
+	    }
+	  }
 
 	  // Return the new character...
 	  return ((uchar)newch);
