@@ -12,6 +12,7 @@
  */
 
 #include "htmldoc.h"
+#include "markdown.h"
 #include "zipc.h"
 #include <ctype.h>
 #include <time.h>
@@ -191,7 +192,15 @@ epub_export(tree_t *document,           /* I - Document to export */
 	return (-1);
       }
 
-      title_tree = htmlReadFile(NULL, fp, file_directory(TitleImage));
+#ifdef _WIN32
+      if (!stricmp(title_ext, "md"))
+#else
+      if (!strcmp(title_ext, "md"))
+#endif // _WIN32
+        title_tree = mdReadFile(NULL, fp, file_directory(TitleImage));
+      else
+        title_tree = htmlReadFile(NULL, fp, file_directory(TitleImage));
+
       htmlFixLinks(title_tree, title_tree, (uchar *)file_directory(TitleImage));
       fclose(fp);
 

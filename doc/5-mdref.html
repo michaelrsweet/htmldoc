@@ -17,9 +17,8 @@
 	<li>"@" links can be used which resolve to headings within the file;</li>
 	<li>Tables can be embedded using the "|" separator;</li>
         <li>Embedded HTML markup and entities are explicitly not supported or allowed;</li>
-	<li>Link reference definitions are not supported;</li>
-	<li>Link titles are silently ignored; and</li>
-	<li>Thematic breaks using a mix of whitespace and the separator character are not supported - "* * * *", "-- -- -- --", etc.</li>
+        <li>Tabs are silently expanded to the markdown standard of four spaces since HTML uses eight spaces per tab; and</li>
+        <li>Some pathological nested link and inline style features supported by CommonMark (<code>******Really Strong Text******</code>) are not supported by <code>mmd</code>.</li>
       </ul>
 
       <blockquote><b>Note:</b> HTMLDOC does not support embedded HTML in markdown documents because the version of HTML (or XHTML) cannot be reliably determined, making support of certain character entities and language elements problematic.</blockquote>

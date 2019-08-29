@@ -12,6 +12,7 @@
 - PDF output now includes the base language of the input document(s)
   (Issue #350)
 - Optimized the loading of font widths (Issue #354)
+- Title files can now be markdown.
 
 
 # Changes in HTMLDOC v1.9.5

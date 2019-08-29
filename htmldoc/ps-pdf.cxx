@@ -30,6 +30,7 @@
 
 /*#define DEBUG*/
 #include "htmldoc.h"
+#include "markdown.h"
 #include "md5-private.h"
 #define md5_append _cupsMD5Append
 #define md5_finish _cupsMD5Finish
@@ -536,18 +537,20 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
   if (TitlePage)
   {
+    const char *title_ext = file_extension(TitleImage);
+
 #ifdef WIN32
     if (TitleImage[0] &&
-        stricmp(file_extension(TitleImage), "bmp") != 0 &&
-	stricmp(file_extension(TitleImage), "gif") != 0 &&
-	stricmp(file_extension(TitleImage), "jpg") != 0 &&
-	stricmp(file_extension(TitleImage), "png") != 0)
+        stricmp(title_ext, "bmp") != 0 &&
+	stricmp(title_ext, "gif") != 0 &&
+	stricmp(title_ext, "jpg") != 0 &&
+	stricmp(title_ext, "png") != 0)
 #else
     if (TitleImage[0] &&
-        strcmp(file_extension(TitleImage), "bmp") != 0 &&
-	strcmp(file_extension(TitleImage), "gif") != 0 &&
-	strcmp(file_extension(TitleImage), "jpg") != 0 &&
-	strcmp(file_extension(TitleImage), "png") != 0)
+        strcmp(title_ext, "bmp") != 0 &&
+	strcmp(title_ext, "gif") != 0 &&
+	strcmp(title_ext, "jpg") != 0 &&
+	strcmp(title_ext, "png") != 0)
 #endif // WIN32
     {
       DEBUG_printf(("pspdf_export: Generating a titlepage using \"%s\"\n",
@@ -570,7 +573,15 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 	return (1);
       }
 
-      t = htmlReadFile(NULL, fp, file_directory(TitleImage));
+#ifdef _WIN32
+      if (!stricmp(title_ext, "md"))
+#else
+      if (!strcmp(title_ext, "md"))
+#endif // _WIN32
+	t = mdReadFile(NULL, fp, file_directory(TitleImage));
+      else
+	t = htmlReadFile(NULL, fp, file_directory(TitleImage));
+
       htmlFixLinks(t, t, (uchar *)file_directory(TitleImage));
       fclose(fp);
 

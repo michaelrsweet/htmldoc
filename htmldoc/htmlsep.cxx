@@ -2,7 +2,7 @@
  * Separated HTML export functions for HTMLDOC, a HTML document processing
  * program.
  *
- * Copyright 2011-2018 by Michael R Sweet.
+ * Copyright 2011-2019 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -14,6 +14,7 @@
  */
 
 #include "htmldoc.h"
+#include "markdown.h"
 #include <ctype.h>
 
 
@@ -389,25 +390,28 @@ write_title(FILE  *out,		/* I - Output file */
             uchar *docnumber)	/* I - ID number for document */
 {
   FILE		*fp;		/* Title file */
-  const char	*title_file;	/* Location of title file */
+  const char	*title_ext,	/* Extension of title file */
+		*title_file;	/* Location of title file */
   tree_t	*t;		/* Title file document tree */
 
 
   if (out == NULL)
     return;
 
+  title_ext = file_extension(TitleImage);
+
 #ifdef WIN32
   if (TitleImage[0] &&
-      stricmp(file_extension(TitleImage), "bmp") != 0 &&
-      stricmp(file_extension(TitleImage), "gif") != 0 &&
-      stricmp(file_extension(TitleImage), "jpg") != 0 &&
-      stricmp(file_extension(TitleImage), "png") != 0)
+      stricmp(title_ext, "bmp") != 0 &&
+      stricmp(title_ext, "gif") != 0 &&
+      stricmp(title_ext, "jpg") != 0 &&
+      stricmp(title_ext, "png") != 0)
 #else
   if (TitleImage[0] &&
-      strcmp(file_extension(TitleImage), "bmp") != 0 &&
-      strcmp(file_extension(TitleImage), "gif") != 0 &&
-      strcmp(file_extension(TitleImage), "jpg") != 0 &&
-      strcmp(file_extension(TitleImage), "png") != 0)
+      strcmp(title_ext, "bmp") != 0 &&
+      strcmp(title_ext, "gif") != 0 &&
+      strcmp(title_ext, "jpg") != 0 &&
+      strcmp(title_ext, "png") != 0)
 #endif // WIN32
   {
     // Find the title page file...
@@ -427,7 +431,15 @@ write_title(FILE  *out,		/* I - Output file */
       return;
     }
 
-    t = htmlReadFile(NULL, fp, file_directory(TitleImage));
+#ifdef _WIN32
+    if (!stricmp(title_ext, "md"))
+#else
+    if (!strcmp(title_ext, "md"))
+#endif // _WIN32
+      t = mdReadFile(NULL, fp, file_directory(TitleImage));
+    else
+      t = htmlReadFile(NULL, fp, file_directory(TitleImage));
+
     htmlFixLinks(t, t, (uchar *)file_directory(TitleImage));
     fclose(fp);
 

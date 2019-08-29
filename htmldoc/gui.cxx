@@ -3059,7 +3059,7 @@ GUI::titleImageCB(Fl_Widget *w,		// I - Widget
 {
   if (w == gui->titleBrowse)
   {
-    gui->fc->filter("Image Files (*.{bmp,gif,jpg,png})\tWWW Files (*.{htm,html,shtml})");
+    gui->fc->filter("Image Files (*.{bmp,gif,jpg,png})\tWWW Files (*.{htm,html,md,shtml})");
     gui->fc->label("Title Image?");
     gui->fc->type(Fl_File_Chooser::SINGLE);
     gui->fc->show();
