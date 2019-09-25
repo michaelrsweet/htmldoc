@@ -122,6 +122,8 @@ main(int  argc,			/* I - Number of command-line arguments */
   printf("MARKUP_WBR=%d\n", MARKUP_WBR);
 #endif /* DEBUG */
 
+  _htmlData = "..";
+
   if (argc < 2)
   {
     fputs("Usage: testhtml [--tree] filename.html\n", stderr);

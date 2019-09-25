@@ -868,6 +868,9 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
             *ptr++ = (uchar)ch;
         }
 
+	if ((_htmlUTF8 && ch == _htmlCharacters[173]) || (!_htmlUTF8 && ch == 173))
+	  break;
+
         ch = getc(fp);
       }
 

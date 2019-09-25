@@ -4957,7 +4957,19 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
         if ((temp_width >= format_width && prev->markup == MARKUP_IMG) ||
 	    prev->markup == MARKUP_BR)
+	{
 	  break;
+	}
+	else if (prev->markup == MARKUP_NONE)
+	{
+	  int	ch = prev->data[strlen((char *)prev->data) - 1];
+
+	  if (_htmlUTF8)
+	    ch = _htmlUnicode[ch];
+
+          if (ch == 173)
+            break;
+	}
       }
 
       if ((width + temp_width) <= format_width)
