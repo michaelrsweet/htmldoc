@@ -17,8 +17,7 @@
     </LoadFromTemplate>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'DefaultBuild' ">
-    <OutputPath>
-    </OutputPath>
+    <OutputPath>.</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="htmldoc-installer.aip">
