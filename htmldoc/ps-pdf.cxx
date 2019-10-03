@@ -5517,12 +5517,12 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 		break;
               else if (*dataptr == '\t')
               {
-        	do
-        	{
-                  *lineptr++ = ' ';
-                  col ++;
-        	}
-        	while (col & 7);
+               /* This code changed after 15 years to work around new compiler optimization bugs (Issue #349) */
+                int num_cols = 8 - (col & 7);
+
+                memcpy(lineptr, "        ", num_cols);
+                lineptr += num_cols;
+                col += num_cols;
               }
               else if (*dataptr != '\r')
               {
