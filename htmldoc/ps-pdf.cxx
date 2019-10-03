@@ -5831,6 +5831,13 @@ render_table_row(hdtable_t &table,
       table.span_heights[col] += row_height;
 
     DEBUG_printf(("col = %d, cell_y = %.1f, cell_page = %d, cell_endpage = %d, row_spans = %d, span_heights = %.1f, cell_height = %.1f\n", col, table.cell_y[col], table.cell_page[col], table.cell_endpage[col], table.row_spans[col], table.span_heights[col], table.cell_height[col]));
+  }
+
+  for (col = 0; col < table.num_cols; col += colspan)
+  {
+    for (colspan = 1; (col + colspan) < table.num_cols; colspan ++)
+      if (cells[row][col] != cells[row][col + colspan])
+        break;
 
     if (table.row_spans[col] == rowspan &&
         table.cell_page[col] == table.cell_endpage[col] &&
@@ -5838,8 +5845,7 @@ render_table_row(hdtable_t &table,
     {
       temp_height = table.cell_height[col] - table.span_heights[col];
       row_height  += temp_height;
-      DEBUG_printf(("Adjusting row-span height by %.1f, new row_height = %.1f\n",
-                    temp_height, row_height));
+      DEBUG_printf(("Adjusting row-span height by %.1f, new row_height = %.1f\n", temp_height, row_height));
 
       for (tcol = 0; tcol < table.num_cols; tcol ++)
         if (table.row_spans[tcol])
@@ -5850,8 +5856,7 @@ render_table_row(hdtable_t &table,
     }
   }
 
-  DEBUG_printf(("AFTER row = %d, row_page = %d, row_y = %.1f, row_height = %.1f, *y = %.1f, do_valign = %d\n",
-                row, row_page, row_y, row_height, *y, do_valign));
+  DEBUG_printf(("AFTER row = %d, row_page = %d, row_y = %.1f, row_height = %.1f, *y = %.1f, do_valign = %d\n", row, row_page, row_y, row_height, *y, do_valign));
 
  /*
   * Do the vertical alignment
@@ -5894,7 +5899,7 @@ render_table_row(hdtable_t &table,
     for (col = 0; col < table.num_cols; col += colspan + 1)
     {
       render_t	*p;
-      float		delta_y;
+      float	delta_y;
 
 
       for (colspan = 1; (col + colspan) < table.num_cols; colspan ++)
@@ -5907,22 +5912,40 @@ render_table_row(hdtable_t &table,
           cells[row][col] == NULL || cells[row][col]->child == NULL)
         continue;
 
-      if (table.row_spans[col])
+      if (table.row_spans[col] == 1)
+      {
+        int tcol;
+        float span_height = 0.0f;
+
+        for (tcol = 0; tcol < table.num_cols; tcol ++)
+        {
+          if (table.row_spans[col] == 1 && table.span_heights[col] > span_height)
+            span_height = table.span_heights[col];
+        }
+
         switch (cells[row][col]->valignment)
         {
           case ALIGN_MIDDLE :
-              delta_y = (table.span_heights[col] - table.cell_height[col]) * 0.5f;
+//              delta_y = (table.span_heights[col] - table.cell_height[col]) * 0.5f;
+              delta_y = (span_height - table.cell_height[col]) * 0.5f;
               break;
 
           case ALIGN_BOTTOM :
-              delta_y = table.span_heights[col] - table.cell_height[col];
+//              delta_y = table.span_heights[col] - table.cell_height[col];
+              delta_y = span_height - table.cell_height[col];
               break;
 
           default :
               delta_y = 0.0f;
               break;
         }
+      }
+      else if (table.row_spans[col])
+      {
+        delta_y = 0.0f;
+      }
       else
+      {
         switch (cells[row][col]->valignment)
         {
           case ALIGN_MIDDLE :
@@ -5937,10 +5960,9 @@ render_table_row(hdtable_t &table,
               delta_y = 0.0f;
               break;
         }
+      }
 
-      DEBUG_printf(("row = %d, col = %d, valign = %d, cell_height = %.1f, span_heights = %.1f, delta_y = %.1f\n",
-                    row, col, cells[row][col]->valignment,
-                    table.cell_height[col], table.span_heights[col], delta_y));
+      DEBUG_printf(("row = %d, col = %d, valign = %d, rowspans = %d, cell_height = %.1f, span_heights = %.1f, delta_y = %.1f\n", row, col, cells[row][col]->valignment, table.row_spans[col], table.cell_height[col], table.span_heights[col], delta_y));
 
       if (delta_y > 0.0f)
       {
@@ -5969,7 +5991,7 @@ render_table_row(hdtable_t &table,
 
         for (; p != NULL; p = p->next)
         {
-          printf("NOT aligning %p\n", (void *)p);
+          printf("NOT aligning %p (%s)\n", (void *)p, p->data.text.buffer);
 
           if (p == table.cell_end[col])
             break;

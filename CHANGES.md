@@ -1,3 +1,8 @@
+# Changes in HTMLDOC v1.9.7
+
+- Fixed a table rowspan + valign bug (Issue #360)
+
+
 # Changes in HTMLDOC v1.9.6
 
 - Added support for data URIs (Issue #340)
