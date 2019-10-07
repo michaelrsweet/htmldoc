@@ -1,7 +1,7 @@
 #
 # Makefile for HTMLDOC, an HTML document processing program.
 #
-# Copyright 2011-2017 by Michael R Sweet.
+# Copyright 2011-2019 by Michael R Sweet.
 # Copyright 1997-2010 by Easy Software Products.
 #
 # This program is free software.  Distribution and use rights are outlined in
@@ -73,7 +73,8 @@ install:
 
 
 #
-# Sign the HTMLDOC application bundle and make a disk image...
+# Sign the HTMLDOC application bundle and make a disk image...  Set the
+# APPLEID and TEAMID environment variables from the Apple developer pages.
 #
 
 IDENTITY	=	"Developer ID Application"
@@ -81,7 +82,16 @@ VERSION		=	@SVERSION@
 
 dmg:
 	echo Signing HTMLDOC application bundle
-	codesign -s $(IDENTITY) htmldoc/htmldoc.app
-	echo Making disk image...
+	codesign -s $(IDENTITY) --timestamp htmldoc/htmldoc.app
+	echo Creating archive for notarization
+	rm -f htmldoc/htmldoc.zip
+	ditto -c -k --keepParent htmldoc/htmldoc.app htmldoc/htmldoc.zip
+	echo Notarizing application
+	xcrun altool --notarize-app -f htmldoc/htmldoc.zip \
+		--primary-bundle-id org.msweet.htmldoc \
+		--username "$(APPLEID)" \
+		--password "@keychain:AC_PASSWORD" \
+		--asc-provider "$(TEAMID)"
+	echo Making disk image
 	rm -f ~/Desktop/htmldoc-$(VERSION)-macos.dmg
 	dmgbuild -s dmgbuild.py "HTMLDOC $(VERSION)" ~/Desktop/htmldoc-$(VERSION)-macos.dmg
