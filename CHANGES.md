@@ -2,6 +2,7 @@
 
 - Refactored the PRE rendering code to work around compiler optimization bugs
   (Issue #349)
+- Added support for links with targets (Issue #351)
 - Fixed a table rowspan + valign bug (Issue #360)
 
 

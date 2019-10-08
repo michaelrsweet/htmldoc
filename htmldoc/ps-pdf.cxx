@@ -3388,10 +3388,28 @@ pdf_write_links(FILE *out)		/* I - Output file */
 		* Link to external PDF file...
 		*/
 
+                const char *target = file_target((char *)r->data.link);
+
         	fputs("/S/GoToR", out);
-        	fputs("/D[0/XYZ null null 0]", out);
-        	fputs("/F", out);
-		write_string(out, r->data.link, 0);
+        	if (target)
+        	{
+        	  char	url[1024], *urlptr;
+
+		  fputs("/D", out);
+		  write_string(out, (uchar *)target, 0);
+
+                  strlcpy(url, (char *)r->data.link, sizeof(url));
+                  if ((urlptr = strrchr(url, '#')) != NULL)
+                    *urlptr = '\0';
+
+		  fputs("/F", out);
+		  write_string(out, (uchar *)url, 0);
+        	}
+        	else
+        	{
+		  fputs("/D[0/XYZ null null 0]/F", out);
+		  write_string(out, r->data.link, 0);
+		}
               }
 	      else
               {
@@ -3653,12 +3671,7 @@ render_contents(tree_t *t,		/* I - Tree to parse */
       * Add a page link...
       */
 
-      if (file_method((char *)link) == NULL &&
-	  file_target((char *)link) != NULL)
-	link = (uchar *)file_target((char *)link) - 1; // Include # sign
-
-      new_render(*page, RENDER_LINK, x, *y, temp->width,
-	         temp->height, link);
+      new_render(*page, RENDER_LINK, x, *y, temp->width, temp->height, link);
 
       if (PSLevel == 0 && Links)
       {
@@ -3672,6 +3685,15 @@ render_contents(tree_t *t,		/* I - Tree to parse */
 	  new_render(*page, RENDER_BOX, x, *y - 1, temp->width, 0,
 	             link_color);
       }
+    }
+
+    if ((link = htmlGetVariable(temp, (uchar *)"ID")) != NULL)
+    {
+     /*
+      * Add a target link...
+      */
+
+      add_link(link, *page, (int)(*y + height));
     }
 
     switch (temp->markup)
@@ -4754,16 +4776,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	  * Add a page link...
 	  */
 
-	  if (file_method((char *)link) == NULL)
-	  {
-	    if (file_target((char *)link) != NULL)
-	      link = (uchar *)file_target((char *)link) - 1; // Include # sign
-	    else
-	      link = (uchar *)file_basename((char *)link);
-	  }
-
-	  new_render(*page, RENDER_LINK, image_left + borderspace,
-	             *y - temp->height, temp->width, temp->height, link);
+	  new_render(*page, RENDER_LINK, image_left + borderspace, *y - temp->height, temp->width, temp->height, link);
         }
 
         *y -= borderspace;
@@ -4846,16 +4859,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	  * Add a page link...
 	  */
 
-	  if (file_method((char *)link) == NULL)
-	  {
-	    if (file_target((char *)link) != NULL)
-	      link = (uchar *)file_target((char *)link) - 1; // Include # sign
-	    else
-	      link = (uchar *)file_basename((char *)link);
-	  }
-
-	  new_render(*page, RENDER_LINK, image_right + borderspace,
-	             *y - temp->height, temp->width, temp->height, link);
+	  new_render(*page, RENDER_LINK, image_right + borderspace, *y - temp->height, temp->width, temp->height, link);
         }
 
         *y -= borderspace;
@@ -5163,6 +5167,15 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         linetype = NULL;
       }
 
+      if ((link = htmlGetVariable(temp, (uchar *)"ID")) != NULL)
+      {
+       /*
+	* Add a target link...
+	*/
+
+	add_link(link, *page, (int)(*y + height));
+      }
+
       switch (temp->markup)
       {
         case MARKUP_A :
@@ -5289,16 +5302,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	* Add a page link...
 	*/
 
-	if (file_method((char *)link) == NULL)
-	{
-	  if (file_target((char *)link) != NULL)
-	    link = (uchar *)file_target((char *)link) - 1; // Include # sign
-	  else
-	    link = (uchar *)file_basename((char *)link);
-	}
-
-	new_render(*page, RENDER_LINK, linex, *y + offset, temp->width,
-	           temp->height, link);
+	new_render(*page, RENDER_LINK, linex, *y + offset, temp->width, temp->height, link);
       }
 
       linex += temp_width;
@@ -5471,16 +5475,7 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 	* Add a page link...
 	*/
 
-	if (file_method((char *)link) == NULL)
-	{
-	  if (file_target((char *)link) != NULL)
-	    link = (uchar *)file_target((char *)link) - 1; // Include # sign
-	  else
-	    link = (uchar *)file_basename((char *)link);
-	}
-
-	new_render(*page, RENDER_LINK, *x, *y, start->width,
-	           start->height, link);
+	new_render(*page, RENDER_LINK, *x, *y, start->width, start->height, link);
 
 	if (PSLevel == 0 && Links)
 	{
@@ -5494,6 +5489,15 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 	    new_render(*page, RENDER_BOX, *x, *y - 1, start->width, 0,
 	               link_color);
 	}
+      }
+
+      if ((link = htmlGetVariable(start, (uchar *)"ID")) != NULL)
+      {
+       /*
+	* Add a target link...
+	*/
+
+	add_link(link, *page, (int)(*y + height));
       }
 
       switch (start->markup)

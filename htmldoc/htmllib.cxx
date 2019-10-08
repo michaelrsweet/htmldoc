@@ -3643,6 +3643,9 @@ htmlFixLinks(tree_t *doc,		// I - Top node
       show_debug = 0;
     else
       show_debug = 1;
+
+    if (show_debug)
+      progress_error(HD_ERROR_NONE, "DEBUG: Updating links in document.");
   }
 
   while (tree)
@@ -3688,8 +3691,7 @@ htmlFixLinks(tree_t *doc,		// I - Top node
 	}
 
         if (show_debug)
-          progress_error(HD_ERROR_NONE, "DEBUG: Mapping \"%s\" to \"%s\"...\n",
-	        	 href, full_href);
+          progress_error(HD_ERROR_NONE, "DEBUG: Mapping \"%s\" to \"%s\"...", href, full_href);
 
 	htmlSetVariable(tree, (uchar *)"_HD_FULL_HREF", (uchar *)full_href);
       }
