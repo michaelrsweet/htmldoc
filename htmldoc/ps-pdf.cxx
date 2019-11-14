@@ -5078,6 +5078,8 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
     else
       temp = NULL;
 
+    DEBUG_printf(("    BEFORE page=%d, y=%.1f, height=%.1f, spacing=%.1f, bottom=%.1f\n", *page, *y, height, spacing, bottom));
+
     if (*y < (spacing + bottom))
     {
       (*page) ++;
@@ -5340,7 +5342,9 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
     *y -= spacing - height;
 
-    if (*y < (spacing + bottom))
+    DEBUG_printf(("    AFTER y=%.1f, bottom=%.1f\n", *y, bottom));
+
+    if (*y < bottom)
     {
       (*page) ++;
       *y = top;
