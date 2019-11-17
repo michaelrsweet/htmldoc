@@ -883,7 +883,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
     pspdf_debug_stats();
 
-    progress_error(HD_ERROR_NONE, "PAGES: %d", num_outpages);
+    progress_error(HD_ERROR_NONE, "PAGES: %d", (int)num_outpages);
 
     if (PSLevel > 0)
       ps_write_document(author, creator, copyright, keywords, subject, lang);
@@ -2828,7 +2828,7 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
   {
     progress_error(HD_ERROR_OUT_OF_MEMORY,
                    "Unable to allocate memory for %d headings - %s",
-                   num_headings, strerror(errno));
+                   (int)num_headings, strerror(errno));
     return;
   }
 
@@ -2836,7 +2836,7 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
   {
     progress_error(HD_ERROR_OUT_OF_MEMORY,
                    "Unable to allocate memory for %d headings - %s",
-                   num_headings, strerror(errno));
+                   (int)num_headings, strerror(errno));
     free(entry_counts);
     return;
   }
@@ -2845,7 +2845,7 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
   {
     progress_error(HD_ERROR_OUT_OF_MEMORY,
                    "Unable to allocate memory for %d headings - %s",
-                   num_headings, strerror(errno));
+                   (int)num_headings, strerror(errno));
     free(entry_objects);
     free(entry_counts);
     return;
@@ -3108,7 +3108,7 @@ pdf_start_object(FILE *out,	// I - File to write to
     {
       progress_error(HD_ERROR_OUT_OF_MEMORY,
                      "Unable to allocate memory for %d objects - %s",
-                     alloc_objects, strerror(errno));
+                     (int)alloc_objects, strerror(errno));
       alloc_objects -= ALLOC_OBJECTS;
       return (0);
     }
@@ -4579,7 +4579,7 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
       {
         progress_error(HD_ERROR_OUT_OF_MEMORY,
                        "Unable to allocate memory for %d headings - %s",
-	               alloc_headings, strerror(errno));
+	               (int)alloc_headings, strerror(errno));
 	alloc_headings -= ALLOC_HEADINGS;
 	return;
       }
@@ -4598,7 +4598,7 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
       {
         progress_error(HD_ERROR_OUT_OF_MEMORY,
                        "Unable to allocate memory for %d headings - %s",
-	               alloc_headings, strerror(errno));
+	               (int)alloc_headings, strerror(errno));
 	alloc_headings -= ALLOC_HEADINGS;
 	return;
       }
@@ -8640,7 +8640,7 @@ new_render(int      page,		/* I - Page number (0-n) */
   {
     progress_error(HD_ERROR_INTERNAL_ERROR,
                    "Page number (%d) out of range (1...%d)\n", page + 1,
-                   alloc_pages);
+                   (int)alloc_pages);
     memset(&dummy, 0, sizeof(dummy));
     return (&dummy);
   }
@@ -8656,7 +8656,7 @@ new_render(int      page,		/* I - Page number (0-n) */
   if (r == NULL)
   {
     progress_error(HD_ERROR_OUT_OF_MEMORY,
-                   "Unable to allocate memory on page %s\n", page + 1);
+                   "Unable to allocate memory on page %d\n", (int)page + 1);
     memset(&dummy, 0, sizeof(dummy));
     return (&dummy);
   }
@@ -8759,7 +8759,7 @@ check_pages(int page)	// I - Current page
     {
       progress_error(HD_ERROR_OUT_OF_MEMORY,
                      "Unable to allocate memory for %d pages - %s",
-	             alloc_pages, strerror(errno));
+	             (int)alloc_pages, strerror(errno));
       alloc_pages -= ALLOC_PAGES;
       return;
     }
@@ -8860,7 +8860,7 @@ add_link(uchar *name,		/* I - Name of link */
       {
 	progress_error(HD_ERROR_OUT_OF_MEMORY,
                        "Unable to allocate memory for %d links - %s",
-	               alloc_links, strerror(errno));
+	               (int)alloc_links, strerror(errno));
         alloc_links -= ALLOC_LINKS;
 	return;
       }

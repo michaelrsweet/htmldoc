@@ -955,7 +955,7 @@ add_heading(tree_t *t)			// I - Heading node
     {
       progress_error(HD_ERROR_OUT_OF_MEMORY,
 	             "Unable to allocate memory for %d headings - %s",
-	             alloc_headings, strerror(errno));
+	             (int)alloc_headings, strerror(errno));
       alloc_headings -= ALLOC_HEADINGS;
       return;
     }
@@ -1014,7 +1014,7 @@ add_link(uchar *name)		/* I - Name of link */
       {
 	progress_error(HD_ERROR_OUT_OF_MEMORY,
 	               "Unable to allocate memory for %d links - %s",
-	               alloc_links, strerror(errno));
+	               (int)alloc_links, strerror(errno));
         alloc_links -= ALLOC_LINKS;
 	return;
       }

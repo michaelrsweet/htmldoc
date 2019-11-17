@@ -1080,7 +1080,7 @@ file_temp(char *name,			/* O - Filename */
     {
       progress_error(HD_ERROR_OUT_OF_MEMORY,
                      "Unable to allocate memory for %d file entries - %s",
-                     web_alloc, strerror(errno));
+                     (int)web_alloc, strerror(errno));
       web_alloc -= ALLOC_FILES;
       return (NULL);
     }

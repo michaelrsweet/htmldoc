@@ -628,7 +628,7 @@ void
 image_flush_cache(void)
 {
   size_t	i;			/* Looping var */
-					
+
 
  /*
   * Free the memory used by each image...
@@ -785,7 +785,7 @@ image_load(const char *filename,/* I - Name of image file */
       {
 	progress_error(HD_ERROR_OUT_OF_MEMORY,
 	               "Unable to allocate memory for %d images - %s",
-                       alloc_images, strerror(errno));
+                       (int)alloc_images, strerror(errno));
 	fclose(fp);
 	return (NULL);
       }

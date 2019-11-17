@@ -920,7 +920,7 @@ add_link(uchar *name,		/* I - Name of link */
       {
 	progress_error(HD_ERROR_OUT_OF_MEMORY,
 	               "Unable to allocate memory for %d links - %s",
-	               alloc_links, strerror(errno));
+	               (int)alloc_links, strerror(errno));
         alloc_links -= ALLOC_LINKS;
 	return;
       }
