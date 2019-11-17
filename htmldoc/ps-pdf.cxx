@@ -164,7 +164,7 @@ typedef struct				//// Output page info
  */
 
 static time_t	doc_time;		// Current time
-static struct tm *doc_date;		// Current date
+static struct tm doc_date;		// Current date
 
 static uchar    *current_url = NULL;
 static int	title_page;
@@ -522,7 +522,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   if (!source_date_epoch || (doc_time = (time_t)strtol(source_date_epoch, NULL, 10)) <= 0)
     doc_time = time(NULL);
 
-  doc_date       = gmtime(&doc_time);
+  gmtime_r(&doc_time, &doc_date);
+
   num_headings   = 0;
   alloc_headings = 0;
   heading_pages  = NULL;
@@ -1678,13 +1679,13 @@ pspdf_prepare_heading(int   page,	// I - Page number
 	  else if (formatlen == 4 && strncasecmp(formatptr, "TIME", 4) == 0)
 	  {
             formatptr += 4;
-            strftime(bufptr, sizeof(buffer) - 1 - (size_t)(bufptr - buffer), "%X", doc_date);
+            strftime(bufptr, sizeof(buffer) - 1 - (size_t)(bufptr - buffer), "%X", &doc_date);
 	    bufptr += strlen(bufptr);
 	  }
 	  else if (formatlen == 4 && strncasecmp(formatptr, "DATE", 4) == 0)
 	  {
             formatptr += 4;
-            strftime(bufptr, sizeof(buffer) - 1 - (size_t)(bufptr - buffer), "%x", doc_date);
+            strftime(bufptr, sizeof(buffer) - 1 - (size_t)(bufptr - buffer), "%x", &doc_date);
 	    bufptr += strlen(bufptr);
 	  }
 	  else if (formatlen == 3 && strncasecmp(formatptr, "URL", 3) == 0)
@@ -11438,8 +11439,8 @@ write_prolog(FILE  *out,		/* I - Output file */
     fprintf(out,"%%%%LanguageLevel: %d\n", PSLevel);
     fputs("%%Creator: " HTMLDOC_PRODUCER "\n", out);
     fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02d+0000\n",
-            doc_date->tm_year + 1900, doc_date->tm_mon + 1, doc_date->tm_mday,
-            doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec);
+            doc_date.tm_year + 1900, doc_date.tm_mon + 1, doc_date.tm_mday,
+            doc_date.tm_hour, doc_date.tm_min, doc_date.tm_sec);
     if (doc_title != NULL)
       fprintf(out, "%%%%Title: %s\n", doc_title);
     if (author != NULL)
@@ -11822,8 +11823,8 @@ write_prolog(FILE  *out,		/* I - Output file */
     write_string(out, (uchar *)HTMLDOC_PRODUCER, 0);
     fputs("/CreationDate", out);
     snprintf(temp, sizeof(temp), "D:%04d%02d%02d%02d%02d%02d+0000",
-            doc_date->tm_year + 1900, doc_date->tm_mon + 1, doc_date->tm_mday,
-            doc_date->tm_hour, doc_date->tm_min, doc_date->tm_sec);
+            doc_date.tm_year + 1900, doc_date.tm_mon + 1, doc_date.tm_mday,
+            doc_date.tm_hour, doc_date.tm_min, doc_date.tm_sec);
     write_string(out, (uchar *)temp, 0);
 
     if (doc_title != NULL)

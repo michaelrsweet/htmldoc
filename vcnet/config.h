@@ -1,7 +1,7 @@
 /*
  * Configuration file for HTMLDOC.
  *
- * Copyright © 2011-2018 by Michael R Sweet.
+ * Copyright © 2011-2019 by Michael R Sweet.
  * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -43,6 +43,13 @@
 #define unlink		_unlink
 #define vsnprintf 	_vsnprintf
 #define write		_write
+
+
+/*
+ * Microsoft "safe" functions use a different argument order than POSIX...
+ */
+
+#define gmtime_r(t,tm)	gmtime_s(tm,t)
 
 
 /*

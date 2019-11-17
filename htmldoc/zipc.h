@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/zipc
  *
- * Copyright 2017-2018 by Michael R Sweet.
+ * Copyright 2017-2019 by Michael R Sweet.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -42,9 +42,9 @@
  * Types...
  */
 
-#  ifdef WIN32
+#  ifdef _WIN32
 typedef long ssize_t;
-#  endif /* WIN32 */
+#  endif /* _WIN32 */
 
 typedef struct _zipc_s zipc_t;		/* ZIP container */
 typedef struct _zipc_file_s zipc_file_t;/* File/directory in ZIP container */

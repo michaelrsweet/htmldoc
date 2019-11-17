@@ -1,4 +1,3 @@
-#define ZIPC_ONLY_WRITE
 /*
  * Implementation of ZIP container mini-library.
  *
@@ -8,7 +7,7 @@
  * ZIPC_ONLY_WRITE to compile with just the ZIP writing code.  Otherwise both
  * ZIP reader and writer code is built.
  *
- * Copyright 2017-2018 by Michael R Sweet.
+ * Copyright 2017-2019 by Michael R Sweet.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -36,9 +35,10 @@
  * Include necessary headers...
  */
 
-#ifdef WIN32
+#ifdef _WIN32
 #  define _CRT_SECURE_NO_WARNINGS	/* Disable warnings for standard library functions */
-#endif /* WIN32 */
+#  define localtime_r(t,tm) localtime_s(tm,t)
+#endif /* _WIN32 */
 
 #include "zipc.h"
 #include <stdio.h>
@@ -1133,7 +1133,7 @@ zipcOpen(const char *filename,		/* I - Filename of container */
     */
 
     time_t	curtime;		/* Current timestamp */
-    struct tm	*curdate;		/* Current date/time */
+    struct tm	curdate;		/* Current date/time */
 
    /*
     * Open the container file...
@@ -1158,15 +1158,15 @@ zipcOpen(const char *filename,		/* I - Filename of container */
     *     25-31   Years since 1980
     */
 
-    curtime = time(NULL);
-    curdate = localtime(&curtime);
+    time(&curtime);
+    localtime_r(&curtime, &curdate);
 
-    zc->modtime = (unsigned)(curdate->tm_sec / 2) |
-                  ((unsigned)curdate->tm_min << 5) |
-                  ((unsigned)curdate->tm_hour << 11) |
-                  ((unsigned)curdate->tm_mday << 16) |
-                  ((unsigned)(curdate->tm_mon + 1) << 21) |
-                  ((unsigned)(curdate->tm_year - 80) << 25);
+    zc->modtime = (unsigned)(curdate.tm_sec / 2) |
+                  ((unsigned)curdate.tm_min << 5) |
+                  ((unsigned)curdate.tm_hour << 11) |
+                  ((unsigned)curdate.tm_mday << 16) |
+                  ((unsigned)(curdate.tm_mon + 1) << 21) |
+                  ((unsigned)(curdate.tm_year - 80) << 25);
   }
 #endif /* !ZIPC_ONLY_READ */
 

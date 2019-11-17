@@ -942,13 +942,14 @@ write_toc(zipc_file_t *out,		/* I - Output file */
 static char *				/* O - ISO date/time string */
 get_iso_date(time_t t)			/* I - Time value */
 {
-  struct tm	*date;			/* UTC date/time */
+  struct tm	date;			/* UTC date/time */
   static char	buffer[100];		/* String buffer */
 
 
-  date = gmtime(&t);
+  gmtime_r(&t, &date);
 
-  snprintf(buffer, sizeof(buffer), "%04d-%02d-%02dT%02d:%02d:%02dZ", date->tm_year + 1900, date->tm_mon + 1, date->tm_mday, date->tm_hour, date->tm_min, date->tm_sec);
+  snprintf(buffer, sizeof(buffer), "%04d-%02d-%02dT%02d:%02d:%02dZ", date.tm_year + 1900, date.tm_mon + 1, date.tm_mday, date.tm_hour, date.tm_min, date.tm_sec);
+
   return (buffer);
 }
 
@@ -1008,7 +1009,7 @@ add_link(uchar *name,		/* I - Name of link */
       {
 	progress_error(HD_ERROR_OUT_OF_MEMORY,
 	               "Unable to allocate memory for %d links - %s",
-	               alloc_links, strerror(errno));
+	               (int)alloc_links, strerror(errno));
         alloc_links -= ALLOC_LINKS;
 	return;
       }
