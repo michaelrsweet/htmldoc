@@ -1,6 +1,7 @@
 # Changes in HTMLDOC v1.9.8
 
 - Fixed a paragraph formatting issue with large inline images (Issue #369)
+- Fixed a buffer underflow issue (Issue #370)
 
 
 # Changes in HTMLDOC v1.9.7

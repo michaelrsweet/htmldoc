@@ -3761,7 +3761,9 @@ render_contents(tree_t *t,		/* I - Tree to parse */
          nptr < (number + sizeof(number) - 1) && width < right;
 	 width += dot_width)
       *nptr++ = '.';
-    nptr --;
+
+    if (nptr > number)
+      nptr --;
 
     strlcpy((char *)nptr, pages[hpage].page_text, sizeof(number) - (size_t)(nptr - number));
 
