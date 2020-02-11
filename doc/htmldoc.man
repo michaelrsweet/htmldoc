@@ -1,13 +1,13 @@
 .\"
 .\" Manual page for HTMLDOC, a HTML document processing program.
 .\"
-.\" Copyright 2011-2019 by Michael R Sweet.
+.\" Copyright 2011-2020 by Michael R Sweet.
 .\" Copyright 1997-2010 by msweet.org.
 .\"
 .\" This program is free software.  Distribution and use rights are outlined
 .\" in the file "COPYING".
 .\"
-.TH htmldoc 1 "HTMLDOC 1.9.6" "28 August 2019" "Michael R Sweet"
+.TH htmldoc 1 "HTMLDOC 1.9.8" "11 February 2020" "Michael R Sweet"
 .SH NAME
 htmldoc \- convert html source files into html, postscript, or pdf.
 .SH SYNOPSIS
@@ -371,6 +371,9 @@ uppercase roman numerals
 .B l
 logo image
 .TP 5
+.B L
+logo image as letterhead - the image is inserted at its maximum size
+.TP 5
 .B t
 title text
 .TP 5
@@ -416,7 +419,7 @@ https://michaelrsweet.github.io/htmldoc
 .SH AUTHOR
 Michael R Sweet
 .SH LEGAL STUFF
-HTMLDOC is copyright \[co] 1997-2019 by Michael R Sweet.
+HTMLDOC is copyright \[co] 1997-2020 by Michael R Sweet.
 .PP
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License version 2 as published by the Free

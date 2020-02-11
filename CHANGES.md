@@ -2,6 +2,9 @@
 
 - Fixed a paragraph formatting issue with large inline images (Issue #369)
 - Fixed a buffer underflow issue (Issue #370)
+- Added support for a new `L` header/footer format (`$LETTERHEAD`), which
+  inserts the logo image at its full size to be used as a letterhead
+  (Issue #372)
 
 
 # Changes in HTMLDOC v1.9.7

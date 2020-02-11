@@ -1,7 +1,7 @@
 //
 // GUI routines for HTMLDOC, an HTML document processing program.
 //
-// Copyright 2011-2019 by Michael R Sweet.
+// Copyright 2011-2020 by Michael R Sweet.
 // Copyright 1997-2010 by Easy Software Products.  All rights reserved.
 //
 // This program is free software.  Distribution and use rights are outlined in
@@ -85,6 +85,7 @@ GUI::GUI(const char *filename)		// Book file to load initially
 			  {"Title",         0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"Chapter Title", 0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"Heading",       0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
+			  {"Letterhead",    0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"Logo",          0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"1,2,3,...",     0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
 			  {"i,ii,iii,...",  0, 0, 0, 0, 0, FL_HELVETICA, 14, 0},
@@ -1198,7 +1199,7 @@ void
 GUI::loadSettings()
 {
   char		temp[4];		// Format string
-  static const char *formats = ".tchl1iIaAC/:dTD";
+  static const char *formats = ".tchLl1iIaAC/:dTD";
 					// Format characters
 
 
@@ -4226,7 +4227,7 @@ GUI::showAboutCB(void)
   label->image(&logo);
 
   label = new Fl_Box(60, 45, 530, 35,
-          "HTMLDOC " SVERSION "\nCopyright 2011-2019 by Michael R Sweet."
+          "HTMLDOC " SVERSION "\nCopyright 2011-2020 by Michael R Sweet."
 	  );
   label->align(FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP);
 

@@ -6,7 +6,7 @@
  * broken into more manageable pieces once we make all of the output
  * "drivers" into classes...
  *
- * Copyright © 2011-2019 by Michael R Sweet.
+ * Copyright © 2011-2020 by Michael R Sweet.
  * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -1528,6 +1528,17 @@ pspdf_prepare_heading(int   page,	// I - Page number
 	temp = new_render(page, RENDER_IMAGE, 0,
 	                  y + HeadFootSize - logo_height,
 	                  logo_width, logo_height, logo_image);
+    }
+    else if (strncasecmp((char *)*format, "$LETTERHEAD", 11) == 0 && logo_image)
+    {
+      // Insert the logo image as a letterhead...
+      float lh_width  = (float)(logo_image->width * PagePrintWidth / _htmlBrowserWidth);
+      float lh_height = (float)(lh_width * logo_image->height / logo_image->width);
+
+      if (y < (PagePrintLength / 2))
+	temp = new_render(page, RENDER_IMAGE, 0, y, lh_width, lh_height, logo_image);
+      else // Offset from top
+	temp = new_render(page, RENDER_IMAGE, 0, y + HeadFootSize - lh_height, lh_width, lh_height, logo_image);
     }
     else if (strncasecmp((char *)*format, "$HFIMAGE", 8) == 0)
     {

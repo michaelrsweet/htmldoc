@@ -1,7 +1,7 @@
 /*
  * Utility functions for HTMLDOC, a HTML document processing program.
  *
- * Copyright © 2011-2019 by Michael R Sweet.
+ * Copyright © 2011-2020 by Michael R Sweet.
  * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -300,6 +300,10 @@ get_format(const char *fmt,		// I - Old "fff" format
 
       case 'l' :
           formats[i] = strdup("$LOGOIMAGE");
+          break;
+
+      case 'L' :
+          formats[i] = strdup("$LETTERHEAD");
           break;
 
       case 't' :
