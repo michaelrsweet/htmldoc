@@ -2600,7 +2600,7 @@ usage(const char *arg)			// I - Bad argument string
   if (CGIMode)
     puts("Content-Type: text/plain\r\n\r");
 
-  puts("HTMLDOC Version " SVERSION " Copyright 2011-2019 by Michael R Sweet.");
+  puts("HTMLDOC Version " SVERSION " Copyright 2011-2020 by Michael R Sweet.");
   puts("HTMLDOC is provided under the terms of the GNU General Public License and");
   puts("comes with absolutely no warranty.  This software is based in part on the work");
   puts("of the Independent JPEG Group.");

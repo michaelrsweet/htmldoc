@@ -1,5 +1,7 @@
 # Changes in HTMLDOC v1.9.8
 
+- Added support for a `HTMLDOC.filename` META keyword that controls the filename
+  reported in CGI mode; the default remains "htmldoc.pdf" (Issue #367)
 - Fixed a paragraph formatting issue with large inline images (Issue #369)
 - Fixed a buffer underflow issue (Issue #370)
 - Added support for a new `L` header/footer format (`$LETTERHEAD`), which

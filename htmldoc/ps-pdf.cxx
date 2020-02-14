@@ -2344,13 +2344,26 @@ pdf_write_document(uchar  *author,	// I - Author of document
 
   if (CGIMode)
   {
+    const char	*meta_filename = (const char *)htmlGetMeta(doc, (uchar *)"HTMLDOC.filename");
+    const char	*filename;
+
+    if (meta_filename)
+    {
+      if ((filename = strrchr(meta_filename, '/')) != NULL)
+        filename ++;
+      else
+        filename = meta_filename;
+    }
+    else
+      filename = "htmldoc.pdf";
+
     // In CGI mode, we only produce PDF output to stdout...
     printf("Content-Type: application/pdf\r\n"
 	   "Content-Length: %ld\r\n"
-	   "Content-Disposition: inline; filename=\"htmldoc.pdf\"\r\n"
+	   "Content-Disposition: inline; filename=\"%s\"\r\n"
 	   "Accept-Ranges: none\r\n"
 	   "X-Creator: HTMLDOC " SVERSION "\r\n"
-	   "\r\n", ftell(out));
+	   "\r\n", ftell(out), filename);
   }
 
   fclose(out);
