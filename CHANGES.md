@@ -4,6 +4,7 @@
   reported in CGI mode; the default remains "htmldoc.pdf" (Issue #367)
 - Fixed a paragraph formatting issue with large inline images (Issue #369)
 - Fixed a buffer underflow issue (Issue #370)
+- Fixed PDF page numbers (Issue #371)
 - Added support for a new `L` header/footer format (`$LETTERHEAD`), which
   inserts a letterhead image at its full size (Issue #372, Issue #373)
 - Updated the build documentation (Issue #374)

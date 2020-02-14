@@ -12215,20 +12215,14 @@ write_trailer(FILE  *out,		/* I - Output file */
       // Output the PageLabels tree...
       fputs("/PageLabels<</Nums[", out);
 
-      i = 0;
-
-      if (TitlePage)
+      for (i = 0; i < chapter_starts[1]; i ++)
       {
-        fputs("0<</P", out);
-	write_string(out, (uchar *)"title", 0);
-	fputs(">>", out);
-	if (PageDuplex)
-	{
-	  fputs("1<</P", out);
+        fprintf(out, "%d<</P", i);
+        if (i & 1)
 	  write_string(out, (uchar *)"eltit", 0);
-	  fputs(">>", out);
-	}
-	i += PageDuplex + 1;
+	else
+	  write_string(out, (uchar *)"title", 0);
+	fputs(">>", out);
       }
 
       if (TocLevels > 0 && OutputType == OUTPUT_BOOK)
