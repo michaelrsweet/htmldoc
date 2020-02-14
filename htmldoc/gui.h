@@ -1,7 +1,7 @@
 /*
  * GUI definitions for HTMLDOC, an HTML document processing program.
  *
- * Copyright 2011-2018 by Michael R Sweet.
+ * Copyright 2011-2020 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -58,6 +58,8 @@ class GUI
 			*deleteFile,
 			*moveUpFile,
 			*moveDownFile;
+  Fl_Input		*lhImage;
+  Fl_Button		*lhBrowse;
   Fl_Input		*logoImage;
   Fl_Button		*logoBrowse;
   Fl_Input		*titleImage;
@@ -218,6 +220,7 @@ class GUI
   static void	deleteFilesCB(Fl_Widget *w, GUI *gui);
   static void	moveUpFilesCB(Fl_Widget *w, GUI *gui);
   static void	moveDownFilesCB(Fl_Widget *w, GUI *gui);
+  static void	lhImageCB(Fl_Widget *w, GUI *gui);
   static void	logoImageCB(Fl_Widget *w, GUI *gui);
   static void	titleImageCB(Fl_Widget *w, GUI *gui);
 

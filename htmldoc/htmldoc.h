@@ -1,7 +1,7 @@
 /*
  * Header file for HTMLDOC, a HTML document processing program.
  *
- * Copyright 2011-2017 by Michael R Sweet.
+ * Copyright 2011-2020 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -185,6 +185,7 @@ VAR char	*Header[3]	NULL3,		/* Header for regular pages */
 						/* TOC title string */
 
 VAR char	TitleImage[1024] VALUE(""),	/* Title page image */
+		Letterhead[1024] VALUE(""),	/* Letterhead image */
 		LogoImage[1024]	VALUE(""),	/* Logo image */
 		BodyColor[255]	VALUE(""),	/* Body color */
 		BodyImage[1024]	VALUE(""),	/* Body image */

@@ -1,7 +1,7 @@
 /*
  * Main entry for HTMLDOC, a HTML document processing program.
  *
- * Copyright 2011-2019 by Michael R Sweet.
+ * Copyright 2011-2020 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -756,11 +756,19 @@ main(int  argc,				/* I - Number of command-line arguments */
     }
     else if (compare_strings(argv[i], "--landscape", 4) == 0)
       Landscape = 1;
-    else if (compare_strings(argv[i], "--left", 4) == 0)
+    else if (compare_strings(argv[i], "--left", 5) == 0)
     {
       i ++;
       if (i < argc)
         PageLeft = get_measurement(argv[i]);
+      else
+        usage(argv[i - 1]);
+    }
+    else if (compare_strings(argv[i], "--letterhead", 5) == 0)
+    {
+      i ++;
+      if (i < argc)
+        strlcpy(Letterhead, argv[i], sizeof(Letterhead));
       else
         usage(argv[i - 1]);
     }
@@ -2121,6 +2129,8 @@ parse_options(const char   *line,	// I - Options from book file
 	PSLevel     = 3;
       }
     }
+    else if (strcmp(temp, "--letterhead") == 0)
+      strlcpy(Letterhead, temp2, sizeof(Letterhead));
     else if (strcmp(temp, "--logo") == 0 ||
              strcmp(temp, "--logoimage") == 0)
       strlcpy(LogoImage, temp2, sizeof(LogoImage));
@@ -2672,6 +2682,7 @@ usage(const char *arg)			// I - Bad argument string
     puts("  --jpeg[=quality]");
     puts("  --landscape");
     puts("  --left margin{in,cm,mm}");
+    puts("  --letterhead filename.{bmp,gif,jpg,png}");
     puts("  --linkcolor color");
     puts("  --links");
     puts("  --linkstyle {plain,underline}");
@@ -2739,6 +2750,7 @@ usage(const char *arg)			// I - Bad argument string
     puts("        i = lowercase roman numerals");
     puts("        I = uppercase roman numerals");
     puts("        l = logo image");
+    puts("        L = letterhead image");
     puts("        t = title text");
     puts("        T = current time");
     puts("        u = current file/URL");

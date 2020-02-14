@@ -210,6 +210,9 @@ static uchar	*doc_title = NULL;
 static image_t	*logo_image = NULL;
 static float	logo_width,
 		logo_height;
+static image_t	*lh_image = NULL;
+static float	lh_width,
+		lh_height;
 
 static image_t	*hfimage[MAX_HF_IMAGES];
 static float	hfimage_width[MAX_HF_IMAGES],
@@ -442,10 +445,22 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   subject     = htmlGetMeta(document, (uchar *)"subject");
   lang        = htmlGetMeta(document, (uchar *)"lang");
   logo_image  = image_load(LogoImage, !OutputColor);
+  lh_image    = image_load(Letterhead, !OutputColor);
   maxhfheight = 0.0f;
 
   if (docnumber == NULL)
     docnumber = htmlGetMeta(document, (uchar *)"version");
+
+  if (lh_image != NULL)
+  {
+    lh_width  = (float)(lh_image->width * PagePrintWidth / _htmlBrowserWidth);
+    lh_height = (float)(lh_width * lh_image->height / lh_image->width);
+
+    if (lh_height > maxhfheight)
+      maxhfheight = lh_height;
+  }
+  else
+    lh_width = lh_height = 0.0f;
 
   if (logo_image != NULL)
   {
@@ -1529,16 +1544,13 @@ pspdf_prepare_heading(int   page,	// I - Page number
 	                  y + HeadFootSize - logo_height,
 	                  logo_width, logo_height, logo_image);
     }
-    else if (strncasecmp((char *)*format, "$LETTERHEAD", 11) == 0 && logo_image)
+    else if (strncasecmp((char *)*format, "$LETTERHEAD", 11) == 0 && lh_image)
     {
       // Insert the logo image as a letterhead...
-      float lh_width  = (float)(logo_image->width * PagePrintWidth / _htmlBrowserWidth);
-      float lh_height = (float)(lh_width * logo_image->height / logo_image->width);
-
       if (y < (PagePrintLength / 2))
-	temp = new_render(page, RENDER_IMAGE, 0, y, lh_width, lh_height, logo_image);
+	temp = new_render(page, RENDER_IMAGE, 0, y, lh_width, lh_height, lh_image);
       else // Offset from top
-	temp = new_render(page, RENDER_IMAGE, 0, y + HeadFootSize - lh_height, lh_width, lh_height, logo_image);
+	temp = new_render(page, RENDER_IMAGE, 0, y + HeadFootSize - lh_height, lh_width, lh_height, lh_image);
     }
     else if (strncasecmp((char *)*format, "$HFIMAGE", 8) == 0)
     {

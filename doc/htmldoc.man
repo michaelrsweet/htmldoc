@@ -7,7 +7,7 @@
 .\" This program is free software.  Distribution and use rights are outlined
 .\" in the file "COPYING".
 .\"
-.TH htmldoc 1 "HTMLDOC 1.9.8" "11 February 2020" "Michael R Sweet"
+.TH htmldoc 1 "HTMLDOC 1.9.8" "13 February 2020" "Michael R Sweet"
 .SH NAME
 htmldoc \- convert html source files into html, postscript, or pdf.
 .SH SYNOPSIS
@@ -166,6 +166,16 @@ Sets the JPEG compression level to use for large images. A value of 0 disables J
 .BI \-\-left " margin"
 Specifies the left margin in points (no suffix or ##pt), inches (##in), centimeters (##cm), or millimeters (##mm).
 .TP 5
+.BI \-\-letterhead " filename"
+Specifies an image to be used as a letterhead in the header or footer in a PostScript or PDF document.
+Note that you need to use the
+.I \-\-header, \-\-header1,
+and/or
+.I \-\-footer
+options with the
+.I L
+parameter or use the corresponding HTML page comments to display the letterhead image in the header or footer.
+.TP 5
 .BI \-\-linkcolor " color"
 Sets the color of links.
 .TP 5
@@ -183,7 +193,7 @@ and/or
 .I \-\-footer
 options with the
 .I l
-parameter or use the corresponding HTML page comments to display the logo image inthe header or footer.
+parameter or use the corresponding HTML page comments to display the logo image in the header or footer.
 .TP 5
 .B \-\-no-compression
 Disables compression of PostScript or PDF files.
