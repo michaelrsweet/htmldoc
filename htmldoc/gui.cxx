@@ -4272,7 +4272,7 @@ GUI::showAboutCB(void)
   label->image(&logo);
 
   label = new Fl_Box(60, 45, 530, 35,
-          "HTMLDOC " SVERSION "\nCopyright 2011-2020 by Michael R Sweet."
+          "HTMLDOC " SVERSION "\nCopyright © 2011-2020 by Michael R Sweet."
 	  );
   label->align(FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP);
 
