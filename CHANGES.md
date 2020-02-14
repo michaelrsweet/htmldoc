@@ -5,6 +5,7 @@
 - Added support for a new `L` header/footer format (`$LETTERHEAD`), which
   inserts the logo image at its full size to be used as a letterhead
   (Issue #372)
+- Updated the build documentation (Issue #374)
 
 
 # Changes in HTMLDOC v1.9.7

@@ -63,7 +63,7 @@ Ubuntu Notes
 You should install the following packages:
 
     sudo apt-get install build-essential autoconf libfltk1.3-dev \
-        libgnutls28-dev libjpeg-dev libpng-dev zlib1g-dev
+        libgnutls28-dev libjpeg-dev libpng-dev pkg-config zlib1g-dev
 
 
 CentOS, Fedora, and RHEL Notes
@@ -74,4 +74,4 @@ handle the version of libpng that is bundled with HTMLDOC.  Install the
 following packages to avoid this and get full functionality:
 
     sudo yum install autoconf fltk-devel gnutls-devel libjpeg-devel \
-    	libpng-devel zlib-devel
+    	libpng-devel pkgconfig zlib-devel
