@@ -760,11 +760,13 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   {
     if (Header[pos] &&
         (strstr(Header[pos], "$IMAGE") != NULL ||
-	 strstr(Header[pos], "$HFIMAGE") != NULL))
+	 strstr(Header[pos], "$HFIMAGE") != NULL ||
+	 strstr(Header[pos], "$LETTERHEAD") != NULL))
       temp_adjust = image_adjust;
     else if (Header1[pos] &&
 	     (strstr(Header1[pos], "$IMAGE") != NULL ||
-	      strstr(Header1[pos], "$HFIMAGE") != NULL))
+	      strstr(Header1[pos], "$HFIMAGE") != NULL ||
+	      strstr(Header1[pos], "$LETTERHEAD") != NULL))
       temp_adjust = image_adjust;
     else if (Header[pos] || Header1[pos])
       temp_adjust = (float)(2 * HeadFootSize);
@@ -782,7 +784,8 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   {
     if (Footer[pos] &&
         (strstr(Footer[pos], "$IMAGE") != NULL ||
-	 strstr(Footer[pos], "$HFIMAGE") != NULL))
+	 strstr(Footer[pos], "$HFIMAGE") != NULL ||
+	 strstr(Footer[pos], "$LETTERHEAD") != NULL))
       temp_adjust = image_adjust;
     else if (Footer[pos])
       temp_adjust = (float)(2 * HeadFootSize);
