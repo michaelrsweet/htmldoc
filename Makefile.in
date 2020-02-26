@@ -82,7 +82,7 @@ VERSION		=	@SVERSION@
 
 dmg:
 	echo Signing HTMLDOC application bundle
-	codesign -s $(IDENTITY) --timestamp htmldoc/htmldoc.app
+	codesign -s $(IDENTITY) --timestamp -o runtime htmldoc/htmldoc.app
 	echo Creating archive for notarization
 	rm -f htmldoc/htmldoc.zip
 	ditto -c -k --keepParent htmldoc/htmldoc.app htmldoc/htmldoc.zip
