@@ -1,2 +1,4 @@
 queries:
   - exclude: cpp/missing-header-guard
+  - exclude: cpp/uncontrolled-allocation-size
+

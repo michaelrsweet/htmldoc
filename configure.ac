@@ -1,7 +1,7 @@
 #
 # Configuration script for HTMLDOC, an HTML document processing program.
 #
-# Copyright © 2011-2019 by Michael R Sweet.
+# Copyright © 2011-2020 by Michael R Sweet.
 # Copyright © 1997-2010 by Easy Software Products.
 #
 # This program is free software.  Distribution and use rights are outlined in
@@ -395,6 +395,10 @@ if test -n "$GXX"; then
 	    AC_MSG_RESULT(yes),
 	    AC_MSG_RESULT(no))
 	CFLAGS="$OLDCFLAGS"
+    elif test "$uname" = Darwin; then
+    	CFLAGS="$CFLAGS -mmacosx-version-min=10.13"
+    	CXXFLAGS="$CXXFLAGS -mmacosx-version-min=10.13"
+    	LDFLAGS="$LDFLAGS -mmacosx-version-min=10.13"
     fi
 fi
 
