@@ -1,7 +1,7 @@
 /*
  * HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
- * Copyright 2011-2019 by Michael R Sweet.
+ * Copyright 2011-2020 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -1314,7 +1314,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
         	t->typeface = TYPE_SANS_SERIF;
 		break;
 	      }
-              else if (!strcasecmp(font, "mono"))
+              else if (!strcasecmp(font, "mono") || !strcasecmp(font, "monospace"))
 	      {
         	t->typeface = TYPE_MONOSPACE;
 		break;
