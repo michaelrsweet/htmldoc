@@ -1,7 +1,7 @@
 /*
  * Markdown parsing definitions for HTMLDOC, a HTML document processing program.
  *
- * Copyright © 2017-2019 by Michael R Sweet.
+ * Copyright © 2017-2020 by Michael R Sweet.
  *
  * This program is free software.  Distribution and use rights are outlined in
  * the file "COPYING".
@@ -405,7 +405,7 @@ get_text(uchar *text)                   /* I - Markdown text */
         }
         else
         {
-          unich = ((*text & 0x0f) << 12) | ((text[1] & 0x3f) << 6) | (text[1] & 0x3f);
+          unich = ((*text & 0x0f) << 12) | ((text[1] & 0x3f) << 6) | (text[2] & 0x3f);
           text += 3;
         }
       }

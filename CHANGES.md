@@ -1,3 +1,8 @@
+# Changes in HTMLDOC v1.9.9
+
+- Fixed a UTF-8 processing bug for Markdown files (Issue #383)
+
+
 # Changes in HTMLDOC v1.9.8
 
 - Added support for a `HTMLDOC.filename` META keyword that controls the filename
