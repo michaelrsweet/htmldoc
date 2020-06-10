@@ -13,6 +13,7 @@
  */
 
 #include "htmldoc.h"
+#include "http.h"
 #include <ctype.h>
 
 
@@ -3476,59 +3477,81 @@ fix_filename(char *filename,		/* I - Original filename */
 
   if (strncmp(base, "http://", 7) == 0 || strncmp(base, "https://", 8) == 0)
   {
-    strlcpy(newfilename, base, sizeof(newfilename));
-    base = strchr(newfilename, ':') + 3;
+    // Base is a URL...
+    char	scheme[32],		// URI scheme
+		userpass[256],		// Username:password
+		host[256],		// Hostname or IP address
+		resource[256];		// Resource path
+    int		port;			// Port number
+
+    httpSeparateURI(HTTP_URI_CODING_ALL, base, scheme, sizeof(scheme), userpass, sizeof(userpass), host, sizeof(host), &port, resource, sizeof(resource));
 
     if (filename[0] == '/')
     {
-      if ((slash = strchr(base, '/')) != NULL)
-        strlcpy(slash, filename, sizeof(newfilename) - (size_t)(slash - newfilename));
-      else
-        strlcat(newfilename, filename, sizeof(newfilename));
-
-      return (newfilename);
+      // Absolute path, so just use the server...
+      httpAssembleURIf(HTTP_URI_CODING_ALL, newfilename, sizeof(newfilename), scheme, userpass, host, port, filename);
     }
-    else if ((slash = strchr(base, '/')) == NULL)
-      strlcat(newfilename, "/", sizeof(newfilename));
+    else
+    {
+      // Relative path, strip the last component from the resource...
+      if ((slash = strrchr(resource, '/')) != NULL)
+	*slash = '\0';
+
+      // Handle "../" in filename...
+      while (!strncmp(filename, "../", 3))
+      {
+	// Strip one level of directory in the resource
+	filename += 3;
+
+	if ((slash = strrchr(resource, '/')) != NULL)
+	  *slash = '\0';
+      }
+
+      // Combine the resource and remaining relative filename to make a URL...
+      httpAssembleURIf(HTTP_URI_CODING_ALL, newfilename, sizeof(newfilename), scheme, userpass, host, port, "%s/%s", resource, filename);
+    }
   }
   else
   {
+    // Base is a filename...
     if (filename[0] == '/' || filename[0] == '\\' || base == NULL ||
 	base[0] == '\0' || (isalpha(filename[0]) && filename[1] == ':'))
-      return (file_find(Path, filename)); /* No change needed for absolute path */
+    {
+      // No change needed for absolute path...
+      return (file_find(Path, filename));
+    }
 
     strlcpy(newfilename, base, sizeof(newfilename));
     base = newfilename;
-  }
 
 #if defined(WIN32) || defined(__EMX__)
-  while (strncmp(filename, "../", 3) == 0 ||
-         strncmp(filename, "..\\", 3) == 0)
+    while (!strncmp(filename, "../", 3) || !strncmp(filename, "..\\", 3))
 #else
-  while (strncmp(filename, "../", 3) == 0)
+    while (!strncmp(filename, "../", 3))
 #endif // WIN32 || __EMX__
-  {
-    filename += 3;
-#if defined(WIN32) || defined(__EMX__)
-    if ((slash = strrchr(base, '/')) != NULL)
-      *slash = '\0';
-    else if ((slash = strrchr(base, '\\')) != NULL)
-      *slash = '\0';
-#else
-    if ((slash = strrchr(base, '/')) != NULL)
-      *slash = '\0';
-#endif // WIN32 || __EMX__
-    else
     {
-      filename -= 3;
-      break;
+      filename += 3;
+#if defined(WIN32) || defined(__EMX__)
+      if ((slash = strrchr(base, '/')) != NULL)
+        *slash = '\0';
+      else if ((slash = strrchr(base, '\\')) != NULL)
+        *slash = '\0';
+#else
+      if ((slash = strrchr(base, '/')) != NULL)
+        *slash = '\0';
+#endif // WIN32 || __EMX__
+      else
+      {
+	filename -= 3;
+	break;
+      }
     }
+
+    if (filename[0] != '/' && *base && base[strlen(base) - 1] != '/')
+      strlcat(newfilename, "/", sizeof(newfilename));
+
+    strlcat(newfilename, filename, sizeof(newfilename));
   }
-
-  if (filename[0] != '/' && *base && base[strlen(base) - 1] != '/')
-    strlcat(newfilename, "/", sizeof(newfilename));
-
-  strlcat(newfilename, filename, sizeof(newfilename));
 
 //  printf("    newfilename=\"%s\"\n", newfilename);
 
