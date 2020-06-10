@@ -824,7 +824,7 @@ image_load(const char *filename,/* I - Name of image file */
     status = image_load_jpeg(img, fp, gray, load_data);
   else
   {
-    progress_error(HD_ERROR_BAD_FORMAT, "Unknown image file format for \"%s\"!",
+    progress_error(HD_ERROR_BAD_FORMAT, "Unknown image file format for \"%s\".",
                    file_rlookup(filename));
     fclose(fp);
     free(img);
