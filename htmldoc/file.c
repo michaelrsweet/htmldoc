@@ -62,7 +62,8 @@ typedef struct		/* Cache for all temporary files */
  * Local globals...
  */
 
-char	proxy_host[HTTP_MAX_URI] = "";	/* Proxy hostname */
+char	proxy_scheme[32] = "",		/* Proxy scheme */
+	proxy_host[HTTP_MAX_URI] = "";	/* Proxy hostname */
 int	proxy_port = 0;			/* Proxy port */
 http_t	*http = NULL;			/* Connection to remote server */
 size_t	web_files = 0,			/* Number of temporary files */
@@ -353,6 +354,7 @@ file_find_check(const char *filename)	/* I - File or URL */
 		hostname[HTTP_MAX_URI],	/* Hostname */
 		resource[HTTP_MAX_URI];	/* Resource */
   int		port;			/* Port number */
+  const char	*connscheme;		/* Scheme for connection */
   const char	*connhost;		/* Host to connect to */
   int		connport;		/* Port to connect to */
   char		connpath[HTTP_MAX_URI],	/* Path for GET */
@@ -458,33 +460,31 @@ file_find_check(const char *filename)	/* I - File or URL */
                     username, sizeof(username), hostname, sizeof(hostname),
 		    &port, resource, sizeof(resource));
 
-    for (status = HTTP_ERROR, retry = 0;
-         status == HTTP_ERROR && retry < 5;
-         retry ++)
+    for (status = HTTP_STATUS_ERROR, retry = 0; status != HTTP_STATUS_OK && retry < 5; retry ++)
     {
       if (proxy_port)
       {
-       /*
-        * Send request to proxy host...
-        */
-
-        connhost = proxy_host;
-        connport = proxy_port;
-        snprintf(connpath, sizeof(connpath), "%s://%s:%d%s", scheme,
-                 hostname, port, resource);
+        // Send request to proxy host...
+        connscheme = proxy_scheme;
+        connhost   = proxy_host;
+        connport   = proxy_port;
+        httpAssembleURI(HTTP_URI_CODING_ALL, connpath, sizeof(connpath), scheme, NULL, hostname, port, resource);
       }
       else
       {
-       /*
-        * Send request to host directly...
-        */
-
-        connhost = hostname;
-        connport = port;
+        // Send request to host directly...
+        connscheme = scheme;
+        connhost   = hostname;
+        connport   = port;
         strlcpy(connpath, resource, sizeof(connpath));
       }
 
-      if (connport != httpAddrPort(httpGetAddress(http)) || strcasecmp(httpGetHostname(http, tempname, sizeof(tempname)), hostname))
+      if (connport != httpAddrPort(httpGetAddress(http)) ||
+#ifdef HAVE_SSL
+	  (!strcmp(connscheme, "https") && !httpIsEncrypted(http)) ||
+          (!strcmp(connscheme, "http") && httpIsEncrypted(http)) ||
+#endif // HAVE_SSL
+          strcasecmp(httpGetHostname(http, tempname, sizeof(tempname)), hostname))
       {
         httpClose(http);
         http = NULL;
@@ -494,20 +494,12 @@ file_find_check(const char *filename)	/* I - File or URL */
       {
         progress_show("Connecting to %s...", connhost);
 
-#ifdef HAVE_SSL
-        if (strcmp(scheme, "http") == 0)
-          http = httpConnect(connhost, connport);
-	else
-          http = httpConnectEncrypt(connhost, connport, HTTP_ENCRYPT_ALWAYS);
-#else
-        http = httpConnect(connhost, connport);
-#endif /* HAVE_SSL */
+        http_encryption_t encryption = !strcmp(connscheme, "http") ? HTTP_ENCRYPTION_IF_REQUESTED : HTTP_ENCRYPTION_ALWAYS;
 
-        if (http == NULL)
+        if ((http = httpConnect2(connhost, connport, NULL, AF_UNSPEC, encryption, 1, 30000, NULL)) == NULL)
 	{
           progress_hide();
-          progress_error(HD_ERROR_NETWORK_ERROR,
-	                 "Unable to connect to %s!", connhost);
+          progress_error(HD_ERROR_NETWORK_ERROR, "Unable to connect to %s:%d.", connhost, connport);
           return (NULL);
         }
       }
@@ -522,8 +514,7 @@ file_find_check(const char *filename)	/* I - File or URL */
       if (username[0])
       {
         strlcpy(connauth, "Basic ", sizeof(connauth));
-        httpEncode64_2(connauth + 6, sizeof(connauth) - 6, username,
-	               strlen(username));
+        httpEncode64_2(connauth + 6, sizeof(connauth) - 6, username, strlen(username));
         httpSetField(http, HTTP_FIELD_AUTHORIZATION, connauth);
       }
 
@@ -537,25 +528,16 @@ file_find_check(const char *filename)	/* I - File or URL */
       else
 	status = HTTP_ERROR;
 
-      if (status >= HTTP_MOVED_PERMANENTLY && status <= HTTP_SEE_OTHER)
+      if (status >= HTTP_STATUS_MULTIPLE_CHOICES && status < HTTP_STATUS_BAD_REQUEST)
       {
-       /*
-        * Flush text...
-	*/
+        // Redirect status code, grab the new location...
+        const char *newurl = httpGetField(http, HTTP_FIELD_LOCATION);
 
+        progress_show("Redirecting to %s...", newurl);
+	httpSeparateURI(HTTP_URI_CODING_ALL, newurl, scheme, sizeof(scheme), username, sizeof(username), hostname, sizeof(hostname), &port, resource, sizeof(resource));
+
+        // ... then flush any text in the response...
 	httpFlush(http);
-
-       /*
-        * Grab new location from HTTP data...
-	*/
-
-	httpSeparateURI(HTTP_URI_CODING_ALL,
-	                httpGetField(http, HTTP_FIELD_LOCATION),
-			scheme, sizeof(scheme), username, sizeof(username),
-			hostname, sizeof(hostname), &port,
-			resource, sizeof(resource));
-
-        status = HTTP_ERROR;
       }
     }
 
