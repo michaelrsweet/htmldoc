@@ -1,5 +1,7 @@
 # Changes in HTMLDOC v1.9.9
 
+- Fixed a redirection issue - some sites (incorrectly) provide an incomplete
+  Location: URL in the HTTP response.
 - Fixed a problem with remote URLs containing spaces (Issue #379)
 - Fixed a UTF-8 processing bug for Markdown files (Issue #383)
 - Added support for `<FONT FACE="monospace">` (Issue #385)

@@ -499,7 +499,7 @@ file_find_check(const char *filename)	/* I - File or URL */
         if ((http = httpConnect2(connhost, connport, NULL, AF_UNSPEC, encryption, 1, 30000, NULL)) == NULL)
 	{
           progress_hide();
-          progress_error(HD_ERROR_NETWORK_ERROR, "Unable to connect to %s:%d.", connhost, connport);
+          progress_error(HD_ERROR_NETWORK_ERROR, "Unable to connect to %s:%d: %s", connhost, connport, strerror(errno));
           return (NULL);
         }
       }
@@ -532,9 +532,15 @@ file_find_check(const char *filename)	/* I - File or URL */
       {
         // Redirect status code, grab the new location...
         const char *newurl = httpGetField(http, HTTP_FIELD_LOCATION);
+					// New URL
+        char	newresource[256];	// New resource
 
         progress_show("Redirecting to %s...", newurl);
-	httpSeparateURI(HTTP_URI_CODING_ALL, newurl, scheme, sizeof(scheme), username, sizeof(username), hostname, sizeof(hostname), &port, resource, sizeof(resource));
+	httpSeparateURI(HTTP_URI_CODING_ALL, newurl, scheme, sizeof(scheme), username, sizeof(username), hostname, sizeof(hostname), &port, newresource, sizeof(newresource));
+
+        // Don't use new resource path if it is empty...
+        if (strchr(newurl + strlen(scheme) + 3, '/'))
+          strlcpy(resource, newresource, sizeof(resource));
 
         // ... then flush any text in the response...
 	httpFlush(http);
