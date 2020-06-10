@@ -499,7 +499,7 @@ file_find_check(const char *filename)	/* I - File or URL */
         if ((http = httpConnect2(connhost, connport, NULL, AF_UNSPEC, encryption, 1, 30000, NULL)) == NULL)
 	{
           progress_hide();
-          progress_error(HD_ERROR_NETWORK_ERROR, "Unable to connect to %s:%d: %s", connhost, connport, strerror(errno));
+          progress_error(HD_ERROR_NETWORK_ERROR, "Unable to connect to %s:%d", connhost, connport);
           return (NULL);
         }
       }
