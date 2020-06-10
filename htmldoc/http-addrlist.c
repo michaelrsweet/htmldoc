@@ -81,6 +81,7 @@ httpAddrConnect2(
 #  endif /* HAVE_POLL */
 #endif /* O_NONBLOCK */
 #ifdef DEBUG
+  char		        temp[1024];
   socklen_t		len;		/* Length of value */
   http_addr_t		peer;		/* Peer address */
 #endif /* DEBUG */

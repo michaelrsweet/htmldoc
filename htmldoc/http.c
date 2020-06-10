@@ -2372,6 +2372,7 @@ httpReconnect2(http_t *http,		/* I - HTTP connection */
 {
   http_addrlist_t	*addr;		/* Connected address */
 #ifdef DEBUG
+  char temp[1024];
   http_addrlist_t	*current;	/* Current address */
 #endif /* DEBUG */
 
