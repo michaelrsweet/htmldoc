@@ -90,7 +90,7 @@ dmg:
 	xcrun altool --notarize-app -f htmldoc/htmldoc.zip \
 		--primary-bundle-id org.msweet.htmldoc \
 		--username "$(APPLEID)" \
-		--password "@keychain:AC_PASSWORD" \
+		--password "@keychain:AC_$(TEAMID)" \
 		--asc-provider "$(TEAMID)"
 	echo Making disk image
 	rm -f ~/Desktop/htmldoc-$(VERSION)-macos.dmg
