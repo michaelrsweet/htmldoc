@@ -157,6 +157,7 @@ extern SecIdentityRef SecIdentityCreate(CFAllocatorRef allocator, SecCertificate
  * Stuff that CUPS normally provides...
  */
 
+//#  define DEBUG 1
 #  ifdef DEBUG
 #    ifndef DEBUG_printf
 #      define DEBUG_printf(x) { printf x; putchar('\n'); }

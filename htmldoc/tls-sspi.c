@@ -1288,16 +1288,11 @@ http_sspi_client(http_t     *http,	/* I - Client connection */
   * Lookup the client certificate...
   */
 
-  dwSize = sizeof(username);
-  GetUserName(username, &dwSize);
-  snprintf(common_name, sizeof(common_name), "CN=%s", username);
-
-  if (!http_sspi_find_credentials(http, L"ClientContainer", common_name))
-    if (!http_sspi_make_credentials(http->tls, L"ClientContainer", common_name, _HTTP_MODE_CLIENT, 10))
-    {
-      DEBUG_puts("5http_sspi_client: Unable to get client credentials.");
-      return (-1);
-    }
+  if (!http_sspi_find_credentials(http, L"ClientContainer", NULL))
+  {
+    DEBUG_puts("5http_sspi_client: Unable to get client credentials.");
+    return (-1);
+  }
 
  /*
   * Initiate a ClientHello message and generate a token.
@@ -1650,48 +1645,57 @@ http_sspi_find_credentials(
     goto cleanup;
   }
 
-  dwSize = 0;
-
-  if (!CertStrToNameA(X509_ASN_ENCODING, common_name, CERT_OID_NAME_STR, NULL, NULL, &dwSize, NULL))
+  if (common_name)
   {
-    DEBUG_printf(("5http_sspi_find_credentials: CertStrToNameA failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), GetLastError())));
-    ok = FALSE;
-    goto cleanup;
-  }
+    dwSize = 0;
 
-  p = (PBYTE)malloc(dwSize);
+    if (!CertStrToNameA(X509_ASN_ENCODING, common_name, CERT_OID_NAME_STR, NULL, NULL, &dwSize, NULL))
+    {
+      DEBUG_printf(("5http_sspi_find_credentials: CertStrToNameA failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), GetLastError())));
+      ok = FALSE;
+      goto cleanup;
+    }
 
-  if (!p)
-  {
-    DEBUG_printf(("5http_sspi_find_credentials: malloc failed for %d bytes.", dwSize));
-    ok = FALSE;
-    goto cleanup;
-  }
+    p = (PBYTE)malloc(dwSize);
 
-  if (!CertStrToNameA(X509_ASN_ENCODING, common_name, CERT_OID_NAME_STR, NULL, p, &dwSize, NULL))
-  {
-    DEBUG_printf(("5http_sspi_find_credentials: CertStrToNameA failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), GetLastError())));
-    ok = FALSE;
-    goto cleanup;
-  }
+    if (!p)
+    {
+      DEBUG_printf(("5http_sspi_find_credentials: malloc failed for %d bytes.", dwSize));
+      ok = FALSE;
+      goto cleanup;
+    }
 
-  sib.cbData = dwSize;
-  sib.pbData = p;
+    if (!CertStrToNameA(X509_ASN_ENCODING, common_name, CERT_OID_NAME_STR, NULL, p, &dwSize, NULL))
+    {
+      DEBUG_printf(("5http_sspi_find_credentials: CertStrToNameA failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), GetLastError())));
+      ok = FALSE;
+      goto cleanup;
+    }
 
-  storedContext = CertFindCertificateInStore(store, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0, CERT_FIND_SUBJECT_NAME, &sib, NULL);
+    sib.cbData = dwSize;
+    sib.pbData = p;
 
-  if (!storedContext)
-  {
-    DEBUG_printf(("5http_sspi_find_credentials: Unable to find credentials for \"%s\".", common_name));
-    ok = FALSE;
-    goto cleanup;
+    storedContext = CertFindCertificateInStore(store, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0, CERT_FIND_SUBJECT_NAME, &sib, NULL);
+
+    if (!storedContext)
+    {
+      DEBUG_printf(("5http_sspi_find_credentials: Unable to find credentials for \"%s\".", common_name));
+      ok = FALSE;
+      goto cleanup;
+    }
   }
 
   ZeroMemory(&SchannelCred, sizeof(SchannelCred));
 
   SchannelCred.dwVersion = SCHANNEL_CRED_VERSION;
-  SchannelCred.cCreds    = 1;
-  SchannelCred.paCred    = &storedContext;
+
+  if (common_name)
+  {
+    SchannelCred.cCreds    = 1;
+    SchannelCred.paCred    = &storedContext;
+  }
+  else
+    SchannelCred.dwFlags |= SCH_CRED_NO_DEFAULT_CREDS;
 
  /*
   * Set supported protocols (can also be overriden in the registry...)
@@ -1857,89 +1861,92 @@ http_sspi_make_credentials(
     goto cleanup;
   }
 
-  dwSize = 0;
-
-  if (!CertStrToNameA(X509_ASN_ENCODING, common_name, CERT_OID_NAME_STR, NULL, NULL, &dwSize, NULL))
+  if (common_name)
   {
-    DEBUG_printf(("5http_sspi_make_credentials: CertStrToNameA failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), GetLastError())));
-    ok = FALSE;
-    goto cleanup;
-  }
+    dwSize = 0;
 
-  p = (PBYTE)malloc(dwSize);
+    if (!CertStrToNameA(X509_ASN_ENCODING, common_name, CERT_OID_NAME_STR, NULL, NULL, &dwSize, NULL))
+    {
+      DEBUG_printf(("5http_sspi_make_credentials: CertStrToNameA failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), GetLastError())));
+      ok = FALSE;
+      goto cleanup;
+    }
 
-  if (!p)
-  {
-    DEBUG_printf(("5http_sspi_make_credentials: malloc failed for %d bytes", dwSize));
-    ok = FALSE;
-    goto cleanup;
-  }
+    p = (PBYTE)malloc(dwSize);
 
-  if (!CertStrToNameA(X509_ASN_ENCODING, common_name, CERT_OID_NAME_STR, NULL, p, &dwSize, NULL))
-  {
-    DEBUG_printf(("5http_sspi_make_credentials: CertStrToNameA failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), GetLastError())));
-    ok = FALSE;
-    goto cleanup;
-  }
+    if (!p)
+    {
+      DEBUG_printf(("5http_sspi_make_credentials: malloc failed for %d bytes", dwSize));
+      ok = FALSE;
+      goto cleanup;
+    }
 
- /*
-  * Create a private key and self-signed certificate...
-  */
+    if (!CertStrToNameA(X509_ASN_ENCODING, common_name, CERT_OID_NAME_STR, NULL, p, &dwSize, NULL))
+    {
+      DEBUG_printf(("5http_sspi_make_credentials: CertStrToNameA failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), GetLastError())));
+      ok = FALSE;
+      goto cleanup;
+    }
 
-  if (!CryptGenKey(hProv, AT_KEYEXCHANGE, CRYPT_EXPORTABLE, &hKey))
-  {
-    DEBUG_printf(("5http_sspi_make_credentials: CryptGenKey failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), GetLastError())));
-    ok = FALSE;
-    goto cleanup;
-  }
+   /*
+    * Create a private key and self-signed certificate...
+    */
 
-  ZeroMemory(&kpi, sizeof(kpi));
-  kpi.pwszContainerName = (LPWSTR)container;
-  kpi.pwszProvName      = MS_DEF_PROV_W;
-  kpi.dwProvType        = PROV_RSA_FULL;
-  kpi.dwFlags           = CERT_SET_KEY_CONTEXT_PROP_ID;
-  kpi.dwKeySpec         = AT_KEYEXCHANGE;
+    if (!CryptGenKey(hProv, AT_KEYEXCHANGE, CRYPT_EXPORTABLE, &hKey))
+    {
+      DEBUG_printf(("5http_sspi_make_credentials: CryptGenKey failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), GetLastError())));
+      ok = FALSE;
+      goto cleanup;
+    }
 
-  GetSystemTime(&et);
-  et.wYear += years;
-  if (et.wMonth == 2 && et.wDay == 29)
-    et.wDay = 28;			/* Avoid Feb 29th due to leap years */
+    ZeroMemory(&kpi, sizeof(kpi));
+    kpi.pwszContainerName = (LPWSTR)container;
+    kpi.pwszProvName      = MS_DEF_PROV_W;
+    kpi.dwProvType        = PROV_RSA_FULL;
+    kpi.dwFlags           = CERT_SET_KEY_CONTEXT_PROP_ID;
+    kpi.dwKeySpec         = AT_KEYEXCHANGE;
 
-  ZeroMemory(&exts, sizeof(exts));
+    GetSystemTime(&et);
+    et.wYear += years;
+    if (et.wMonth == 2 && et.wDay == 29)
+      et.wDay = 28;			/* Avoid Feb 29th due to leap years */
 
-  createdContext = CertCreateSelfSignCertificate(hProv, &sib, CERT_CREATE_SELFSIGN_NO_SIGN, &kpi, NULL, NULL, &et, &exts);
+    ZeroMemory(&exts, sizeof(exts));
 
-  if (!createdContext)
-  {
-    DEBUG_printf(("5http_sspi_make_credentials: CertCreateSelfSignCertificate failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), GetLastError())));
-    ok = FALSE;
-    goto cleanup;
-  }
+    createdContext = CertCreateSelfSignCertificate(hProv, &sib, CERT_CREATE_SELFSIGN_NO_SIGN, &kpi, NULL, NULL, &et, &exts);
 
- /*
-  * Add the created context to the named store, and associate it with the named
-  * container...
-  */
+    if (!createdContext)
+    {
+      DEBUG_printf(("5http_sspi_make_credentials: CertCreateSelfSignCertificate failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), GetLastError())));
+      ok = FALSE;
+      goto cleanup;
+    }
 
-  if (!CertAddCertificateContextToStore(store, createdContext, CERT_STORE_ADD_REPLACE_EXISTING, &storedContext))
-  {
-    DEBUG_printf(("5http_sspi_make_credentials: CertAddCertificateContextToStore failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), GetLastError())));
-    ok = FALSE;
-    goto cleanup;
-  }
+   /*
+    * Add the created context to the named store, and associate it with the named
+    * container...
+    */
 
-  ZeroMemory(&ckp, sizeof(ckp));
-  ckp.pwszContainerName = (LPWSTR) container;
-  ckp.pwszProvName      = MS_DEF_PROV_W;
-  ckp.dwProvType        = PROV_RSA_FULL;
-  ckp.dwFlags           = CRYPT_MACHINE_KEYSET;
-  ckp.dwKeySpec         = AT_KEYEXCHANGE;
+    if (!CertAddCertificateContextToStore(store, createdContext, CERT_STORE_ADD_REPLACE_EXISTING, &storedContext))
+    {
+      DEBUG_printf(("5http_sspi_make_credentials: CertAddCertificateContextToStore failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), GetLastError())));
+      ok = FALSE;
+      goto cleanup;
+    }
 
-  if (!CertSetCertificateContextProperty(storedContext, CERT_KEY_PROV_INFO_PROP_ID, 0, &ckp))
-  {
-    DEBUG_printf(("5http_sspi_make_credentials: CertSetCertificateContextProperty failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), GetLastError())));
-    ok = FALSE;
-    goto cleanup;
+    ZeroMemory(&ckp, sizeof(ckp));
+    ckp.pwszContainerName = (LPWSTR) container;
+    ckp.pwszProvName      = MS_DEF_PROV_W;
+    ckp.dwProvType        = PROV_RSA_FULL;
+    ckp.dwFlags           = CRYPT_MACHINE_KEYSET;
+    ckp.dwKeySpec         = AT_KEYEXCHANGE;
+
+    if (!CertSetCertificateContextProperty(storedContext, CERT_KEY_PROV_INFO_PROP_ID, 0, &ckp))
+    {
+      DEBUG_printf(("5http_sspi_make_credentials: CertSetCertificateContextProperty failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), GetLastError())));
+      ok = FALSE;
+      goto cleanup;
+    }
   }
 
  /*
@@ -1949,8 +1956,11 @@ http_sspi_make_credentials(
   ZeroMemory(&SchannelCred, sizeof(SchannelCred));
 
   SchannelCred.dwVersion = SCHANNEL_CRED_VERSION;
-  SchannelCred.cCreds    = 1;
-  SchannelCred.paCred    = &storedContext;
+  if (common_name)
+  {
+    SchannelCred.cCreds    = 1;
+    SchannelCred.paCred    = &storedContext;
+  }
 
  /*
   * SSPI doesn't seem to like it if grbitEnabledProtocols is set for a client.
@@ -1958,6 +1968,8 @@ http_sspi_make_credentials(
 
   if (mode == _HTTP_MODE_SERVER)
     SchannelCred.grbitEnabledProtocols = SP_PROT_SSL3TLS1;
+
+  SchannelCred.dwFlags |= SCH_CRED_NO_DEFAULT_CREDS;
 
  /*
   * Create an SSPI credential.
