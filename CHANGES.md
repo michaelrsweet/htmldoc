@@ -2,6 +2,7 @@
 
 - Fixed a redirection issue - some sites (incorrectly) provide an incomplete
   Location: URL in the HTTP response.
+- Fixed https: support on newer versions of Windows (Issue #378)
 - Fixed a problem with remote URLs containing spaces (Issue #379)
 - Fixed a UTF-8 processing bug for Markdown files (Issue #383)
 - Added support for `<FONT FACE="monospace">` (Issue #385)
