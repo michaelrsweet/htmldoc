@@ -1,3 +1,8 @@
+# Changes in HTMLDOC v1.9.10
+
+- Updated local zlib to 1.2.11.
+
+
 # Changes in HTMLDOC v1.9.9
 
 - Fixed a redirection issue - some sites (incorrectly) provide an incomplete
