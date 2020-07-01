@@ -1,6 +1,7 @@
 # Changes in HTMLDOC v1.9.10
 
-- Updated local zlib to 1.2.11.
+- Updated local zlib to v1.2.11.
+- Updated local libpng to v1.6.37.
 
 
 # Changes in HTMLDOC v1.9.9
