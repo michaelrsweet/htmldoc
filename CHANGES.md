@@ -2,6 +2,7 @@
 
 - Updated local zlib to v1.2.11.
 - Updated local libpng to v1.6.37.
+- Now ignore sRGB profile errors in PNG files (Issue #390)
 
 
 # Changes in HTMLDOC v1.9.9
