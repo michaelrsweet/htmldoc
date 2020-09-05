@@ -304,10 +304,10 @@ GUI::GUI(const char *filename)		// Book file to load initially
   moveDownFile->callback((Fl_Callback *)moveDownFilesCB, this);
   moveDownFile->tooltip("Move HTML files and URLs down in the list.");
 
-  logoImage = new Fl_Input(140, 230, 250, 25, "Letterhead Image: ");
-  logoImage->when(FL_WHEN_CHANGED);
-  logoImage->callback((Fl_Callback *)lhImageCB, this);
-  logoImage->tooltip("The letterhead image for the header or footer.");
+  lhImage = new Fl_Input(140, 230, 250, 25, "Letterhead Image: ");
+  lhImage->when(FL_WHEN_CHANGED);
+  lhImage->callback((Fl_Callback *)lhImageCB, this);
+  lhImage->tooltip("The letterhead image for the header or footer.");
 
   logoBrowse = new Fl_Button(390, 230, 95, 25, "Browse...");
   logoBrowse->callback((Fl_Callback *)lhImageCB, this);
