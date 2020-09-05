@@ -4,6 +4,7 @@
 - Updated local libpng to v1.6.37.
 - Now ignore sRGB profile errors in PNG files (Issue #390)
 - The GUI would crash when saving (Issue #391)
+- Page comments are now allowed in `pre` text (Issue #394)
 
 
 # Changes in HTMLDOC v1.9.9
