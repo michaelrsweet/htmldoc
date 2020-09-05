@@ -1,3 +1,13 @@
+# Changes in HTMLDOC v1.9.10
+
+- Updated local zlib to v1.2.11.
+- Updated local libpng to v1.6.37.
+- Fixed packaging issues on macOS and Windows (Issue #377, Issue #386)
+- Now ignore sRGB profile errors in PNG files (Issue #390)
+- The GUI would crash when saving (Issue #391)
+- Page comments are now allowed in `pre` text (Issue #394)
+
+
 # Changes in HTMLDOC v1.9.9
 
 - Fixed a redirection issue - some sites (incorrectly) provide an incomplete

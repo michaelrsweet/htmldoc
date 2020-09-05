@@ -5548,6 +5548,10 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 
       switch (start->markup)
       {
+        case MARKUP_COMMENT :
+	    parse_comment(start, &left, &right, &bottom, &top, x, y, page, NULL, 0);
+            break;
+
 	case MARKUP_A :
             if ((link = htmlGetVariable(start, (uchar *)"NAME")) != NULL)
             {
@@ -9513,6 +9517,7 @@ flatten_tree(tree_t *t)		/* I - Markup tree to flatten */
       case MARKUP_NONE :
           if (t->data == NULL)
 	    break;
+      case MARKUP_COMMENT :
       case MARKUP_BR :
       case MARKUP_SPACER :
       case MARKUP_IMG :

@@ -1482,6 +1482,11 @@ image_load_png(image_t *img,	/* I - Image pointer */
 
   png_init_io(pp, fp);
 
+#if defined(PNG_SKIP_sRGB_CHECK_PROFILE) && defined(PNG_SET_OPTION_SUPPORTED)
+  // Don't throw errors with "invalid" sRGB profiles produced by Adobe apps.
+  png_set_option(pp, PNG_SKIP_sRGB_CHECK_PROFILE, PNG_OPTION_ON);
+#endif // PNG_SKIP_sRGB_CHECK_PROFILE && PNG_SET_OPTION_SUPPORTED
+
  /*
   * Get the image dimensions and convert to grayscale or RGB...
   */
