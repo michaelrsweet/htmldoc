@@ -14,11 +14,16 @@ grade: stable
 
 icon: desktop/htmldoc-128.png
 
+plugs:
+  config-ro-system:
+    interface: system-files
+    read: [/]
+
 apps:
     htmldoc:
         command: desktop-launch $SNAP/bin/htmldoc
         desktop: share/applications/htmldoc.desktop
-        plugs: [home, network, system-files, x11]
+        plugs: [config-ro-system, home, network, x11]
 
 parts:
     main:
