@@ -23,7 +23,7 @@ apps:
     htmldoc:
         command: desktop-launch $SNAP/bin/htmldoc
         desktop: share/applications/htmldoc.desktop
-        plugs: [config-ro-system, home, network, x11]
+        plugs: [home, network, x11]
 
 parts:
     main:
