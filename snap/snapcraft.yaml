@@ -14,11 +14,6 @@ grade: stable
 
 icon: desktop/htmldoc-128.png
 
-plugs:
-  config-ro-system:
-    interface: system-files
-    read: [/]
-
 apps:
     htmldoc:
         command: desktop-launch $SNAP/bin/htmldoc
