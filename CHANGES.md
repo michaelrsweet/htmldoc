@@ -1,3 +1,8 @@
+# Changes in HTMLDOC v1.9.11
+
+- Added high-resolution desktop icons for Linux.
+
+
 # Changes in HTMLDOC v1.9.10
 
 - Updated local zlib to v1.2.11.
