@@ -1,6 +1,8 @@
 # Changes in HTMLDOC v1.9.11
 
 - Added high-resolution desktop icons for Linux.
+- Fixed a regression in the handling of character entities for UTF-8 input
+  (Issue #401)
 
 
 # Changes in HTMLDOC v1.9.10

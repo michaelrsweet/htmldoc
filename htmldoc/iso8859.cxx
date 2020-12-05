@@ -329,7 +329,12 @@ iso8859(uchar *name)			/* I - Glyph name */
       ch = match->value;
   }
 
-  if (ch > 0x7f)
+  if (ch > 0x7f && _htmlUTF8)
+  {
+    // Map Unicode value...
+    ch = htmlMapUnicode(ch);
+  }
+  else if (ch > 0x7f)
   {
     // Lookup Unicode value in the current charset...
     const char *glyph;

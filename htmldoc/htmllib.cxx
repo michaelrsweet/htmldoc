@@ -1872,6 +1872,40 @@ htmlInsertTree(tree_t   *parent,/* I - Parent entry */
 
 
 /*
+ * 'htmlMapUnicode()' - Map a Unicode character to the custom character set.
+ */
+
+uchar				/* O - Charset character */
+htmlMapUnicode(int ch)		/* I - Unicode character */
+{
+  uchar	newch;			/* New charset character */
+
+
+  // If we already have a mapping for this character, return it...
+  if (_htmlCharacters[ch])
+    return (_htmlCharacters[ch]);
+
+  if (_htmlUTF8 >= 0x100)
+  {
+    progress_error(HD_ERROR_READ_ERROR, "Too many Unicode code points.");
+    return (0);
+  }
+
+  newch = _htmlUTF8++;
+
+  _htmlCharacters[ch] = (uchar)newch;
+  _htmlUnicode[newch] = ch;
+  _htmlGlyphs[newch]  = _htmlGlyphsAll[ch];
+
+  for (int i = 0; i < TYPE_MAX; i ++)
+    for (int j = 0; j < STYLE_MAX; j ++)
+      _htmlWidths[i][j][newch] = _htmlWidthsAll[i][j][ch];
+
+  return (newch);
+}
+
+
+/*
  * 'htmlNewTree()' - Create a new tree node for the parent.
  */
 
@@ -3744,7 +3778,6 @@ utf8_getc(int  ch,                      // I - Initial character
           FILE *fp)                     // I - File to read from
 {
   int  ch2 = -1, ch3 = -1;              // Temporary characters
-  int  unicode;                         // Unicode character
 
 
   if ((ch & 0xe0) == 0xc0)
@@ -3791,31 +3824,10 @@ utf8_getc(int  ch,                      // I - Initial character
     // them...  Try reading another character...
     //
     // TODO: Emit a warning about this...
-    if ((ch = utf8_getc(getc(fp), fp)) == 0)
-      return (0);
+    return (utf8_getc(getc(fp), fp));
   }
 
-  // If we already have a mapping for this character, return it...
-  if (_htmlCharacters[ch])
-    return (_htmlCharacters[ch]);
-
-  if (_htmlUTF8 >= 0x100)
-  {
-    progress_error(HD_ERROR_READ_ERROR, "Too many Unicode code points.");
-    return (0);
-  }
-
-  unicode = _htmlUTF8++;
-
-  _htmlCharacters[ch]   = (uchar)unicode;
-  _htmlUnicode[unicode] = ch;
-  _htmlGlyphs[unicode]  = _htmlGlyphsAll[ch];
-
-  for (int i = 0; i < TYPE_MAX; i ++)
-    for (int j = 0; j < STYLE_MAX; j ++)
-      _htmlWidths[i][j][unicode] = _htmlWidthsAll[i][j][ch];
-
-  return (unicode);
+  return (htmlMapUnicode(ch));
 
   bad_sequence:
 

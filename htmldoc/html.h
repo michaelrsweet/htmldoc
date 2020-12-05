@@ -321,6 +321,8 @@ extern void	htmlSetTextColor(uchar *color);
 
 extern void	htmlLoadFontWidths(int typeface, int style);
 
+extern uchar	htmlMapUnicode(int ch);
+
 extern void	htmlDebugStats(const char *title, tree_t *t);
 
 #  ifdef __cplusplus

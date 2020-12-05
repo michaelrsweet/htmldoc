@@ -418,32 +418,10 @@ get_text(uchar *text)                   /* I - Markdown text */
 
       if (unich)
       {
-        if (_htmlCharacters[unich])
-        {
-          *bufptr++ = _htmlCharacters[unich];
-        }
-        else
-        {
-          uchar ch;                     /* 8-bit character */
+        uchar ch = htmlMapUnicode(unich);
+					/* 8-bit character */
 
-          if (_htmlUTF8 >= 0x100)
-          {
-            progress_error(HD_ERROR_READ_ERROR, "Too many Unicode code points.");
-            return (0);
-          }
-
-          ch = (uchar)_htmlUTF8++;
-
-          _htmlCharacters[unich] = ch;
-          _htmlUnicode[ch]       = unich;
-          _htmlGlyphs[ch]        = _htmlGlyphsAll[unich];
-
-          for (int i = 0; i < TYPE_MAX; i ++)
-            for (int j = 0; j < STYLE_MAX; j ++)
-              _htmlWidths[i][j][ch] = _htmlWidthsAll[i][j][unich];
-
-          *bufptr++ = ch;
-        }
+        *bufptr++ = ch ? ch : '?';
       }
     }
     else
