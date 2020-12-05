@@ -5709,9 +5709,9 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 	CFLAGS="$OLDCFLAGS"
     elif test "$uname" = Darwin; then
-    	CFLAGS="$CFLAGS -mmacosx-version-min=10.13"
-    	CXXFLAGS="$CXXFLAGS -mmacosx-version-min=10.13"
-    	LDFLAGS="$LDFLAGS -mmacosx-version-min=10.13"
+    	CFLAGS="$CFLAGS -mmacosx-version-min=10.14"
+    	CXXFLAGS="$CXXFLAGS -mmacosx-version-min=10.14"
+    	LDFLAGS="$LDFLAGS -mmacosx-version-min=10.14"
     fi
 fi
 

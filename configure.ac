@@ -396,9 +396,9 @@ if test -n "$GXX"; then
 	    AC_MSG_RESULT(no))
 	CFLAGS="$OLDCFLAGS"
     elif test "$uname" = Darwin; then
-    	CFLAGS="$CFLAGS -mmacosx-version-min=10.13"
-    	CXXFLAGS="$CXXFLAGS -mmacosx-version-min=10.13"
-    	LDFLAGS="$LDFLAGS -mmacosx-version-min=10.13"
+    	CFLAGS="$CFLAGS -mmacosx-version-min=10.14"
+    	CXXFLAGS="$CXXFLAGS -mmacosx-version-min=10.14"
+    	LDFLAGS="$LDFLAGS -mmacosx-version-min=10.14"
     fi
 fi
 
