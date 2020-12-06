@@ -141,7 +141,7 @@ typeface_t	_htmlBodyFont = TYPE_TIMES,
 int		_htmlInitialized = 0;	/* Initialized glyphs yet? */
 char		_htmlCharSet[256] = "iso-8859-1";
 					/* Character set name */
-extern int	_htmlWidthsLoaded[TYPE_MAX][STYLE_MAX] =
+int		_htmlWidthsLoaded[TYPE_MAX][STYLE_MAX] =
 		{			/* Have the widths been loaded? */
 		  { 0, 0, 0, 0 },
 		  { 0, 0, 0, 0 },
@@ -3523,7 +3523,7 @@ fix_filename(char *filename,		/* I - Original filename */
     if (filename[0] == '/')
     {
       // Absolute path, so just use the server...
-      httpAssembleURIf(HTTP_URI_CODING_ALL, newfilename, sizeof(newfilename), scheme, userpass, host, port, filename);
+      httpAssembleURI(HTTP_URI_CODING_ALL, newfilename, sizeof(newfilename), scheme, userpass, host, port, filename);
     }
     else
     {
