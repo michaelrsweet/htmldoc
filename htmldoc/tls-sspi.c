@@ -918,7 +918,7 @@ _httpTLSStart(http_t *http)		/* I - HTTP connection */
     * Server: not supported...
     */
 
-    http->error  = errno = WSA_EINVAL;
+    http->error  = errno = EINVAL;
     http->status = HTTP_STATUS_ERROR;
     _cupsSetError(IPP_STATUS_ERROR_INTERNAL, _("Unable to create server credentials."), 1);
     return (-1);
