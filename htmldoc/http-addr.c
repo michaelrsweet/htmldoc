@@ -1,12 +1,12 @@
 /*
  * HTTP address routines for HTMLDOC.
  *
- * Copyright 2016-2017 by Michael R Sweet.
- * Copyright 2007-2014 by Apple Inc.
- * Copyright 1997-2006 by Easy Software Products, all rights reserved.
+ * Copyright © 2020 by Michael R Sweet
+ * Copyright © 2007-2019 by Apple Inc.
+ * Copyright © 1997-2006 by Easy Software Products, all rights reserved.
  *
- * This program is free software.  Distribution and use rights are outlined in
- * the file "COPYING".
+ * Licensed under Apache License v2.0.  See the file "LICENSE" for more
+ * information.
  */
 
 /*
@@ -20,7 +20,9 @@
 #endif /* HAVE_RESOLV_H */
 #ifdef __APPLE__
 #  include <CoreFoundation/CoreFoundation.h>
-#  include <SystemConfiguration/SystemConfiguration.h>
+#  ifdef HAVE_SCDYNAMICSTORECOPYCOMPUTERNAME
+#    include <SystemConfiguration/SystemConfiguration.h>
+#  endif /* HAVE_SCDYNAMICSTORECOPYCOMPUTERNAME */
 #endif /* __APPLE__ */
 
 
@@ -54,9 +56,9 @@ httpAddrAny(const http_addr_t *addr)	/* I - Address to check */
  * 'httpAddrClose()' - Close a socket created by @link httpAddrConnect@ or
  *                     @link httpAddrListen@.
  *
- * Pass @code NULL@ for sockets created with @link httpAddrConnect@ and the
- * listen address for sockets created with @link httpAddrListen@. This will
- * ensure that domain sockets are removed when closed.
+ * Pass @code NULL@ for sockets created with @link httpAddrConnect2@ and the
+ * listen address for sockets created with @link httpAddrListen@.  This function
+ * ensures that domain sockets are removed when closed.
  *
  * @since CUPS 2.0/OS 10.10@
  */
@@ -65,11 +67,11 @@ int						/* O - 0 on success, -1 on failure */
 httpAddrClose(http_addr_t *addr,		/* I - Listen address or @code NULL@ */
               int         fd)			/* I - Socket file descriptor */
 {
-#ifdef WIN32
+#ifdef _WIN32
   if (closesocket(fd))
 #else
   if (close(fd))
-#endif /* WIN32 */
+#endif /* _WIN32 */
     return (-1);
 
 #ifdef AF_LOCAL
@@ -241,7 +243,7 @@ httpAddrListen(http_addr_t *addr,	/* I - Address to bind to */
   * Listen...
   */
 
-  if (listen(fd, 5))
+  if (listen(fd, 128))
   {
     _cupsSetHTTPError(HTTP_STATUS_ERROR);
 
@@ -254,9 +256,9 @@ httpAddrListen(http_addr_t *addr,	/* I - Address to bind to */
   * Close on exec...
   */
 
-#ifndef WIN32
+#ifndef _WIN32
   fcntl(fd, F_SETFD, fcntl(fd, F_GETFD) | FD_CLOEXEC);
-#endif /* !WIN32 */
+#endif /* !_WIN32 */
 
 #ifdef SO_NOSIGPIPE
  /*
@@ -315,8 +317,11 @@ httpAddrLookup(
     char              *name,		/* I - Host name buffer */
     int               namelen)		/* I - Size of name buffer */
 {
-  DEBUG_printf(("httpAddrLookup(addr=%p, name=%p, namelen=%d)", addr, name,
-		namelen));
+//  _cups_globals_t	*cg = _cupsGlobals();
+					/* Global data */
+
+
+  DEBUG_printf(("httpAddrLookup(addr=%p, name=%p, namelen=%d)", (void *)addr, (void *)name, namelen));
 
  /*
   * Range check input...
@@ -348,6 +353,29 @@ httpAddrLookup(
     return (name);
   }
 
+#if 0
+#ifdef HAVE_RES_INIT
+ /*
+  * STR #2920: Initialize resolver after failure in cups-polld
+  *
+  * If the previous lookup failed, re-initialize the resolver to prevent
+  * temporary network errors from persisting.  This *should* be handled by
+  * the resolver libraries, but apparently the glibc folks do not agree.
+  *
+  * We set a flag at the end of this function if we encounter an error that
+  * requires reinitialization of the resolver functions.  We then call
+  * res_init() if the flag is set on the next call here or in httpAddrLookup().
+  */
+
+  if (cg->need_res_init)
+  {
+    res_init();
+
+    cg->need_res_init = 0;
+  }
+#endif /* HAVE_RES_INIT */
+#endif // 0
+
 #ifdef HAVE_GETNAMEINFO
   {
    /*
@@ -361,7 +389,12 @@ httpAddrLookup(
     int error = getnameinfo(&addr->addr, (socklen_t)httpAddrLength(addr), name, (socklen_t)namelen, NULL, 0, 0);
 
     if (error)
+    {
+//      if (error == EAI_FAIL)
+//        cg->need_res_init = 1;
+
       return (httpAddrString(addr, name, namelen));
+    }
   }
 #else
   {
@@ -467,7 +500,7 @@ httpAddrString(const http_addr_t *addr,	/* I - Address to convert */
                char              *s,	/* I - String buffer */
 	       int               slen)	/* I - Length of string */
 {
-  DEBUG_printf(("httpAddrString(addr=%p, s=%p, slen=%d)", addr, s, slen));
+  DEBUG_printf(("httpAddrString(addr=%p, s=%p, slen=%d)", (void *)addr, (void *)s, slen));
 
  /*
   * Range check input...
@@ -615,6 +648,10 @@ httpAddrString(const http_addr_t *addr,	/* I - Address to convert */
 /*
  * 'httpGetAddress()' - Get the address of the connected peer of a connection.
  *
+ * For connections created with @link httpConnect2@, the address is for the
+ * server.  For connections created with @link httpAccept@, the address is for
+ * the client.
+ *
  * Returns @code NULL@ if the socket is currently unconnected.
  *
  * @since CUPS 2.0/OS 10.10@
@@ -634,7 +671,7 @@ httpGetAddress(http_t *http)		/* I - HTTP connection */
  * 'httpGetHostByName()' - Lookup a hostname or IPv4 address, and return
  *                         address records for the specified name.
  *
- * @deprecated@
+ * @deprecated@ @exclude all@
  */
 
 struct hostent *			/* O - Host entry */
@@ -645,6 +682,8 @@ httpGetHostByName(const char *name)	/* I - Hostname or IP address */
   static unsigned	ip_addr;	/* Packed IPv4 address */
   static char		*ip_ptrs[2];	/* Pointer to packed address */
   static struct hostent	hostent;	/* Host entry for IP address */
+//  _cups_globals_t	*cg = _cupsGlobals();
+  					/* Pointer to library globals */
 
 
   DEBUG_printf(("httpGetHostByName(name=\"%s\")", name));
@@ -677,6 +716,15 @@ httpGetHostByName(const char *name)	/* I - Hostname or IP address */
     * A domain socket address, so make an AF_LOCAL entry and return it...
     */
 
+#if 0
+    cg->hostent.h_name      = (char *)name;
+    cg->hostent.h_aliases   = NULL;
+    cg->hostent.h_addrtype  = AF_LOCAL;
+    cg->hostent.h_length    = (int)strlen(name) + 1;
+    cg->hostent.h_addr_list = cg->ip_ptrs;
+    cg->ip_ptrs[0]          = (char *)name;
+    cg->ip_ptrs[1]          = NULL;
+#else
     hostent.h_name      = (char *)name;
     hostent.h_aliases   = NULL;
     hostent.h_addrtype  = AF_LOCAL;
@@ -684,9 +732,11 @@ httpGetHostByName(const char *name)	/* I - Hostname or IP address */
     hostent.h_addr_list = ip_ptrs;
     ip_ptrs[0]          = (char *)name;
     ip_ptrs[1]          = NULL;
+#endif // 0
 
     DEBUG_puts("1httpGetHostByName: returning domain socket address...");
 
+//    return (&cg->hostent);
     return (&hostent);
   }
 #endif /* AF_LOCAL */
@@ -706,7 +756,9 @@ httpGetHostByName(const char *name)	/* I - Hostname or IP address */
     if (ip[0] > 255 || ip[1] > 255 || ip[2] > 255 || ip[3] > 255)
       return (NULL);			/* Invalid byte ranges! */
 
-    ip_addr = htonl((((((((unsigned)ip[0] << 8) | (unsigned)ip[1]) << 8) |
+//    cg->ip_addr =
+    ip_addr =
+                  htonl((((((((unsigned)ip[0] << 8) | (unsigned)ip[1]) << 8) |
                            (unsigned)ip[2]) << 8) |
                          (unsigned)ip[3]));
 
@@ -714,16 +766,27 @@ httpGetHostByName(const char *name)	/* I - Hostname or IP address */
     * Fill in the host entry and return it...
     */
 
+#if 0
+    cg->hostent.h_name      = (char *)name;
+    cg->hostent.h_aliases   = NULL;
+    cg->hostent.h_addrtype  = AF_INET;
+    cg->hostent.h_length    = 4;
+    cg->hostent.h_addr_list = cg->ip_ptrs;
+    cg->ip_ptrs[0]          = (char *)&(cg->ip_addr);
+    cg->ip_ptrs[1]          = NULL;
+#else
     hostent.h_name      = (char *)name;
     hostent.h_aliases   = NULL;
     hostent.h_addrtype  = AF_INET;
     hostent.h_length    = 4;
     hostent.h_addr_list = ip_ptrs;
-    ip_ptrs[0]          = (char *)&ip_addr;
+    ip_ptrs[0]          = (char *)&(ip_addr);
     ip_ptrs[1]          = NULL;
+#endif // 0
 
     DEBUG_puts("1httpGetHostByName: returning IPv4 address...");
 
+//    return (&cg->hostent);
     return (&hostent);
   }
   else
@@ -848,7 +911,7 @@ httpGetHostname(http_t *http,		/* I - HTTP connection or NULL */
     char	*ptr;			/* Pointer into string */
 
     for (ptr = s; *ptr; ptr ++)
-      *ptr = (char)tolower((int)*ptr & 255);
+      *ptr = (char)_cups_tolower((int)*ptr);
   }
 
  /*

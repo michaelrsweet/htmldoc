@@ -1,12 +1,11 @@
 /*
  * TLS support code for HTMLDOC using GNU TLS.
  *
- * Copyright 2016-2017 by Michael R Sweet.
- * Copyright 2007-2016 by Apple Inc.
- * Copyright 1997-2007 by Easy Software Products, all rights reserved.
+ * Copyright © 2007-2019 by Apple Inc.
+ * Copyright © 1997-2007 by Easy Software Products, all rights reserved.
  *
- * This program is free software.  Distribution and use rights are outlined in
- * the file "COPYING".
+ * Licensed under Apache License v2.0.  See the file "LICENSE" for more
+ * information.
  */
 
 /**** This file is included from tls.c ****/
@@ -29,7 +28,11 @@
 static gnutls_x509_crl_t tls_crl = NULL;/* Certificate revocation list */
 static char		*tls_keypath = NULL;
 					/* Server cert keychain path */
-static int		tls_options = -1;/* Options for TLS connections */
+//static _cups_mutex_t	tls_mutex = _CUPS_MUTEX_INITIALIZER;
+					/* Mutex for keychain/certs */
+static int		tls_options = -1,/* Options for TLS connections */
+			tls_min_version = _HTTP_TLS_1_0,
+			tls_max_version = _HTTP_TLS_MAX;
 
 
 /*
@@ -135,30 +138,36 @@ httpCredentialsAreValidForName(
 
     if (result)
     {
-      int		i,		/* Looping var */
-			count;		/* Number of revoked certificates */
+      gnutls_x509_crl_iter_t iter = NULL;
+					/* Iterator */
       unsigned char	cserial[1024],	/* Certificate serial number */
 			rserial[1024];	/* Revoked serial number */
       size_t		cserial_size,	/* Size of cert serial number */
 			rserial_size;	/* Size of revoked serial number */
 
-      count = gnutls_x509_crl_get_crt_count(tls_crl);
+//      _cupsMutexLock(&tls_mutex);
 
-      if (count > 0)
+      if (gnutls_x509_crl_get_crt_count(tls_crl) > 0)
       {
         cserial_size = sizeof(cserial);
         gnutls_x509_crt_get_serial(cert, cserial, &cserial_size);
 
-        for (i = 0; i < count; i ++)
-	{
-	  rserial_size = sizeof(rserial);
-          if (!gnutls_x509_crl_get_crt_serial(tls_crl, i, rserial, &rserial_size, NULL) && cserial_size == rserial_size && !memcmp(cserial, rserial, rserial_size))
+	rserial_size = sizeof(rserial);
+
+        while (!gnutls_x509_crl_iter_crt_serial(tls_crl, &iter, rserial, &rserial_size, NULL))
+        {
+          if (cserial_size == rserial_size && !memcmp(cserial, rserial, rserial_size))
 	  {
 	    result = 0;
 	    break;
 	  }
+
+	  rserial_size = sizeof(rserial);
 	}
+	gnutls_x509_crl_iter_deinit(iter);
       }
+
+//      _cupsMutexUnlock(&tls_mutex);
     }
 
     gnutls_x509_crt_deinit(cert);
@@ -183,6 +192,8 @@ httpCredentialsGetTrust(
 					/* Trusted? */
   gnutls_x509_crt_t	cert;		/* Certificate */
   cups_array_t		*tcreds = NULL;	/* Trusted credentials */
+//  _cups_globals_t	*cg = _cupsGlobals();
+					/* Per-thread globals */
 
 
   if (!common_name)
@@ -273,12 +284,12 @@ httpCredentialsGetTrust(
 
     httpFreeCredentials(tcreds);
   }
-  else if (/*cg->validate_certs &&*/ !httpCredentialsAreValidForName(credentials, common_name))
+#if 0
+  else if (cg->validate_certs && !httpCredentialsAreValidForName(credentials, common_name))
   {
     _cupsSetError(IPP_STATUS_ERROR_INTERNAL, _("No stored credentials, not valid for name."), 1);
     trust = HTTP_TRUST_INVALID;
   }
-#if 0
   else if (!cg->trust_first)
   {
    /*
@@ -392,7 +403,7 @@ httpCredentialsString(
   gnutls_x509_crt_t	cert;		/* Certificate */
 
 
-  DEBUG_printf(("httpCredentialsString(credentials=%p, buffer=%p, bufsize=" HTMLDOC_LLFMT ")", credentials, buffer, HTMLDOC_LLCAST bufsize));
+  DEBUG_printf(("httpCredentialsString(credentials=%p, buffer=%p, bufsize=" CUPS_LLFMT ")", credentials, buffer, CUPS_LLCAST bufsize));
 
   if (!buffer)
     return (0);
@@ -403,25 +414,34 @@ httpCredentialsString(
   if ((first = (http_credential_t *)cupsArrayFirst(credentials)) != NULL &&
       (cert = http_gnutls_create_credential(first)) != NULL)
   {
-    char		name[256];	/* Common name associated with cert */
-    size_t		namelen;	/* Length of name */
+    char		name[256],	/* Common name associated with cert */
+			issuer[256];	/* Issuer associated with cert */
+    size_t		len;		/* Length of string */
     time_t		expiration;	/* Expiration date of cert */
+    int			sigalg;		/* Signature algorithm */
     _cups_md5_state_t	md5_state;	/* MD5 state */
     unsigned char	md5_digest[16];	/* MD5 result */
 
-    namelen = sizeof(name) - 1;
-    if (gnutls_x509_crt_get_dn_by_oid(cert, GNUTLS_OID_X520_COMMON_NAME, 0, 0, name, &namelen) >= 0)
-      name[namelen] = '\0';
+    len = sizeof(name) - 1;
+    if (gnutls_x509_crt_get_dn_by_oid(cert, GNUTLS_OID_X520_COMMON_NAME, 0, 0, name, &len) >= 0)
+      name[len] = '\0';
     else
       strlcpy(name, "unknown", sizeof(name));
 
+    len = sizeof(issuer) - 1;
+    if (gnutls_x509_crt_get_issuer_dn_by_oid(cert, GNUTLS_OID_X520_ORGANIZATION_NAME, 0, 0, issuer, &len) >= 0)
+      issuer[len] = '\0';
+    else
+      strlcpy(issuer, "unknown", sizeof(issuer));
+
     expiration = gnutls_x509_crt_get_expiration_time(cert);
+    sigalg     = gnutls_x509_crt_get_signature_algorithm(cert);
 
     _cupsMD5Init(&md5_state);
     _cupsMD5Append(&md5_state, first->data, (int)first->datalen);
     _cupsMD5Finish(&md5_state, md5_digest);
 
-    snprintf(buffer, bufsize, "%s / %s / %02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X", name, httpGetDateString(expiration), md5_digest[0], md5_digest[1], md5_digest[2], md5_digest[3], md5_digest[4], md5_digest[5], md5_digest[6], md5_digest[7], md5_digest[8], md5_digest[9], md5_digest[10], md5_digest[11], md5_digest[12], md5_digest[13], md5_digest[14], md5_digest[15]);
+    snprintf(buffer, bufsize, "%s (issued by %s) / %s / %s / %02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X", name, issuer, httpGetDateString(expiration), gnutls_sign_get_name((gnutls_sign_algorithm_t)sigalg), md5_digest[0], md5_digest[1], md5_digest[2], md5_digest[3], md5_digest[4], md5_digest[5], md5_digest[6], md5_digest[7], md5_digest[8], md5_digest[9], md5_digest[10], md5_digest[11], md5_digest[12], md5_digest[13], md5_digest[14], md5_digest[15]);
 
     gnutls_x509_crt_deinit(cert);
   }
@@ -444,11 +464,10 @@ httpLoadCredentials(
     cups_array_t **credentials,		/* IO - Credentials */
     const char   *common_name)		/* I  - Common name for credentials */
 {
-  FILE			*fp;		/* Certificate file */
+  cups_file_t		*fp;		/* Certificate file */
   char			filename[1024],	/* filename.crt */
 			temp[1024],	/* Temporary string */
-			line[256],	/* Base64-encoded line */
-			*lineptr;	/* Pointer into line */
+			line[256];	/* Base64-encoded line */
   unsigned char		*data = NULL;	/* Buffer for cert data */
   size_t		alloc_data = 0,	/* Bytes allocated */
 			num_data = 0;	/* Bytes used */
@@ -467,14 +486,11 @@ httpLoadCredentials(
 
   http_gnutls_make_path(filename, sizeof(filename), path, common_name, "crt");
 
-  if ((fp = fopen(filename, "r")) == NULL)
+  if ((fp = cupsFileOpen(filename, "r")) == NULL)
     return (-1);
 
-  while (fgets(line, sizeof(line), fp))
+  while (cupsFileGets(fp, line, sizeof(line)))
   {
-    if ((lineptr = line + strlen(line) - 1) >= line && *lineptr == '\n')
-      *lineptr = '\0';
-
     if (!strcmp(line, "-----BEGIN CERTIFICATE-----"))
     {
       if (in_certificate)
@@ -548,7 +564,7 @@ httpLoadCredentials(
     }
   }
 
-  fclose(fp);
+  cupsFileClose(fp);
 
   if (in_certificate)
   {
@@ -579,7 +595,7 @@ httpSaveCredentials(
     cups_array_t *credentials,		/* I - Credentials */
     const char   *common_name)		/* I - Common name for credentials */
 {
-  FILE			*fp;		/* Certificate file */
+  cups_file_t		*fp;		/* Certificate file */
   char			filename[1024],	/* filename.crt */
 			nfilename[1024],/* filename.crt.N */
 			temp[1024],	/* Temporary string */
@@ -600,25 +616,25 @@ httpSaveCredentials(
   http_gnutls_make_path(filename, sizeof(filename), path, common_name, "crt");
   snprintf(nfilename, sizeof(nfilename), "%s.N", filename);
 
-  if ((fp = fopen(nfilename, "w")) == NULL)
+  if ((fp = cupsFileOpen(nfilename, "w")) == NULL)
     return (-1);
 
-  fchmod(fileno(fp), 0600);
+  fchmod(cupsFileNumber(fp), 0600);
 
   for (cred = (http_credential_t *)cupsArrayFirst(credentials);
        cred;
        cred = (http_credential_t *)cupsArrayNext(credentials))
   {
-    fputs("-----BEGIN CERTIFICATE-----\n", fp);
+    cupsFilePuts(fp, "-----BEGIN CERTIFICATE-----\n");
     for (ptr = cred->data, remaining = (ssize_t)cred->datalen; remaining > 0; remaining -= 45, ptr += 45)
     {
       httpEncode64_2(line, sizeof(line), (char *)ptr, remaining > 45 ? 45 : remaining);
-      fprintf(fp, "%s\n", line);
+      cupsFilePrintf(fp, "%s\n", line);
     }
-    fputs("-----END CERTIFICATE-----\n", fp);
+    cupsFilePuts(fp, "-----END CERTIFICATE-----\n");
   }
 
-  fclose(fp);
+  cupsFileClose(fp);
 
   return (rename(nfilename, filename));
 }
@@ -672,10 +688,14 @@ http_gnutls_default_path(char   *buffer,/* I - Path buffer */
                          size_t bufsize)/* I - Size of path buffer */
 {
   const char *home = getenv("HOME");	/* HOME environment variable */
+//  _cups_globals_t	*cg = _cupsGlobals();
+					/* Pointer to library globals */
 
 
+//  if (cg->home)
   if (getuid() && home)
   {
+//    snprintf(buffer, bufsize, "%s/.cups", cg->home);
     snprintf(buffer, bufsize, "%s/.htmldoc", home);
     if (access(buffer, 0))
     {
@@ -687,6 +707,7 @@ http_gnutls_default_path(char   *buffer,/* I - Path buffer */
       }
     }
 
+//    snprintf(buffer, bufsize, "%s/.cups/ssl", cg->home);
     snprintf(buffer, bufsize, "%s/.htmldoc/ssl", home);
     if (access(buffer, 0))
     {
@@ -699,6 +720,7 @@ http_gnutls_default_path(char   *buffer,/* I - Path buffer */
     }
   }
   else
+//    strlcpy(buffer, CUPS_SERVERROOT "/ssl", bufsize);
     strlcpy(buffer, "/etc/htmldoc/ssl", bufsize);
 
   DEBUG_printf(("1http_gnutls_default_path: Using default path \"%s\".", buffer));
@@ -715,12 +737,13 @@ http_gnutls_default_path(char   *buffer,/* I - Path buffer */
 static void
 http_gnutls_load_crl(void)
 {
+  _cupsMutexLock(&tls_mutex);
+
   if (!gnutls_x509_crl_init(&tls_crl))
   {
-    FILE		*fp;		/* CRL file */
+    cups_file_t		*fp;		/* CRL file */
     char		filename[1024],	/* site.crl */
-			line[256],	/* Base64-encoded line */
-			*lineptr;	/* Pointer into line */
+			line[256];	/* Base64-encoded line */
     unsigned char	*data = NULL;	/* Buffer for cert data */
     size_t		alloc_data = 0,	/* Bytes allocated */
 			num_data = 0;	/* Bytes used */
@@ -728,15 +751,12 @@ http_gnutls_load_crl(void)
     gnutls_datum_t	datum;		/* Data record */
 
 
-    http_gnutls_make_path(filename, sizeof(filename), "/etc/htmldoc", "site", "crl");
+    http_gnutls_make_path(filename, sizeof(filename), CUPS_SERVERROOT, "site", "crl");
 
-    if ((fp = fopen(filename, "r")) != NULL)
+    if ((fp = cupsFileOpen(filename, "r")) != NULL)
     {
-      while (fgets(line, sizeof(line), fp))
+      while (cupsFileGets(fp, line, sizeof(line)))
       {
-        if ((lineptr = line + strlen(line) - 1) >= line && *lineptr == '\n')
-          *lineptr = '\0';
-
 	if (!strcmp(line, "-----BEGIN X509 CRL-----"))
 	{
 	  if (num_data)
@@ -794,12 +814,14 @@ http_gnutls_load_crl(void)
 	}
       }
 
-      fclose(fp);
+      cupsFileClose(fp);
 
       if (data)
 	free(data);
     }
   }
+
+  _cupsMutexUnlock(&tls_mutex);
 }
 #endif // 0
 
@@ -860,7 +882,7 @@ http_gnutls_read(
 
   http = (http_t *)ptr;
 
-  if (!http->blocking)
+  if (!http->blocking || http->timeout_value > 0.0)
   {
    /*
     * Make sure we have data before we read...
@@ -973,26 +995,20 @@ _httpTLSRead(http_t *http,		/* I - Connection to server */
 
 
 /*
- * '_httpTLSSetCredentials()' - Set the TLS credentials.
- */
-
-int					/* O - Status of connection */
-_httpTLSSetCredentials(http_t *http)	/* I - Connection to server */
-{
-  (void)http;
-
-  return (0);
-}
-
-
-/*
  * '_httpTLSSetOptions()' - Set TLS protocol and cipher suite options.
  */
 
 void
-_httpTLSSetOptions(int options)		/* I - Options */
+_httpTLSSetOptions(int options,		/* I - Options */
+                   int min_version,	/* I - Minimum TLS version */
+                   int max_version)	/* I - Maximum TLS version */
 {
-  tls_options = options;
+  if (!(options & _HTTP_TLS_SET_DEFAULT) || tls_options < 0)
+  {
+    tls_options     = options;
+    tls_min_version = min_version;
+    tls_max_version = max_version;
+  }
 }
 
 
@@ -1008,8 +1024,21 @@ _httpTLSStart(http_t *http)		/* I - Connection to server */
   int			status;		/* Status of handshake */
   gnutls_certificate_credentials_t *credentials;
 					/* TLS credentials */
-  char			priority_string[1024];
+  char			priority_string[2048];
 					/* Priority string */
+  int			version;	/* Current version */
+  double		old_timeout;	/* Old timeout value */
+  http_timeout_cb_t	old_cb;		/* Old timeout callback */
+  void			*old_data;	/* Old timeout data */
+  static const char * const versions[] =/* SSL/TLS versions */
+  {
+    "VERS-SSL3.0",
+    "VERS-TLS1.0",
+    "VERS-TLS1.1",
+    "VERS-TLS1.2",
+    "VERS-TLS1.3",
+    "VERS-TLS-ALL"
+  };
 
 
   DEBUG_printf(("3_httpTLSStart(http=%p)", http));
@@ -1093,13 +1122,12 @@ _httpTLSStart(http_t *http)		/* I - Connection to server */
   else
   {
    /*
-    * Server: not supported
+    * Server: not supported...
     */
 
     http->error  = errno = EINVAL;
     http->status = HTTP_STATUS_ERROR;
     _cupsSetError(IPP_STATUS_ERROR_INTERNAL, _("Unable to create server credentials."), 1);
-
     return (-1);
   }
 
@@ -1124,18 +1152,50 @@ _httpTLSStart(http_t *http)		/* I - Connection to server */
 
   strlcpy(priority_string, "NORMAL", sizeof(priority_string));
 
-  if (tls_options & _HTTP_TLS_DENY_TLS10)
-    strlcat(priority_string, ":+VERS-TLS-ALL:-VERS-TLS1.0:-VERS-SSL3.0", sizeof(priority_string));
-  else if (tls_options & _HTTP_TLS_ALLOW_SSL3)
-    strlcat(priority_string, ":+VERS-TLS-ALL", sizeof(priority_string));
+  if (tls_max_version < _HTTP_TLS_MAX)
+  {
+   /*
+    * Require specific TLS versions...
+    */
+
+    strlcat(priority_string, ":-VERS-TLS-ALL", sizeof(priority_string));
+    for (version = tls_min_version; version <= tls_max_version; version ++)
+    {
+      strlcat(priority_string, ":+", sizeof(priority_string));
+      strlcat(priority_string, versions[version], sizeof(priority_string));
+    }
+  }
+  else if (tls_min_version == _HTTP_TLS_SSL3)
+  {
+   /*
+    * Allow all versions of TLS and SSL/3.0...
+    */
+
+    strlcat(priority_string, ":+VERS-TLS-ALL:+VERS-SSL3.0", sizeof(priority_string));
+  }
   else
-    strlcat(priority_string, ":+VERS-TLS-ALL:-VERS-SSL3.0", sizeof(priority_string));
+  {
+   /*
+    * Require a minimum version...
+    */
 
-  if (!(tls_options & _HTTP_TLS_ALLOW_RC4))
-    strlcat(priority_string, ":-ARCFOUR-128", sizeof(priority_string));
+    strlcat(priority_string, ":+VERS-TLS-ALL", sizeof(priority_string));
+    for (version = 0; version < tls_min_version; version ++)
+    {
+      strlcat(priority_string, ":-", sizeof(priority_string));
+      strlcat(priority_string, versions[version], sizeof(priority_string));
+    }
+  }
 
-  if (!(tls_options & _HTTP_TLS_ALLOW_DH))
-    strlcat(priority_string, ":!ANON-DH", sizeof(priority_string));
+  if (tls_options & _HTTP_TLS_ALLOW_RC4)
+    strlcat(priority_string, ":+ARCFOUR-128", sizeof(priority_string));
+  else
+    strlcat(priority_string, ":!ARCFOUR-128", sizeof(priority_string));
+
+  strlcat(priority_string, ":!ANON-DH", sizeof(priority_string));
+
+  if (tls_options & _HTTP_TLS_DENY_CBC)
+    strlcat(priority_string, ":!AES-128-CBC:!AES-256-CBC:!CAMELLIA-128-CBC:!CAMELLIA-256-CBC:!3DES-CBC", sizeof(priority_string));
 
 #ifdef HAVE_GNUTLS_PRIORITY_SET_DIRECT
   gnutls_priority_set_direct(http->tls, priority_string, NULL);
@@ -1155,6 +1215,24 @@ _httpTLSStart(http_t *http)		/* I - Connection to server */
 #endif /* HAVE_GNUTLS_TRANSPORT_SET_PULL_TIMEOUT_FUNCTION */
   gnutls_transport_set_push_function(http->tls, http_gnutls_write);
 
+ /*
+  * Enforce a minimum timeout of 10 seconds for the TLS handshake...
+  */
+
+  old_timeout  = http->timeout_value;
+  old_cb       = http->timeout_cb;
+  old_data     = http->timeout_data;
+
+  if (!old_cb || old_timeout < 10.0)
+  {
+    DEBUG_puts("4_httpTLSStart: Setting timeout to 10 seconds.");
+    httpSetTimeout(http, 10.0, NULL, NULL);
+  }
+
+ /*
+  * Do the TLS handshake...
+  */
+
   while ((status = gnutls_handshake(http->tls)) != GNUTLS_E_SUCCESS)
   {
     DEBUG_printf(("5_httpStartTLS: gnutls_handshake returned %d (%s)",
@@ -1172,9 +1250,17 @@ _httpTLSStart(http_t *http)		/* I - Connection to server */
       free(credentials);
       http->tls = NULL;
 
+      httpSetTimeout(http, old_timeout, old_cb, old_data);
+
       return (-1);
     }
   }
+
+ /*
+  * Restore the previous timeout settings...
+  */
+
+  httpSetTimeout(http, old_timeout, old_cb, old_data);
 
   http->tls_credentials = credentials;
 

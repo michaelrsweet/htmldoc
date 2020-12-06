@@ -16,20 +16,36 @@
  * Include necessary headers...
  */
 
-#  define _CUPS_DEPRECATED
-#  define _CUPS_DEPRECATED_MSG(x)
-#  define _CUPS_DEPRECATED_1_6_MSG(x)
-#  define _CUPS_DEPRECATED_1_7_MSG(x)
-#  define _CUPS_API_1_1_19
-#  define _CUPS_API_1_1_21
-#  define _CUPS_API_1_2
-#  define _CUPS_API_1_3
-#  define _CUPS_API_1_4
-#  define _CUPS_API_1_5
-#  define _CUPS_API_1_6
-#  define _CUPS_API_1_7
-#  define _CUPS_API_2_0
 #  include <stdlib.h>
+
+
+/*
+ * Stuff that CUPS normally provides...
+ */
+
+#  ifndef _CUPS_PUBLIC
+#    define _CUPS_PUBLIC
+#    define _CUPS_API_1_1_19 _CUPS_PUBLIC
+#    define _CUPS_API_1_1_20 _CUPS_PUBLIC
+#    define _CUPS_API_1_1_21 _CUPS_PUBLIC
+#    define _CUPS_API_1_2 _CUPS_PUBLIC
+#    define _CUPS_API_1_3 _CUPS_PUBLIC
+#    define _CUPS_API_1_4 _CUPS_PUBLIC
+#    define _CUPS_API_1_5 _CUPS_PUBLIC
+#    define _CUPS_API_1_6 _CUPS_PUBLIC
+#    define _CUPS_API_1_7 _CUPS_PUBLIC
+#    define _CUPS_API_2_0 _CUPS_PUBLIC
+#    define _CUPS_API_2_2 _CUPS_PUBLIC
+#    define _CUPS_API_2_2_4 _CUPS_PUBLIC
+#    define _CUPS_API_2_2_7 _CUPS_PUBLIC
+#    define _CUPS_API_2_3 _CUPS_PUBLIC
+#    define _CUPS_DEPRECATED _CUPS_PUBLIC
+#    define _CUPS_DEPRECATED_MSG(m) _CUPS_PUBLIC
+#    define _CUPS_DEPRECATED_1_2_MSG(m) _CUPS_PUBLIC
+#    define _CUPS_DEPRECATED_1_6_MSG(m) _CUPS_PUBLIC
+#    define _CUPS_DEPRECATED_1_7_MSG(m) _CUPS_PUBLIC
+#    define _CUPS_DEPRECATED_2_2_MSG(m) _CUPS_PUBLIC
+#  endif // !_CUPS_PUBLIC
 
 
 /*

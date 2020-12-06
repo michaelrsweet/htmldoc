@@ -2,11 +2,11 @@
  * TLS support for HTMLDOC on Windows using the Security Support Provider
  * Interface (SSPI).
  *
- * Copyright 2016-2017 by Michael R Sweet.
- * Copyright 2010-2015 by Apple Inc.
+ * Copyright 2020 by Michael R Sweet
+ * Copyright 2010-2018 by Apple Inc.
  *
- * This program is free software.  Distribution and use rights are outlined in
- * the file "COPYING".
+ * Licensed under Apache License v2.0.  See the file "LICENSE" for more
+ * information.
  */
 
 /**** This file is included from tls.c ****/
@@ -48,7 +48,9 @@
  * Local globals...
  */
 
-static int		tls_options = -1;/* Options for TLS connections */
+static int		tls_options = -1,/* Options for TLS connections */
+			tls_min_version = _HTTP_TLS_1_0,
+			tls_max_version = _HTTP_TLS_MAX;
 
 
 /*
@@ -61,7 +63,7 @@ static PCCERT_CONTEXT http_sspi_create_credential(http_credential_t *cred);
 static BOOL	http_sspi_find_credentials(http_t *http, const LPWSTR containerName, const char *common_name);
 static void	http_sspi_free(_http_sspi_t *sspi);
 static BOOL	http_sspi_make_credentials(_http_sspi_t *sspi, const LPWSTR containerName, const char *common_name, _http_mode_t mode, int years);
-static int	http_sspi_server(http_t *http, const char *hostname);
+//static int	http_sspi_server(http_t *http, const char *hostname);
 static void	http_sspi_set_allows_any_root(_http_sspi_t *sspi, BOOL allow);
 static void	http_sspi_set_allows_expired_certs(_http_sspi_t *sspi, BOOL allow);
 static const char *http_sspi_strerror(char *buffer, size_t bufsize, DWORD code);
@@ -128,7 +130,7 @@ httpCredentialsAreValidForName(
 
   if (cert)
   {
-    if (CertNameToStr(X509_ASN_ENCODING, &(cert->pCertInfo->Subject), CERT_SIMPLE_NAME_STR, cert_name, sizeof(cert_name)))
+    if (CertNameToStrA(X509_ASN_ENCODING, &(cert->pCertInfo->Subject), CERT_SIMPLE_NAME_STR, cert_name, sizeof(cert_name)))
     {
      /*
       * Extract common name at end...
@@ -303,7 +305,7 @@ httpCredentialsString(
 
     expiration = mktime(&tm);
 
-    if (CertNameToStr(X509_ASN_ENCODING, &(cert->pCertInfo->Subject), CERT_SIMPLE_NAME_STR, cert_name, sizeof(cert_name)))
+    if (CertNameToStrA(X509_ASN_ENCODING, &(cert->pCertInfo->Subject), CERT_SIMPLE_NAME_STR, cert_name, sizeof(cert_name)))
     {
      /*
       * Extract common name at end...
@@ -414,7 +416,7 @@ httpLoadCredentials(
 
   if (!CertStrToNameA(X509_ASN_ENCODING, common_name, CERT_OID_NAME_STR, NULL, NULL, &dwSize, NULL))
   {
-    DEBUG_printf(("1httpLoadCredentials: CertStrToNameA failed: %s", http_sspi_strerror(error, sizeof(error), GetLastError())));
+    DEBUG_printf(("1httpLoadCredentials: CertStrToName failed: %s", http_sspi_strerror(error, sizeof(error), GetLastError())));
     goto cleanup;
   }
 
@@ -428,7 +430,7 @@ httpLoadCredentials(
 
   if (!CertStrToNameA(X509_ASN_ENCODING, common_name, CERT_OID_NAME_STR, NULL, p, &dwSize, NULL))
   {
-    DEBUG_printf(("1httpLoadCredentials: CertStrToNameA failed: %s", http_sspi_strerror(error, sizeof(error), GetLastError())));
+    DEBUG_printf(("1httpLoadCredentials: CertStrToName failed: %s", http_sspi_strerror(error, sizeof(error), GetLastError())));
     goto cleanup;
   }
 
@@ -537,7 +539,7 @@ httpSaveCredentials(
 
   if (!CertStrToNameA(X509_ASN_ENCODING, common_name, CERT_OID_NAME_STR, NULL, NULL, &dwSize, NULL))
   {
-    DEBUG_printf(("1httpSaveCredentials: CertStrToNameA failed: %s", http_sspi_strerror(error, sizeof(error), GetLastError())));
+    DEBUG_printf(("1httpSaveCredentials: CertStrToName failed: %s", http_sspi_strerror(error, sizeof(error), GetLastError())));
     goto cleanup;
   }
 
@@ -551,7 +553,7 @@ httpSaveCredentials(
 
   if (!CertStrToNameA(X509_ASN_ENCODING, common_name, CERT_OID_NAME_STR, NULL, p, &dwSize, NULL))
   {
-    DEBUG_printf(("1httpSaveCredentials: CertStrToNameA failed: %s", http_sspi_strerror(error, sizeof(error), GetLastError())));
+    DEBUG_printf(("1httpSaveCredentials: CertStrToName failed: %s", http_sspi_strerror(error, sizeof(error), GetLastError())));
     goto cleanup;
   }
 
@@ -849,9 +851,16 @@ _httpTLSRead(http_t *http,		/* I - HTTP connection */
  */
 
 void
-_httpTLSSetOptions(int options)		/* I - Options */
+_httpTLSSetOptions(int options,		/* I - Options */
+                   int min_version,	/* I - Minimum TLS version */
+                   int max_version)	/* I - Maximum TLS version */
 {
-  tls_options = options;
+  if (!(options & _HTTP_TLS_SET_DEFAULT) || tls_options < 0)
+  {
+    tls_options     = options;
+    tls_min_version = min_version;
+    tls_max_version = max_version;
+  }
 }
 
 
@@ -906,42 +915,13 @@ _httpTLSStart(http_t *http)		/* I - HTTP connection */
   else
   {
    /*
-    * Server: determine hostname to use...
+    * Server: not supported...
     */
 
-    if (http->fields[HTTP_FIELD_HOST][0])
-    {
-     /*
-      * Use hostname for TLS upgrade...
-      */
-
-      strlcpy(hostname, http->fields[HTTP_FIELD_HOST], sizeof(hostname));
-    }
-    else
-    {
-     /*
-      * Resolve hostname from connection address...
-      */
-
-      http_addr_t	addr;		/* Connection address */
-      socklen_t		addrlen;	/* Length of address */
-
-      addrlen = sizeof(addr);
-      if (getsockname(http->fd, (struct sockaddr *)&addr, &addrlen))
-      {
-	DEBUG_printf(("4_httpTLSStart: Unable to get socket address: %s", strerror(errno)));
-	hostname[0] = '\0';
-      }
-      else if (httpAddrLocalhost(&addr))
-	hostname[0] = '\0';
-      else
-      {
-	httpAddrLookup(&addr, hostname, sizeof(hostname));
-        DEBUG_printf(("4_httpTLSStart: Resolved socket address to \"%s\".", hostname));
-      }
-    }
-
-    return (http_sspi_server(http, hostname));
+    http->error  = errno = WSA_EINVAL;
+    http->status = HTTP_STATUS_ERROR;
+    _cupsSetError(IPP_STATUS_ERROR_INTERNAL, _("Unable to create server credentials."), 1);
+    return (-1);
   }
 }
 
@@ -1271,8 +1251,6 @@ http_sspi_client(http_t     *http,	/* I - Client connection */
   SecBufferDesc	outBuffer;		/* Array of SecBuffer structs */
   SecBuffer	outBuffers[1];		/* Security package buffer */
   int		ret = 0;		/* Return value */
-  char		username[1024],		/* Current username */
-		common_name[1024];	/* CN=username */
 
 
   DEBUG_printf(("4http_sspi_client(http=%p, hostname=\"%s\")", http, hostname));
@@ -1651,7 +1629,7 @@ http_sspi_find_credentials(
 
     if (!CertStrToNameA(X509_ASN_ENCODING, common_name, CERT_OID_NAME_STR, NULL, NULL, &dwSize, NULL))
     {
-      DEBUG_printf(("5http_sspi_find_credentials: CertStrToNameA failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), GetLastError())));
+      DEBUG_printf(("5http_sspi_find_credentials: CertStrToName failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), GetLastError())));
       ok = FALSE;
       goto cleanup;
     }
@@ -1667,7 +1645,7 @@ http_sspi_find_credentials(
 
     if (!CertStrToNameA(X509_ASN_ENCODING, common_name, CERT_OID_NAME_STR, NULL, p, &dwSize, NULL))
     {
-      DEBUG_printf(("5http_sspi_find_credentials: CertStrToNameA failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), GetLastError())));
+      DEBUG_printf(("5http_sspi_find_credentials: CertStrToName failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), GetLastError())));
       ok = FALSE;
       goto cleanup;
     }
@@ -1691,11 +1669,9 @@ http_sspi_find_credentials(
 
   if (common_name)
   {
-    SchannelCred.cCreds    = 1;
-    SchannelCred.paCred    = &storedContext;
+    SchannelCred.cCreds = 1;
+    SchannelCred.paCred = &storedContext;
   }
-  else
-    SchannelCred.dwFlags |= SCH_CRED_NO_DEFAULT_CREDS;
 
  /*
   * Set supported protocols (can also be overriden in the registry...)
@@ -1704,18 +1680,22 @@ http_sspi_find_credentials(
 #ifdef SP_PROT_TLS1_2_SERVER
   if (http->mode == _HTTP_MODE_SERVER)
   {
-    if (tls_options & _HTTP_TLS_DENY_TLS10)
+    if (tls_min_version > _HTTP_TLS_1_1)
+      SchannelCred.grbitEnabledProtocols = SP_PROT_TLS1_2_SERVER;
+    else if (tls_min_version > _HTTP_TLS_1_0)
       SchannelCred.grbitEnabledProtocols = SP_PROT_TLS1_2_SERVER | SP_PROT_TLS1_1_SERVER;
-    else if (tls_options & _HTTP_TLS_ALLOW_SSL3)
+    else if (tls_min_version == _HTTP_TLS_SSL3)
       SchannelCred.grbitEnabledProtocols = SP_PROT_TLS1_2_SERVER | SP_PROT_TLS1_1_SERVER | SP_PROT_TLS1_0_SERVER | SP_PROT_SSL3_SERVER;
     else
       SchannelCred.grbitEnabledProtocols = SP_PROT_TLS1_2_SERVER | SP_PROT_TLS1_1_SERVER | SP_PROT_TLS1_0_SERVER;
   }
   else
   {
-    if (tls_options & _HTTP_TLS_DENY_TLS10)
+    if (tls_min_version > _HTTP_TLS_1_1)
+      SchannelCred.grbitEnabledProtocols = SP_PROT_TLS1_2_CLIENT;
+    else if (tls_min_version > _HTTP_TLS_1_0)
       SchannelCred.grbitEnabledProtocols = SP_PROT_TLS1_2_CLIENT | SP_PROT_TLS1_1_CLIENT;
-    else if (tls_options & _HTTP_TLS_ALLOW_SSL3)
+    else if (tls_min_version == _HTTP_TLS_SSL3)
       SchannelCred.grbitEnabledProtocols = SP_PROT_TLS1_2_CLIENT | SP_PROT_TLS1_1_CLIENT | SP_PROT_TLS1_0_CLIENT | SP_PROT_SSL3_CLIENT;
     else
       SchannelCred.grbitEnabledProtocols = SP_PROT_TLS1_2_CLIENT | SP_PROT_TLS1_1_CLIENT | SP_PROT_TLS1_0_CLIENT;
@@ -1724,21 +1704,21 @@ http_sspi_find_credentials(
 #else
   if (http->mode == _HTTP_MODE_SERVER)
   {
-    if (tls_options & _HTTP_TLS_ALLOW_SSL3)
+    if (tls_min_version == _HTTP_TLS_SSL3)
       SchannelCred.grbitEnabledProtocols = SP_PROT_TLS1_SERVER | SP_PROT_SSL3_SERVER;
     else
       SchannelCred.grbitEnabledProtocols = SP_PROT_TLS1_SERVER;
   }
   else
   {
-    if (tls_options & _HTTP_TLS_ALLOW_SSL3)
+    if (tls_min_version == _HTTP_TLS_SSL3)
       SchannelCred.grbitEnabledProtocols = SP_PROT_TLS1_CLIENT | SP_PROT_SSL3_CLIENT;
     else
       SchannelCred.grbitEnabledProtocols = SP_PROT_TLS1_CLIENT;
   }
 #endif /* SP_PROT_TLS1_2_SERVER */
 
-  /* TODO: Support _HTTP_TLS_ALLOW_RC4 and _HTTP_TLS_ALLOW_DH options; right now we'll rely on Windows registry to enable/disable RC4/DH... */
+  /* TODO: Support _HTTP_TLS_ALLOW_RC4, _HTTP_TLS_ALLOW_DH, and _HTTP_TLS_DENY_CBC options; right now we'll rely on Windows registry to enable/disable RC4/DH/CBC... */
 
  /*
   * Create an SSPI credential.
@@ -1865,7 +1845,7 @@ http_sspi_make_credentials(
 
   if (!CertStrToNameA(X509_ASN_ENCODING, common_name, CERT_OID_NAME_STR, NULL, NULL, &dwSize, NULL))
   {
-    DEBUG_printf(("5http_sspi_make_credentials: CertStrToNameA failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), GetLastError())));
+    DEBUG_printf(("5http_sspi_make_credentials: CertStrToName failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), GetLastError())));
     ok = FALSE;
     goto cleanup;
   }
@@ -1881,7 +1861,7 @@ http_sspi_make_credentials(
 
   if (!CertStrToNameA(X509_ASN_ENCODING, common_name, CERT_OID_NAME_STR, NULL, p, &dwSize, NULL))
   {
-    DEBUG_printf(("5http_sspi_make_credentials: CertStrToNameA failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), GetLastError())));
+    DEBUG_printf(("5http_sspi_make_credentials: CertStrToName failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), GetLastError())));
     ok = FALSE;
     goto cleanup;
   }
@@ -1911,7 +1891,7 @@ http_sspi_make_credentials(
 
   ZeroMemory(&exts, sizeof(exts));
 
-  createdContext = CertCreateSelfSignCertificate(hProv, &sib, CERT_CREATE_SELFSIGN_NO_SIGN, &kpi, NULL, NULL, &et, &exts);
+  createdContext = CertCreateSelfSignCertificate(hProv, &sib, 0, &kpi, NULL, NULL, &et, &exts);
 
   if (!createdContext)
   {
@@ -1952,10 +1932,9 @@ http_sspi_make_credentials(
 
   ZeroMemory(&SchannelCred, sizeof(SchannelCred));
 
-  SchannelCred.dwVersion             = SCHANNEL_CRED_VERSION;
-  SchannelCred.cCreds                = 1;
-  SchannelCred.paCred                = &storedContext;
-  SchannelCred.grbitEnabledProtocols = SP_PROT_SSL3TLS1;
+  SchannelCred.dwVersion = SCHANNEL_CRED_VERSION;
+  SchannelCred.cCreds    = 1;
+  SchannelCred.paCred    = &storedContext;
 
  /*
   * Create an SSPI credential.
@@ -1998,231 +1977,6 @@ cleanup:
 
 
 /*
- * 'http_sspi_server()' - Negotiate a TLS connection as a server.
- */
-
-static int				/* O - 0 on success, -1 on failure */
-http_sspi_server(http_t     *http,	/* I - HTTP connection */
-                 const char *hostname)	/* I - Hostname of server */
-{
-  _http_sspi_t	*sspi = http->tls;	/* I - SSPI data */
-  char		common_name[512];	/* Common name for cert */
-  DWORD		dwSSPIFlags;		/* SSL connection attributes we want */
-  DWORD		dwSSPIOutFlags;		/* SSL connection attributes we got */
-  TimeStamp	tsExpiry;		/* Time stamp */
-  SECURITY_STATUS scRet;		/* SSPI Status */
-  SecBufferDesc	inBuffer;		/* Array of SecBuffer structs */
-  SecBuffer	inBuffers[2];		/* Security package buffer */
-  SecBufferDesc	outBuffer;		/* Array of SecBuffer structs */
-  SecBuffer	outBuffers[1];		/* Security package buffer */
-  int		num = 0;		/* 32 bit status value */
-  BOOL		fInitContext = TRUE;	/* Has the context been init'd? */
-  int		ret = 0;		/* Return value */
-
-
-  DEBUG_printf(("4http_sspi_server(http=%p, hostname=\"%s\")", http, hostname));
-
-  dwSSPIFlags = ASC_REQ_SEQUENCE_DETECT  |
-                ASC_REQ_REPLAY_DETECT    |
-                ASC_REQ_CONFIDENTIALITY  |
-                ASC_REQ_EXTENDED_ERROR   |
-                ASC_REQ_ALLOCATE_MEMORY  |
-                ASC_REQ_STREAM;
-
-  sspi->decryptBufferUsed = 0;
-
- /*
-  * Lookup the server certificate...
-  */
-
-  snprintf(common_name, sizeof(common_name), "CN=%s", hostname);
-
-  if (!http_sspi_find_credentials(http, L"ServerContainer", common_name))
-    if (!http_sspi_make_credentials(http->tls, L"ServerContainer", common_name, _HTTP_MODE_SERVER, 10))
-    {
-      DEBUG_puts("5http_sspi_server: Unable to get server credentials.");
-      return (-1);
-    }
-
- /*
-  * Set OutBuffer for AcceptSecurityContext call
-  */
-
-  outBuffer.cBuffers  = 1;
-  outBuffer.pBuffers  = outBuffers;
-  outBuffer.ulVersion = SECBUFFER_VERSION;
-
-  scRet = SEC_I_CONTINUE_NEEDED;
-
-  while (scRet == SEC_I_CONTINUE_NEEDED    ||
-         scRet == SEC_E_INCOMPLETE_MESSAGE ||
-         scRet == SEC_I_INCOMPLETE_CREDENTIALS)
-  {
-    if (sspi->decryptBufferUsed == 0 || scRet == SEC_E_INCOMPLETE_MESSAGE)
-    {
-      if (sspi->decryptBufferLength <= sspi->decryptBufferUsed)
-      {
-	BYTE *temp;			/* New buffer */
-
-	if (sspi->decryptBufferLength >= 262144)
-	{
-	  WSASetLastError(E_OUTOFMEMORY);
-	  DEBUG_puts("5http_sspi_server: Decryption buffer too large (>256k)");
-	  return (-1);
-	}
-
-	if ((temp = realloc(sspi->decryptBuffer, sspi->decryptBufferLength + 4096)) == NULL)
-	{
-	  DEBUG_printf(("5http_sspi_server: Unable to allocate %d byte buffer.", sspi->decryptBufferLength + 4096));
-	  WSASetLastError(E_OUTOFMEMORY);
-	  return (-1);
-	}
-
-	sspi->decryptBufferLength += 4096;
-	sspi->decryptBuffer       = temp;
-      }
-
-      for (;;)
-      {
-        num = recv(http->fd, sspi->decryptBuffer + sspi->decryptBufferUsed, (int)(sspi->decryptBufferLength - sspi->decryptBufferUsed), 0);
-
-        if (num == -1 && WSAGetLastError() == WSAEWOULDBLOCK)
-          Sleep(1);
-        else
-          break;
-      }
-
-      if (num < 0)
-      {
-        DEBUG_printf(("5http_sspi_server: recv failed: %d", WSAGetLastError()));
-        return (-1);
-      }
-      else if (num == 0)
-      {
-        DEBUG_puts("5http_sspi_server: client disconnected");
-        return (-1);
-      }
-
-      DEBUG_printf(("5http_sspi_server: received %d (handshake) bytes from client.", num));
-      sspi->decryptBufferUsed += num;
-    }
-
-   /*
-    * InBuffers[1] is for getting extra data that SSPI/SCHANNEL doesn't process
-    * on this run around the loop.
-    */
-
-    inBuffers[0].pvBuffer   = sspi->decryptBuffer;
-    inBuffers[0].cbBuffer   = (unsigned long)sspi->decryptBufferUsed;
-    inBuffers[0].BufferType = SECBUFFER_TOKEN;
-
-    inBuffers[1].pvBuffer   = NULL;
-    inBuffers[1].cbBuffer   = 0;
-    inBuffers[1].BufferType = SECBUFFER_EMPTY;
-
-    inBuffer.cBuffers       = 2;
-    inBuffer.pBuffers       = inBuffers;
-    inBuffer.ulVersion      = SECBUFFER_VERSION;
-
-   /*
-    * Initialize these so if we fail, pvBuffer contains NULL, so we don't try to
-    * free random garbage at the quit.
-    */
-
-    outBuffers[0].pvBuffer   = NULL;
-    outBuffers[0].BufferType = SECBUFFER_TOKEN;
-    outBuffers[0].cbBuffer   = 0;
-
-    scRet = AcceptSecurityContext(&sspi->creds, (fInitContext?NULL:&sspi->context), &inBuffer, dwSSPIFlags, SECURITY_NATIVE_DREP, (fInitContext?&sspi->context:NULL), &outBuffer, &dwSSPIOutFlags, &tsExpiry);
-
-    fInitContext = FALSE;
-
-    if (scRet == SEC_E_OK              ||
-        scRet == SEC_I_CONTINUE_NEEDED ||
-        (FAILED(scRet) && ((dwSSPIOutFlags & ISC_RET_EXTENDED_ERROR) != 0)))
-    {
-      if (outBuffers[0].cbBuffer && outBuffers[0].pvBuffer)
-      {
-       /*
-        * Send response to server if there is one.
-        */
-
-        num = send(http->fd, outBuffers[0].pvBuffer, outBuffers[0].cbBuffer, 0);
-
-        if (num <= 0)
-        {
-          DEBUG_printf(("5http_sspi_server: handshake send failed: %d", WSAGetLastError()));
-	  return (-1);
-        }
-
-        DEBUG_printf(("5http_sspi_server: sent %d handshake bytes to client.", outBuffers[0].cbBuffer));
-
-        FreeContextBuffer(outBuffers[0].pvBuffer);
-        outBuffers[0].pvBuffer = NULL;
-      }
-    }
-
-    if (scRet == SEC_E_OK)
-    {
-     /*
-      * If there's extra data then save it for next time we go to decrypt.
-      */
-
-      if (inBuffers[1].BufferType == SECBUFFER_EXTRA)
-      {
-        memcpy(sspi->decryptBuffer, (LPBYTE)(sspi->decryptBuffer + sspi->decryptBufferUsed - inBuffers[1].cbBuffer), inBuffers[1].cbBuffer);
-        sspi->decryptBufferUsed = inBuffers[1].cbBuffer;
-      }
-      else
-      {
-        sspi->decryptBufferUsed = 0;
-      }
-      break;
-    }
-    else if (FAILED(scRet) && scRet != SEC_E_INCOMPLETE_MESSAGE)
-    {
-      DEBUG_printf(("5http_sspi_server: AcceptSecurityContext failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), scRet)));
-      ret = -1;
-      break;
-    }
-
-    if (scRet != SEC_E_INCOMPLETE_MESSAGE &&
-        scRet != SEC_I_INCOMPLETE_CREDENTIALS)
-    {
-      if (inBuffers[1].BufferType == SECBUFFER_EXTRA)
-      {
-        memcpy(sspi->decryptBuffer, (LPBYTE)(sspi->decryptBuffer + sspi->decryptBufferUsed - inBuffers[1].cbBuffer), inBuffers[1].cbBuffer);
-        sspi->decryptBufferUsed = inBuffers[1].cbBuffer;
-      }
-      else
-      {
-        sspi->decryptBufferUsed = 0;
-      }
-    }
-  }
-
-  if (!ret)
-  {
-    sspi->contextInitialized = TRUE;
-
-   /*
-    * Find out how big the header will be:
-    */
-
-    scRet = QueryContextAttributes(&sspi->context, SECPKG_ATTR_STREAM_SIZES, &sspi->streamSizes);
-
-    if (scRet != SEC_E_OK)
-    {
-      DEBUG_printf(("5http_sspi_server: QueryContextAttributes failed: %s", http_sspi_strerror(sspi->error, sizeof(sspi->error), scRet)));
-      ret = -1;
-    }
-  }
-
-  return (ret);
-}
-
-
-/*
  * 'http_sspi_strerror()' - Return a string for the specified error code.
  */
 
@@ -2231,7 +1985,7 @@ http_sspi_strerror(char   *buffer,	/* I - Error message buffer */
                    size_t bufsize,	/* I - Size of buffer */
                    DWORD  code)		/* I - Error code */
 {
-  if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, 0, buffer, bufsize, NULL))
+  if (FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, 0, buffer, bufsize, NULL))
   {
    /*
     * Strip trailing CR + LF...

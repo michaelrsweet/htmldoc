@@ -1,12 +1,12 @@
 /*
  * HTTP support routines for HTMLDOC.
  *
- * Copyright 2016-2017 by Michael R Sweet.
- * Copyright 2007-2016 by Apple Inc.
- * Copyright 1997-2007 by Easy Software Products, all rights reserved.
+ * Copyright © 2020 by Michael R Sweet
+ * Copyright © 2007-2019 by Apple Inc.
+ * Copyright © 1997-2007 by Easy Software Products, all rights reserved.
  *
- * This program is free software.  Distribution and use rights are outlined in
- * the file "COPYING".
+ * Licensed under Apache License v2.0.  See the file "LICENSE" for more
+ * information.
  */
 
 /*
@@ -14,21 +14,26 @@
  */
 
 #include "http-private.h"
-#include <errno.h>
 #ifdef HAVE_DNSSD
 #  include <dns_sd.h>
-#  ifdef WIN32
+#  ifdef _WIN32
 #    include <io.h>
 #  elif defined(HAVE_POLL)
 #    include <poll.h>
 #  else
 #    include <sys/select.h>
-#  endif /* WIN32 */
+#  endif /* _WIN32 */
 #elif defined(HAVE_AVAHI)
 #  include <avahi-client/client.h>
 #  include <avahi-client/lookup.h>
+#  include <avahi-common/malloc.h>
 #  include <avahi-common/simple-watch.h>
 #endif /* HAVE_DNSSD */
+#ifdef __APPLE__
+#  include <CommonCrypto/CommonDigest.h>
+#elif defined(HAVE_GNUTLS)
+#  include <gnutls/crypto.h>
+#endif /* __APPLE__ */
 
 
 /*
@@ -109,6 +114,9 @@ static const char	*http_copy_decode(char *dst, const char *src,
 static char		*http_copy_encode(char *dst, const char *src,
 			                  char *dstend, const char *reserved,
 					  const char *term, int encode);
+static ssize_t		http_hash_data(const char *algorithm, const void *data, size_t datalen, unsigned char *hash, size_t hashsize);
+static const char	*http_hash_string(const unsigned char *hash, size_t hashsize, char *buffer, size_t bufsize) _CUPS_API_2_2_7;
+
 #ifdef HAVE_DNSSD
 static void DNSSD_API	http_resolve_cb(DNSServiceRef sdRef,
 					DNSServiceFlags flags,
@@ -540,7 +548,7 @@ httpAssembleUUID(const char *server,	/* I - Server name */
  * This function is deprecated. Use the httpDecode64_2() function instead
  * which provides buffer length arguments.
  *
- * @deprecated@
+ * @deprecated@ @exclude all@
  */
 
 char *					/* O - Decoded string */
@@ -562,6 +570,10 @@ httpDecode64(char       *out,		/* I - String to write to */
 
 /*
  * 'httpDecode64_2()' - Base64-decode a string.
+ *
+ * The caller must initialize "outlen" to the maximum size of the decoded
+ * string before calling @code httpDecode64_2@.  On return "outlen" contains the
+ * decoded length of the string.
  *
  * @since CUPS 1.1.21/macOS 10.4@
  */
@@ -668,7 +680,7 @@ httpDecode64_2(char       *out,		/* I  - String to write to */
  * This function is deprecated. Use the httpEncode64_2() function instead
  * which provides buffer length arguments.
  *
- * @deprecated@
+ * @deprecated@ @exclude all@
  */
 
 char *					/* O - Encoded string */
@@ -687,7 +699,7 @@ httpEncode64(char       *out,		/* I - String to write to */
 
 char *					/* O - Encoded string */
 httpEncode64_2(char       *out,		/* I - String to write to */
-	       int        outlen,	/* I - Size of output string */
+	       int        outlen,	/* I - Maximum size of output string */
                const char *in,		/* I - String to read from */
 	       int        inlen)	/* I - Size of input string */
 {
@@ -775,13 +787,14 @@ httpEncode64_2(char       *out,		/* I - String to write to */
 /*
  * 'httpGetDateString()' - Get a formatted date/time string from a time value.
  *
- * @deprecated@
+ * @deprecated@ @exclude all@
  */
 
 const char *				/* O - Date/time string */
-httpGetDateString(time_t t)		/* I - UNIX time */
+httpGetDateString(time_t t)		/* I - Time in seconds */
 {
   static char	http_date[256];		/* Static buffer */
+//  _cups_globals_t *cg = _cupsGlobals();	/* Pointer to library globals */
 
 
   return (httpGetDateString2(t, http_date, sizeof(http_date)));
@@ -795,7 +808,7 @@ httpGetDateString(time_t t)		/* I - UNIX time */
  */
 
 const char *				/* O - Date/time string */
-httpGetDateString2(time_t t,		/* I - UNIX time */
+httpGetDateString2(time_t t,		/* I - Time in seconds */
                    char   *s,		/* I - String buffer */
 		   int    slen)		/* I - Size of string buffer */
 {
@@ -814,7 +827,7 @@ httpGetDateString2(time_t t,		/* I - UNIX time */
  * 'httpGetDateTime()' - Get a time value from a formatted date/time string.
  */
 
-time_t					/* O - UNIX time */
+time_t					/* O - Time in seconds */
 httpGetDateTime(const char *s)		/* I - Date/time string */
 {
   int		i;			/* Looping var */
@@ -839,6 +852,13 @@ httpGetDateTime(const char *s)		/* I - Date/time string */
 
   DEBUG_printf(("4httpGetDateTime: day=%d, mon=\"%s\", year=%d, hour=%d, "
                 "min=%d, sec=%d", day, mon, year, hour, min, sec));
+
+ /*
+  * Check for invalid year (RFC 7231 says it's 4DIGIT)
+  */
+
+  if (year > 9999)
+    return (0);
 
  /*
   * Convert the month name to a number from 0 to 11.
@@ -883,7 +903,7 @@ httpGetDateTime(const char *s)		/* I - Date/time string */
  *
  * This function is deprecated; use the httpSeparateURI() function instead.
  *
- * @deprecated@
+ * @deprecated@ @exclude all@
  */
 
 void
@@ -907,7 +927,7 @@ httpSeparate(const char *uri,		/* I - Universal Resource Identifier */
  * This function is deprecated; use the httpSeparateURI() function instead.
  *
  * @since CUPS 1.1.21/macOS 10.4@
- * @deprecated@
+ * @deprecated@ @exclude all@
  */
 
 void
@@ -1026,7 +1046,7 @@ httpSeparateURI(
 
     *ptr = '\0';
 
-    if (*uri != ':')
+    if (*uri != ':' || *scheme == '.' || !*scheme)
     {
       *scheme = '\0';
       return (HTTP_URI_STATUS_BAD_SCHEME);
@@ -1297,6 +1317,161 @@ httpSeparateURI(
 
 
 /*
+ * '_httpSetDigestAuthString()' - Calculate a Digest authentication response
+ *                                using the appropriate RFC 2068/2617/7616
+ *                                algorithm.
+ */
+
+int					/* O - 1 on success, 0 on failure */
+_httpSetDigestAuthString(
+    http_t     *http,			/* I - HTTP connection */
+    const char *nonce,			/* I - Nonce value */
+    const char *method,			/* I - HTTP method */
+    const char *resource)		/* I - HTTP resource path */
+{
+  char		kd[65],			/* Final MD5/SHA-256 digest */
+		ha1[65],		/* Hash of username:realm:password */
+		ha2[65],		/* Hash of method:request-uri */
+		username[HTTP_MAX_VALUE],
+					/* username:password */
+		*password,		/* Pointer to password */
+		temp[1024],		/* Temporary string */
+		digest[1024];		/* Digest auth data */
+  unsigned char	hash[32];		/* Hash buffer */
+  size_t	hashsize;		/* Size of hash */
+//  _cups_globals_t *cg = _cupsGlobals();	/* Per-thread globals */
+
+
+  DEBUG_printf(("2_httpSetDigestAuthString(http=%p, nonce=\"%s\", method=\"%s\", resource=\"%s\")", (void *)http, nonce, method, resource));
+
+  if (nonce && *nonce && strcmp(nonce, http->nonce))
+  {
+    strlcpy(http->nonce, nonce, sizeof(http->nonce));
+
+    if (nonce == http->nextnonce)
+      http->nextnonce[0] = '\0';
+
+    http->nonce_count = 1;
+  }
+  else
+    http->nonce_count ++;
+
+  strlcpy(username, http->userpass, sizeof(username));
+  if ((password = strchr(username, ':')) != NULL)
+    *password++ = '\0';
+  else
+    return (0);
+
+  if (http->algorithm[0])
+  {
+   /*
+    * Follow RFC 2617/7616...
+    */
+
+    int		i;			/* Looping var */
+    char	cnonce[65];		/* cnonce value */
+    const char	*hashalg;		/* Hashing algorithm */
+
+    for (i = 0; i < 64; i ++)
+      cnonce[i] = "0123456789ABCDEF"[HTMLDOC_RAND() & 15];
+    cnonce[64] = '\0';
+
+    if (!_cups_strcasecmp(http->algorithm, "MD5"))
+    {
+     /*
+      * RFC 2617 Digest with MD5
+      */
+
+#if 0
+      if (cg->digestoptions == _CUPS_DIGESTOPTIONS_DENYMD5)
+      {
+	DEBUG_puts("3_httpSetDigestAuthString: MD5 Digest is disabled.");
+	return (0);
+      }
+#endif // 0
+
+      hashalg = "md5";
+    }
+    else if (!_cups_strcasecmp(http->algorithm, "SHA-256"))
+    {
+     /*
+      * RFC 7616 Digest with SHA-256
+      */
+
+      hashalg = "sha2-256";
+    }
+    else
+    {
+     /*
+      * Some other algorithm we don't support, skip this one...
+      */
+
+      return (0);
+    }
+
+   /*
+    * Calculate digest value...
+    */
+
+    /* H(A1) = H(username:realm:password) */
+    snprintf(temp, sizeof(temp), "%s:%s:%s", username, http->realm, password);
+    hashsize = (size_t)http_hash_data(hashalg, (unsigned char *)temp, strlen(temp), hash, sizeof(hash));
+    http_hash_string(hash, hashsize, ha1, sizeof(ha1));
+
+    /* H(A2) = H(method:uri) */
+    snprintf(temp, sizeof(temp), "%s:%s", method, resource);
+    hashsize = (size_t)http_hash_data(hashalg, (unsigned char *)temp, strlen(temp), hash, sizeof(hash));
+    http_hash_string(hash, hashsize, ha2, sizeof(ha2));
+
+    /* KD = H(H(A1):nonce:nc:cnonce:qop:H(A2)) */
+    snprintf(temp, sizeof(temp), "%s:%s:%08x:%s:%s:%s", ha1, http->nonce, http->nonce_count, cnonce, "auth", ha2);
+    hashsize = (size_t)http_hash_data(hashalg, (unsigned char *)temp, strlen(temp), hash, sizeof(hash));
+    http_hash_string(hash, hashsize, kd, sizeof(kd));
+
+   /*
+    * Pass the RFC 2617/7616 WWW-Authenticate header...
+    */
+
+    if (http->opaque[0])
+      snprintf(digest, sizeof(digest), "username=\"%s\", realm=\"%s\", nonce=\"%s\", algorithm=%s, qop=auth, opaque=\"%s\", cnonce=\"%s\", nc=%08x, uri=\"%s\", response=\"%s\"", username, http->realm, http->nonce, http->algorithm, http->opaque, cnonce, http->nonce_count, resource, kd);
+    else
+      snprintf(digest, sizeof(digest), "username=\"%s\", realm=\"%s\", nonce=\"%s\", algorithm=%s, qop=auth, cnonce=\"%s\", nc=%08x, uri=\"%s\", response=\"%s\"", username, http->realm, http->nonce, http->algorithm, cnonce, http->nonce_count, resource, kd);
+  }
+  else
+  {
+   /*
+    * Use old RFC 2069 Digest method...
+    */
+
+    /* H(A1) = H(username:realm:password) */
+    snprintf(temp, sizeof(temp), "%s:%s:%s", username, http->realm, password);
+    hashsize = (size_t)http_hash_data("md5", (unsigned char *)temp, strlen(temp), hash, sizeof(hash));
+    http_hash_string(hash, hashsize, ha1, sizeof(ha1));
+
+    /* H(A2) = H(method:uri) */
+    snprintf(temp, sizeof(temp), "%s:%s", method, resource);
+    hashsize = (size_t)http_hash_data("md5", (unsigned char *)temp, strlen(temp), hash, sizeof(hash));
+    http_hash_string(hash, hashsize, ha2, sizeof(ha2));
+
+    /* KD = H(H(A1):nonce:H(A2)) */
+    snprintf(temp, sizeof(temp), "%s:%s:%s", ha1, http->nonce, ha2);
+    hashsize = (size_t)http_hash_data("md5", (unsigned char *)temp, strlen(temp), hash, sizeof(hash));
+    http_hash_string(hash, hashsize, kd, sizeof(kd));
+
+   /*
+    * Pass the old RFC 2069 WWW-Authenticate header...
+    */
+
+    snprintf(digest, sizeof(digest), "username=\"%s\", realm=\"%s\", nonce=\"%s\", uri=\"%s\", response=\"%s\"", username, http->realm, http->nonce, resource, kd);
+  }
+
+  httpSetAuthString(http, "Digest", digest);
+
+  return (1);
+}
+
+
+/*
  * 'httpStateString()' - Return the string describing a HTTP state value.
  *
  * @since CUPS 2.0/OS 10.10@
@@ -1313,14 +1488,17 @@ httpStateString(http_state_t state)	/* I - HTTP state value */
 
 
 /*
- * 'httpStatus()' - Return a short string describing a HTTP status code.
+ * '_httpStatus()' - Return the localized string describing a HTTP status code.
  *
- * The returned string is localized to the current POSIX locale and is based
- * on the status strings defined in RFC 2616.
+ * The returned string is localized using the passed message catalog.
  */
 
 const char *				/* O - Localized status string */
 httpStatus(http_status_t status)	/* I - HTTP status code */
+
+//const char *				/* O - Localized status string */
+//_httpStatus(cups_lang_t   *lang,	/* I - Language */
+//            http_status_t status)	/* I - HTTP status code */
 {
   const char	*s;			/* Status string */
 
@@ -1350,6 +1528,9 @@ httpStatus(http_status_t status)	/* I - HTTP status code */
 	break;
     case HTTP_STATUS_MOVED_PERMANENTLY :
         s = _("Moved Permanently");
+	break;
+    case HTTP_STATUS_FOUND :
+        s = _("Found");
 	break;
     case HTTP_STATUS_SEE_OTHER :
         s = _("See Other");
@@ -1406,8 +1587,31 @@ httpStatus(http_status_t status)	/* I - HTTP status code */
 	break;
   }
 
+//  return (_cupsLangString(lang, s));
   return (s);
 }
+
+
+#if 0
+/*
+ * 'httpStatus()' - Return a short string describing a HTTP status code.
+ *
+ * The returned string is localized to the current POSIX locale and is based
+ * on the status strings defined in RFC 7231.
+ */
+
+const char *				/* O - Localized status string */
+httpStatus(http_status_t status)	/* I - HTTP status code */
+{
+  _cups_globals_t *cg = _cupsGlobals();	/* Global data */
+
+
+  if (!cg->lang_default)
+    cg->lang_default = cupsLangDefault();
+
+  return (_httpStatus(cg->lang_default, status));
+}
+#endif // 0
 
 /*
  * 'httpURIStatusString()' - Return a string describing a URI status code.
@@ -1420,7 +1624,11 @@ httpURIStatusString(
     http_uri_status_t status)		/* I - URI status code */
 {
   const char	*s;			/* Status string */
+//  _cups_globals_t *cg = _cupsGlobals();	/* Global data */
 
+
+//  if (!cg->lang_default)
+//    cg->lang_default = cupsLangDefault();
 
   switch (status)
   {
@@ -1466,6 +1674,7 @@ httpURIStatusString(
 	break;
   }
 
+//  return (_cupsLangString(cg->lang_default, s));
   return (s);
 }
 
@@ -1549,9 +1758,7 @@ _httpResolveURI(
 #endif /* DEBUG */
 
 
-  DEBUG_printf(("4_httpResolveURI(uri=\"%s\", resolved_uri=%p, "
-                "resolved_size=" HTMLDOC_LLFMT ")", uri, resolved_uri,
-		HTMLDOC_LLCAST resolved_size));
+  DEBUG_printf(("_httpResolveURI(uri=\"%s\", resolved_uri=%p, resolved_size=" CUPS_LLFMT ", options=0x%x, cb=%p, context=%p)", uri, (void *)resolved_uri, CUPS_LLCAST resolved_size, options, (void *)cb, context));
 
  /*
   * Get the device URI...
@@ -1569,8 +1776,11 @@ _httpResolveURI(
 		      sizeof(resource)) < HTTP_URI_STATUS_OK)
 #endif /* DEBUG */
   {
-    DEBUG_printf(("6_httpResolveURI: httpSeparateURI returned %d!", status));
-    DEBUG_puts("5_httpResolveURI: Returning NULL");
+//    if (options & _HTTP_RESOLVE_STDERR)
+//      _cupsLangPrintFilter(stderr, "ERROR", _("Bad device-uri \"%s\"."), uri);
+
+    DEBUG_printf(("2_httpResolveURI: httpSeparateURI returned %d!", status));
+    DEBUG_puts("2_httpResolveURI: Returning NULL");
     return (NULL);
   }
 
@@ -1588,9 +1798,6 @@ _httpResolveURI(
     _http_uribuf_t	uribuf;		/* URI buffer */
     int			offline = 0;	/* offline-report state set? */
 #  ifdef HAVE_DNSSD
-#    ifdef WIN32
-#      pragma comment(lib, "dnssd.lib")
-#    endif /* WIN32 */
     DNSServiceRef	ref,		/* DNS-SD master service reference */
 			domainref = NULL,/* DNS-SD service reference for domain */
 			ippref = NULL,	/* DNS-SD service reference for network IPP */
@@ -1630,7 +1837,7 @@ _httpResolveURI(
 
     if (regtype <= hostname)
     {
-      DEBUG_puts("5_httpResolveURI: Bad hostname, returning NULL");
+      DEBUG_puts("2_httpResolveURI: Bad hostname, returning NULL");
       return (NULL);
     }
 
@@ -1659,7 +1866,7 @@ _httpResolveURI(
     uribuf.resource = resource;
     uribuf.uuid     = uuid;
 
-    DEBUG_printf(("6_httpResolveURI: Resolving hostname=\"%s\", regtype=\"%s\", "
+    DEBUG_printf(("2_httpResolveURI: Resolving hostname=\"%s\", regtype=\"%s\", "
                   "domain=\"%s\"\n", hostname, regtype, domain));
     if (options & _HTTP_RESOLVE_STDERR)
     {
@@ -1693,12 +1900,12 @@ _httpResolveURI(
 
 	while (time(NULL) < end_time)
 	{
-	  if (options & _HTTP_RESOLVE_STDERR)
-	    _cupsLangPrintFilter(stderr, "INFO", _("Looking for printer..."));
+//	  if (options & _HTTP_RESOLVE_STDERR)
+//	    _cupsLangPrintFilter(stderr, "INFO", _("Looking for printer."));
 
 	  if (cb && !(*cb)(context))
 	  {
-	    DEBUG_puts("5_httpResolveURI: callback returned 0 (stop)");
+	    DEBUG_puts("2_httpResolveURI: callback returned 0 (stop)");
 	    break;
 	  }
 
@@ -1719,11 +1926,11 @@ _httpResolveURI(
 	  FD_ZERO(&input_set);
 	  FD_SET(DNSServiceRefSockFD(ref), &input_set);
 
-#      ifdef WIN32
+#      ifdef _WIN32
 	  stimeout.tv_sec  = (long)timeout;
 #      else
 	  stimeout.tv_sec  = timeout;
-#      endif /* WIN32 */
+#      endif /* _WIN32 */
 	  stimeout.tv_usec = 0;
 
 	  fds = select(DNSServiceRefSockFD(ref)+1, &input_set, NULL, NULL,
@@ -1734,7 +1941,7 @@ _httpResolveURI(
 	  {
 	    if (errno != EINTR && errno != EAGAIN)
 	    {
-	      DEBUG_printf(("5_httpResolveURI: poll error: %s", strerror(errno)));
+	      DEBUG_printf(("2_httpResolveURI: poll error: %s", strerror(errno)));
 	      break;
 	    }
 	  }
@@ -1916,6 +2123,9 @@ _httpResolveURI(
 
     uri = NULL;
 #endif /* HAVE_DNSSD || HAVE_AVAHI */
+
+//    if ((options & _HTTP_RESOLVE_STDERR) && !uri)
+//      _cupsLangPrintFilter(stderr, "INFO", _("Unable to find printer."));
   }
   else
   {
@@ -1927,7 +2137,7 @@ _httpResolveURI(
     uri = resolved_uri;
   }
 
-  DEBUG_printf(("5_httpResolveURI: Returning \"%s\"", uri));
+  DEBUG_printf(("2_httpResolveURI: Returning \"%s\"", uri));
 
   return (uri);
 }
@@ -2084,6 +2294,326 @@ http_copy_encode(char       *dst,	/* O - Destination buffer */
 }
 
 
+/*
+ * 'http_hash_data()' - Perform a hash function on the given data.
+ *
+ * The "algorithm" argument can be any of the registered, non-deprecated IPP
+ * hash algorithms for the "job-password-encryption" attribute, including
+ * "sha" for SHA-1, "sha-256" for SHA2-256, etc.
+ *
+ * The "hash" argument points to a buffer of "hashsize" bytes and should be at
+ * least 64 bytes in length for all of the supported algorithms.
+ *
+ * The returned hash is binary data.
+ *
+ * @since CUPS 2.2/macOS 10.12@
+ */
+
+static ssize_t				/* O - Size of hash or -1 on error */
+http_hash_data(
+    const char    *algorithm,		/* I - Algorithm name */
+    const void    *data,		/* I - Data to hash */
+    size_t        datalen,		/* I - Length of data to hash */
+    unsigned char *hash,		/* I - Hash buffer */
+    size_t        hashsize)		/* I - Size of hash buffer */
+{
+  if (!algorithm || !data || datalen == 0 || !hash || hashsize == 0)
+  {
+    _cupsSetError(IPP_STATUS_ERROR_INTERNAL, _("Bad arguments to function"), 1);
+    return (-1);
+  }
+
+#ifdef __APPLE__
+  if (!strcmp(algorithm, "md5"))
+  {
+   /*
+    * MD5 (deprecated but widely used...)
+    */
+
+    CC_MD5_CTX	ctx;			/* MD5 context */
+
+    if (hashsize < CC_MD5_DIGEST_LENGTH)
+      goto too_small;
+
+    CC_MD5_Init(&ctx);
+    CC_MD5_Update(&ctx, data, (CC_LONG)datalen);
+    CC_MD5_Final(hash, &ctx);
+
+    return (CC_MD5_DIGEST_LENGTH);
+  }
+  else if (!strcmp(algorithm, "sha"))
+  {
+   /*
+    * SHA-1...
+    */
+
+    CC_SHA1_CTX	ctx;			/* SHA-1 context */
+
+    if (hashsize < CC_SHA1_DIGEST_LENGTH)
+      goto too_small;
+
+    CC_SHA1_Init(&ctx);
+    CC_SHA1_Update(&ctx, data, (CC_LONG)datalen);
+    CC_SHA1_Final(hash, &ctx);
+
+    return (CC_SHA1_DIGEST_LENGTH);
+  }
+  else if (!strcmp(algorithm, "sha2-224"))
+  {
+    CC_SHA256_CTX	ctx;		/* SHA-224 context */
+
+    if (hashsize < CC_SHA224_DIGEST_LENGTH)
+      goto too_small;
+
+    CC_SHA224_Init(&ctx);
+    CC_SHA224_Update(&ctx, data, (CC_LONG)datalen);
+    CC_SHA224_Final(hash, &ctx);
+
+    return (CC_SHA224_DIGEST_LENGTH);
+  }
+  else if (!strcmp(algorithm, "sha2-256"))
+  {
+    CC_SHA256_CTX	ctx;		/* SHA-256 context */
+
+    if (hashsize < CC_SHA256_DIGEST_LENGTH)
+      goto too_small;
+
+    CC_SHA256_Init(&ctx);
+    CC_SHA256_Update(&ctx, data, (CC_LONG)datalen);
+    CC_SHA256_Final(hash, &ctx);
+
+    return (CC_SHA256_DIGEST_LENGTH);
+  }
+  else if (!strcmp(algorithm, "sha2-384"))
+  {
+    CC_SHA512_CTX	ctx;		/* SHA-384 context */
+
+    if (hashsize < CC_SHA384_DIGEST_LENGTH)
+      goto too_small;
+
+    CC_SHA384_Init(&ctx);
+    CC_SHA384_Update(&ctx, data, (CC_LONG)datalen);
+    CC_SHA384_Final(hash, &ctx);
+
+    return (CC_SHA384_DIGEST_LENGTH);
+  }
+  else if (!strcmp(algorithm, "sha2-512"))
+  {
+    CC_SHA512_CTX	ctx;		/* SHA-512 context */
+
+    if (hashsize < CC_SHA512_DIGEST_LENGTH)
+      goto too_small;
+
+    CC_SHA512_Init(&ctx);
+    CC_SHA512_Update(&ctx, data, (CC_LONG)datalen);
+    CC_SHA512_Final(hash, &ctx);
+
+    return (CC_SHA512_DIGEST_LENGTH);
+  }
+  else if (!strcmp(algorithm, "sha2-512_224"))
+  {
+    CC_SHA512_CTX	ctx;		/* SHA-512 context */
+    unsigned char	temp[CC_SHA512_DIGEST_LENGTH];
+                                        /* SHA-512 hash */
+
+   /*
+    * SHA2-512 truncated to 224 bits (28 bytes)...
+    */
+
+    if (hashsize < CC_SHA224_DIGEST_LENGTH)
+      goto too_small;
+
+    CC_SHA512_Init(&ctx);
+    CC_SHA512_Update(&ctx, data, (CC_LONG)datalen);
+    CC_SHA512_Final(temp, &ctx);
+
+    memcpy(hash, temp, CC_SHA224_DIGEST_LENGTH);
+
+    return (CC_SHA224_DIGEST_LENGTH);
+  }
+  else if (!strcmp(algorithm, "sha2-512_256"))
+  {
+    CC_SHA512_CTX	ctx;		/* SHA-512 context */
+    unsigned char	temp[CC_SHA512_DIGEST_LENGTH];
+                                        /* SHA-512 hash */
+
+   /*
+    * SHA2-512 truncated to 256 bits (32 bytes)...
+    */
+
+    if (hashsize < CC_SHA256_DIGEST_LENGTH)
+      goto too_small;
+
+    CC_SHA512_Init(&ctx);
+    CC_SHA512_Update(&ctx, data, (CC_LONG)datalen);
+    CC_SHA512_Final(temp, &ctx);
+
+    memcpy(hash, temp, CC_SHA256_DIGEST_LENGTH);
+
+    return (CC_SHA256_DIGEST_LENGTH);
+  }
+
+#elif defined(HAVE_GNUTLS)
+  gnutls_digest_algorithm_t alg = GNUTLS_DIG_UNKNOWN;
+					/* Algorithm */
+  unsigned char	temp[64];		/* Temporary hash buffer */
+  size_t	tempsize = 0;		/* Truncate to this size? */
+
+
+  if (!strcmp(algorithm, "md5"))
+  {
+   /*
+    * Some versions of GNU TLS disable MD5 without warning...
+    */
+
+    _cups_md5_state_t	state;		/* MD5 state info */
+
+    if (hashsize < 16)
+      goto too_small;
+
+    _cupsMD5Init(&state);
+    _cupsMD5Append(&state, data, (int)datalen);
+    _cupsMD5Finish(&state, hash);
+
+    return (16);
+  }
+  else if (!strcmp(algorithm, "sha"))
+    alg = GNUTLS_DIG_SHA1;
+  else if (!strcmp(algorithm, "sha2-224"))
+    alg = GNUTLS_DIG_SHA224;
+  else if (!strcmp(algorithm, "sha2-256"))
+    alg = GNUTLS_DIG_SHA256;
+  else if (!strcmp(algorithm, "sha2-384"))
+    alg = GNUTLS_DIG_SHA384;
+  else if (!strcmp(algorithm, "sha2-512"))
+    alg = GNUTLS_DIG_SHA512;
+  else if (!strcmp(algorithm, "sha2-512_224"))
+  {
+    alg      = GNUTLS_DIG_SHA512;
+    tempsize = 28;
+  }
+  else if (!strcmp(algorithm, "sha2-512_256"))
+  {
+    alg      = GNUTLS_DIG_SHA512;
+    tempsize = 32;
+  }
+
+  if (alg != GNUTLS_DIG_UNKNOWN)
+  {
+    if (tempsize > 0)
+    {
+     /*
+      * Truncate result to tempsize bytes...
+      */
+
+      if (hashsize < tempsize)
+        goto too_small;
+
+      gnutls_hash_fast(alg, data, datalen, temp);
+      memcpy(hash, temp, tempsize);
+
+      return ((ssize_t)tempsize);
+    }
+
+    if (hashsize < gnutls_hash_get_len(alg))
+      goto too_small;
+
+    gnutls_hash_fast(alg, data, datalen, hash);
+
+    return ((ssize_t)gnutls_hash_get_len(alg));
+  }
+
+#else
+ /*
+  * No hash support beyond MD5 without CommonCrypto or GNU TLS...
+  */
+
+  if (!strcmp(algorithm, "md5"))
+  {
+    _cups_md5_state_t	state;		/* MD5 state info */
+
+    if (hashsize < 16)
+      goto too_small;
+
+    _cupsMD5Init(&state);
+    _cupsMD5Append(&state, data, datalen);
+    _cupsMD5Finish(&state, hash);
+
+    return (16);
+  }
+  else if (hashsize < 64)
+    goto too_small;
+#endif /* __APPLE__ */
+
+ /*
+  * Unknown hash algorithm...
+  */
+
+  _cupsSetError(IPP_STATUS_ERROR_INTERNAL, _("Unknown hash algorithm."), 1);
+
+  return (-1);
+
+ /*
+  * We get here if the buffer is too small.
+  */
+
+  too_small:
+
+  _cupsSetError(IPP_STATUS_ERROR_INTERNAL, _("Hash buffer too small."), 1);
+  return (-1);
+}
+
+
+/*
+ * 'http_hash_string()' - Format a hash value as a hexadecimal string.
+ *
+ * The passed buffer must be at least 2 * hashsize + 1 characters in length.
+ *
+ * @since CUPS 2.2.7@
+ */
+
+static const char *			/* O - Formatted string */
+http_hash_string(
+    const unsigned char *hash,		/* I - Hash */
+    size_t              hashsize,	/* I - Size of hash */
+    char                *buffer,	/* I - String buffer */
+    size_t		bufsize)	/* I - Size of string buffer */
+{
+  char		*bufptr = buffer;	/* Pointer into buffer */
+  static const char *hex = "0123456789abcdef";
+					/* Hex characters (lowercase!) */
+
+
+ /*
+  * Range check input...
+  */
+
+  if (!hash || hashsize < 1 || !buffer || bufsize < (2 * hashsize + 1))
+  {
+    if (buffer)
+      *buffer = '\0';
+    return (NULL);
+  }
+
+ /*
+  * Loop until we've converted the whole hash...
+  */
+
+  while (hashsize > 0)
+  {
+    *bufptr++ = hex[*hash >> 4];
+    *bufptr++ = hex[*hash & 15];
+
+    hash ++;
+    hashsize --;
+  }
+
+  *bufptr = '\0';
+
+  return (buffer);
+}
+
+
 #ifdef HAVE_DNSSD
 /*
  * 'http_resolve_cb()' - Build a device URI for the given service name.
@@ -2114,11 +2644,7 @@ http_resolve_cb(
   uint8_t		valueLen;	/* Length of value */
 
 
-  DEBUG_printf(("7http_resolve_cb(sdRef=%p, flags=%x, interfaceIndex=%u, "
-	        "errorCode=%d, fullName=\"%s\", hostTarget=\"%s\", port=%u, "
-	        "txtLen=%u, txtRecord=%p, context=%p)", sdRef, flags,
-	        interfaceIndex, errorCode, fullName, hostTarget, port, txtLen,
-	        txtRecord, context));
+  DEBUG_printf(("4http_resolve_cb(sdRef=%p, flags=%x, interfaceIndex=%u, errorCode=%d, fullName=\"%s\", hostTarget=\"%s\", port=%u, txtLen=%u, txtRecord=%p, context=%p)", (void *)sdRef, flags, interfaceIndex, errorCode, fullName, hostTarget, port, txtLen, (void *)txtRecord, context));
 
  /*
   * If we have a UUID, compare it...
@@ -2139,7 +2665,7 @@ http_resolve_cb(
 	fprintf(stderr, "DEBUG: Found UUID %s, looking for %s.", uuid,
 		uribuf->uuid);
 
-      DEBUG_printf(("7http_resolve_cb: Found UUID %s, looking for %s.", uuid,
+      DEBUG_printf(("5http_resolve_cb: Found UUID %s, looking for %s.", uuid,
                     uribuf->uuid));
       return;
     }
@@ -2229,7 +2755,7 @@ http_resolve_cb(
     http_addrlist_t	*addrlist,	/* List of addresses */
 			*addr;		/* Current address */
 
-    DEBUG_printf(("8http_resolve_cb: Looking up \"%s\".", hostTarget));
+    DEBUG_printf(("5http_resolve_cb: Looking up \"%s\".", hostTarget));
 
     snprintf(fqdn, sizeof(fqdn), "%d", ntohs(port));
     if ((addrlist = httpAddrGetList(hostTarget, AF_UNSPEC, fqdn)) != NULL)
@@ -2240,7 +2766,7 @@ http_resolve_cb(
 
         if (!error)
 	{
-	  DEBUG_printf(("8http_resolve_cb: Found \"%s\".", fqdn));
+	  DEBUG_printf(("5http_resolve_cb: Found \"%s\".", fqdn));
 
 	  if ((hostptr = fqdn + strlen(fqdn) - 6) <= fqdn ||
 	      _cups_strcasecmp(hostptr, ".local"))
@@ -2251,7 +2777,7 @@ http_resolve_cb(
 	}
 #ifdef DEBUG
 	else
-	  DEBUG_printf(("8http_resolve_cb: \"%s\" did not resolve: %d",
+	  DEBUG_printf(("5http_resolve_cb: \"%s\" did not resolve: %d",
 	                httpAddrString(&(addr->addr), fqdn, sizeof(fqdn)),
 			error));
 #endif /* DEBUG */
@@ -2271,7 +2797,7 @@ http_resolve_cb(
   else
     httpAssembleURI(HTTP_URI_CODING_ALL, uribuf->buffer, (int)uribuf->bufsize, scheme, NULL, hostTarget, ntohs(port), resource);
 
-  DEBUG_printf(("8http_resolve_cb: Resolved URI is \"%s\"...", uribuf->buffer));
+  DEBUG_printf(("5http_resolve_cb: Resolved URI is \"%s\"...", uribuf->buffer));
 }
 
 #elif defined(HAVE_AVAHI)
@@ -2281,6 +2807,8 @@ http_resolve_cb(
  * Note: This function is needed because avahi_simple_poll_iterate is broken
  *       and always uses a timeout of 0 (!) milliseconds.
  *       (Avahi Ticket #364)
+ *
+ * @private@
  */
 
 static int				/* O - Number of file descriptors matching */
@@ -2304,7 +2832,7 @@ http_poll_cb(
 static void
 http_resolve_cb(
     AvahiServiceResolver   *resolver,	/* I - Resolver (unused) */
-    AvahiIfIndex           interface,	/* I - Interface index (unused) */
+    AvahiIfIndex           interface,	/* I - Interface index */
     AvahiProtocol          protocol,	/* I - Network protocol (unused) */
     AvahiResolverEvent     event,	/* I - Event (found, etc.) */
     const char             *name,	/* I - Service name */
@@ -2325,12 +2853,14 @@ http_resolve_cb(
 			*resdefault;	/* Default path */
   char			resource[257],	/* Remote path */
 			fqdn[256];	/* FQDN of the .local name */
+  char			ifname[IF_NAMESIZE];
+					/* Interface name */
   AvahiStringList	*pair;		/* Current TXT record key/value pair */
   char			*value;		/* Value for "rp" key */
   size_t		valueLen = 0;	/* Length of "rp" key */
 
 
-  DEBUG_printf(("7http_resolve_cb(resolver=%p, "
+  DEBUG_printf(("4http_resolve_cb(resolver=%p, "
 		"interface=%d, protocol=%d, event=%d, name=\"%s\", "
 		"type=\"%s\", domain=\"%s\", hostTarget=\"%s\", address=%p, "
 		"port=%d, txt=%p, flags=%d, context=%p)",
@@ -2357,13 +2887,15 @@ http_resolve_cb(
     memcpy(uuid, value, valueLen);
     uuid[valueLen] = '\0';
 
+    avahi_free(value);
+
     if (_cups_strcasecmp(uuid, uribuf->uuid))
     {
       if (uribuf->options & _HTTP_RESOLVE_STDERR)
 	fprintf(stderr, "DEBUG: Found UUID %s, looking for %s.", uuid,
 		uribuf->uuid);
 
-      DEBUG_printf(("7http_resolve_cb: Found UUID %s, looking for %s.", uuid,
+      DEBUG_printf(("5http_resolve_cb: Found UUID %s, looking for %s.", uuid,
                     uribuf->uuid));
       return;
     }
@@ -2441,6 +2973,8 @@ http_resolve_cb(
       memcpy(resource + 1, value, valueLen);
       resource[valueLen + 1] = '\0';
     }
+
+    avahi_free(value);
   }
   else
   {
@@ -2452,12 +2986,32 @@ http_resolve_cb(
   }
 
  /*
-  * Lookup the FQDN if needed...
+  * Get the name of the interface this is coming from...
   */
 
-  if ((uribuf->options & _HTTP_RESOLVE_FQDN) &&
-      (hostptr = hostTarget + strlen(hostTarget) - 6) > hostTarget &&
-      !_cups_strcasecmp(hostptr, ".local"))
+  if (!if_indextoname((unsigned int)interface, ifname))
+  {
+    if (uribuf->options & _HTTP_RESOLVE_STDERR)
+      fprintf(stderr, "DEBUG: Unable to find interface name for interface %d: %s\n", interface, strerror(errno));
+    DEBUG_printf(("Unable to find interface name for interface %d: %s\n", interface, strerror(errno)));
+    ifname[0] = '\0';
+  }
+
+  if (!strcmp(ifname, "lo"))
+  {
+   /*
+    * If this service is registered on loopback interface ("lo"), force the host
+    * name to "localhost"...
+    */
+
+    if (uribuf->options & _HTTP_RESOLVE_STDERR)
+      fputs("DEBUG: Service comes from loopback interface \"lo\", setting \"localhost\" as host name.\n", stderr);
+    DEBUG_puts("Service comes from loopback interface \"lo\", setting \"localhost\" as host name.");
+    hostTarget = "localhost";
+  }
+  else if ((uribuf->options & _HTTP_RESOLVE_FQDN) &&
+	   (hostptr = hostTarget + strlen(hostTarget) - 6) > hostTarget &&
+	   !_cups_strcasecmp(hostptr, ".local"))
   {
    /*
     * OK, we got a .local name but the caller needs a real domain.  Start by
@@ -2467,7 +3021,7 @@ http_resolve_cb(
     http_addrlist_t	*addrlist,	/* List of addresses */
 			*addr;		/* Current address */
 
-    DEBUG_printf(("8http_resolve_cb: Looking up \"%s\".", hostTarget));
+    DEBUG_printf(("5http_resolve_cb: Looking up \"%s\".", hostTarget));
 
     snprintf(fqdn, sizeof(fqdn), "%d", ntohs(port));
     if ((addrlist = httpAddrGetList(hostTarget, AF_UNSPEC, fqdn)) != NULL)
@@ -2478,7 +3032,7 @@ http_resolve_cb(
 
         if (!error)
 	{
-	  DEBUG_printf(("8http_resolve_cb: Found \"%s\".", fqdn));
+	  DEBUG_printf(("5http_resolve_cb: Found \"%s\".", fqdn));
 
 	  if ((hostptr = fqdn + strlen(fqdn) - 6) <= fqdn ||
 	      _cups_strcasecmp(hostptr, ".local"))
@@ -2489,7 +3043,7 @@ http_resolve_cb(
 	}
 #ifdef DEBUG
 	else
-	  DEBUG_printf(("8http_resolve_cb: \"%s\" did not resolve: %d",
+	  DEBUG_printf(("5http_resolve_cb: \"%s\" did not resolve: %d",
 	                httpAddrString(&(addr->addr), fqdn, sizeof(fqdn)),
 			error));
 #endif /* DEBUG */
@@ -2503,9 +3057,8 @@ http_resolve_cb(
   * Assemble the final device URI using the resolved hostname...
   */
 
-  httpAssembleURI(HTTP_URI_CODING_ALL, uribuf->buffer, uribuf->bufsize, scheme,
-                  NULL, hostTarget, port, resource);
-  DEBUG_printf(("8http_resolve_cb: Resolved URI is \"%s\".", uribuf->buffer));
+  httpAssembleURI(HTTP_URI_CODING_ALL, uribuf->buffer, (int)uribuf->bufsize, scheme, NULL, hostTarget, port, resource);
+  DEBUG_printf(("5http_resolve_cb: Resolved URI is \"%s\".", uribuf->buffer));
 
   avahi_simple_poll_quit(uribuf->poll);
 }
