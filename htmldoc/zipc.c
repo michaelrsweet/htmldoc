@@ -1008,10 +1008,10 @@ zipcOpen(const char *filename,		/* I - Filename of container */
     zipc_file_t *zf;                    /* Current file */
     long        offset;                 /* Current offset */
     unsigned    signature,              /* Header signature */
-                version,                /* Version needed to extract */
+//                version,                /* Version needed to extract */
                 flags,                  /* General purpose flags */
                 method,                 /* Compression method */
-                modtime,                /* Last modification date/time */
+//                modtime,                /* Last modification date/time */
                 crc32,                  /* CRC-32 of file data */
                 compressed_size,        /* Compressed file size */
                 uncompressed_size,      /* Uncompressed file size */
@@ -1043,10 +1043,10 @@ zipcOpen(const char *filename,		/* I - Filename of container */
       {
         case ZIPC_LOCAL_HEADER :
             offset            = ftell(zc->fp) - 4;
-            version           = zipc_read_u16(zc);
+            /*version           = */zipc_read_u16(zc);
             flags             = zipc_read_u16(zc);
             method            = zipc_read_u16(zc);
-            modtime           = zipc_read_u32(zc);
+            /*modtime           = */zipc_read_u32(zc);
             crc32             = zipc_read_u32(zc);
             compressed_size   = zipc_read_u32(zc);
             uncompressed_size = zipc_read_u32(zc);
