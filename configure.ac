@@ -343,7 +343,10 @@ AC_DEFINE_UNQUOTED(DOCUMENTATION, "$datadir/doc/htmldoc")
 AC_DEFINE_UNQUOTED(HTML_DATA, "$datadir/htmldoc")
 
 dnl Update compiler options...
+AC_ARG_ENABLE(maintainer, [  --enable-maintainer     turn on maintainer mode, default=no])
 AC_ARG_ENABLE(sanitizer, [  --enable-sanitizer      build with AddressSanitizer])
+WARNINGS=""
+AC_SUBST(WARNINGS)
 
 if test -n "$GXX"; then
     if test x$enable_sanitizer = xyes; then
@@ -362,7 +365,18 @@ if test -n "$GXX"; then
     fi
 
     dnl Show all standard warnings + unused variables when compiling...
-    OPTIM="-Wall -Wunused -Wno-char-subscripts -Wno-format-y2k $OPTIM"
+    if test "$uname" = Darwin; then
+	    # macOS Clang is conservative about "-Wall" warnings
+	    WARNINGS="-Wall -Wunused -Wno-char-subscripts"
+    else
+	    # Newer GCCs generate a lot of not-useful/reliable warnings with "-Wall"
+	    WARNINGS="-Wall -Wunused -Wno-unused-result -Wno-char-subscripts -Wno-format-y2k -Wno-maybe-uninitialized -Wno-switch -Wno-format-truncation"
+    fi
+
+    dnl Maintainer mode enables -Werror...
+    if test x$enable_maintainer = xyes; then
+	    WARNINGS="$WARNINGS -Werror"
+    fi
 
     dnl See if GCC supports -fno-rtti...
     AC_MSG_CHECKING(if GCC supports -fno-rtti)

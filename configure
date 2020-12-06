@@ -623,6 +623,7 @@ ac_includes_default="\
 
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
+WARNINGS
 ZLIBINC
 ZLIB
 PNGINC
@@ -713,6 +714,7 @@ enable_cdsassl
 enable_localjpeg
 enable_localzlib
 enable_localpng
+enable_maintainer
 enable_sanitizer
 '
       ac_precious_vars='build_alias
@@ -1344,6 +1346,7 @@ Optional Features:
   --enable-localjpeg      use local JPEG library, default=auto
   --enable-localzlib      use local ZLIB library, default=auto
   --enable-localpng       use local PNG library, default=auto
+  --enable-maintainer     turn on maintainer mode, default=no
   --enable-sanitizer      build with AddressSanitizer
 
 Optional Packages:
@@ -5606,10 +5609,17 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 
+# Check whether --enable-maintainer was given.
+if test "${enable_maintainer+set}" = set; then :
+  enableval=$enable_maintainer;
+fi
+
 # Check whether --enable-sanitizer was given.
 if test "${enable_sanitizer+set}" = set; then :
   enableval=$enable_sanitizer;
 fi
+
+WARNINGS=""
 
 
 if test -n "$GXX"; then
@@ -5627,7 +5637,17 @@ if test -n "$GXX"; then
         OPTIM="-Os -g"
     fi
 
-        OPTIM="-Wall -Wunused -Wno-char-subscripts -Wno-format-y2k $OPTIM"
+        if test "$uname" = Darwin; then
+	    # macOS Clang is conservative about "-Wall" warnings
+	    WARNINGS="-Wall -Wunused -Wno-char-subscripts"
+    else
+	    # Newer GCCs generate a lot of not-useful/reliable warnings with "-Wall"
+	    WARNINGS="-Wall -Wunused -Wno-unused-result -Wno-char-subscripts -Wno-format-y2k -Wno-maybe-uninitialized -Wno-switch -Wno-format-truncation"
+    fi
+
+        if test x$enable_maintainer = xyes; then
+	    WARNINGS="$WARNINGS -Werror"
+    fi
 
         { $as_echo "$as_me:${as_lineno-$LINENO}: checking if GCC supports -fno-rtti" >&5
 $as_echo_n "checking if GCC supports -fno-rtti... " >&6; }
