@@ -464,10 +464,11 @@ httpLoadCredentials(
     cups_array_t **credentials,		/* IO - Credentials */
     const char   *common_name)		/* I  - Common name for credentials */
 {
-  cups_file_t		*fp;		/* Certificate file */
+  FILE			*fp;		/* Certificate file */
   char			filename[1024],	/* filename.crt */
 			temp[1024],	/* Temporary string */
-			line[256];	/* Base64-encoded line */
+			line[256],	/* Base64-encoded line */
+			*lineptr;	/* Pointer into line */
   unsigned char		*data = NULL;	/* Buffer for cert data */
   size_t		alloc_data = 0,	/* Bytes allocated */
 			num_data = 0;	/* Bytes used */
@@ -486,11 +487,14 @@ httpLoadCredentials(
 
   http_gnutls_make_path(filename, sizeof(filename), path, common_name, "crt");
 
-  if ((fp = cupsFileOpen(filename, "r")) == NULL)
+  if ((fp = fopen(filename, "r")) == NULL)
     return (-1);
 
-  while (cupsFileGets(fp, line, sizeof(line)))
+  while (fgets(line, sizeof(line), fp))
   {
+    if ((lineptr = line + strlen(line) - 1) >= line && *lineptr == '\n')
+      *lineptr = '\0';
+
     if (!strcmp(line, "-----BEGIN CERTIFICATE-----"))
     {
       if (in_certificate)
@@ -564,7 +568,7 @@ httpLoadCredentials(
     }
   }
 
-  cupsFileClose(fp);
+  fclose(fp);
 
   if (in_certificate)
   {
@@ -595,7 +599,7 @@ httpSaveCredentials(
     cups_array_t *credentials,		/* I - Credentials */
     const char   *common_name)		/* I - Common name for credentials */
 {
-  cups_file_t		*fp;		/* Certificate file */
+  FILE			*fp;		/* Certificate file */
   char			filename[1024],	/* filename.crt */
 			nfilename[1024],/* filename.crt.N */
 			temp[1024],	/* Temporary string */
@@ -616,25 +620,25 @@ httpSaveCredentials(
   http_gnutls_make_path(filename, sizeof(filename), path, common_name, "crt");
   snprintf(nfilename, sizeof(nfilename), "%s.N", filename);
 
-  if ((fp = cupsFileOpen(nfilename, "w")) == NULL)
+  if ((fp = fopen(nfilename, "w")) == NULL)
     return (-1);
 
-  fchmod(cupsFileNumber(fp), 0600);
+  fchmod(fileno(fp), 0600);
 
   for (cred = (http_credential_t *)cupsArrayFirst(credentials);
        cred;
        cred = (http_credential_t *)cupsArrayNext(credentials))
   {
-    cupsFilePuts(fp, "-----BEGIN CERTIFICATE-----\n");
+    fputs("-----BEGIN CERTIFICATE-----\n", fp);
     for (ptr = cred->data, remaining = (ssize_t)cred->datalen; remaining > 0; remaining -= 45, ptr += 45)
     {
       httpEncode64_2(line, sizeof(line), (char *)ptr, remaining > 45 ? 45 : remaining);
-      cupsFilePrintf(fp, "%s\n", line);
+      fprintf(fp, "%s\n", line);
     }
-    cupsFilePuts(fp, "-----END CERTIFICATE-----\n");
+    fputs("-----END CERTIFICATE-----\n", fp);
   }
 
-  cupsFileClose(fp);
+  fclose(fp);
 
   return (rename(nfilename, filename));
 }
