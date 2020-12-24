@@ -57,8 +57,8 @@ Finally, run "make install" (typically as root) to install the software:
     sudo make install
 
 
-Ubuntu Notes
-------------
+Ubuntu and Debian Notes
+-----------------------
 
 You should install the following packages:
 
