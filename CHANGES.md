@@ -5,6 +5,8 @@
   (Issue #396)
 - Fixed a regression in the handling of character entities for UTF-8 input
   (Issue #401)
+- The `--numbered` option did not work when the table-of-contents was disabled
+  (Issue #405)
 
 
 # Changes in HTMLDOC v1.9.10

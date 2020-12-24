@@ -1271,9 +1271,16 @@ main(int  argc,				/* I - Number of command-line arguments */
   */
 
   if (OutputType == OUTPUT_BOOK && TocLevels > 0)
+  {
     toc = toc_build(document);
+  }
   else
+  {
+    if (TocNumbers)
+      htmlDeleteTree(toc_build(document));
+
     toc = NULL;
+  }
 
   htmlDebugStats("Table of Contents Tree", toc);
 
