@@ -1,0 +1,33 @@
+#
+# Travis CI configuration file for HTMLDOC.
+#
+
+language: c
+
+env:
+  global:
+  - secure: "rOCB5OkynYMci7VAIhoBSykpCh7G7lWhJTTqOzr4h4nmrTWIjn43Z6KrzLl0UeFw6iPiWULXf+2WyHzwni6USZXcTH3kjZYyJH6kPusu6TzP35SHhqZi3SmQFr3DsTQyUFR8DeB4mAsvis+lpiupKmvYxsQ3MUTTsQWVjO/cd9/vauMlFyg+R6gtlP1r1ZVoN418Wap7uCPZaWZllERGMJM+/FGGH9eQFrgK3FLSELt5EH+Zs+UShW4eY2E93HEf8lKdEeAWjJsifB3Y4unTWMwgLKXRI/gWI7kepzklAoCIIlIqnkogUiGDDskI1qjl5Qz1DPLsB5uM94+nOOrR1ab6dXY33iUiKlwjmd3l+W2QfwgFwB+GAoS9oZvpzKiBC0iCkvX/YCfvsUbF9q4drTfh/g+4ocqncwSws5anpkhmEfR+wVrRLD/q8Okgx09dEY5S/+sNsVeO668I3VR99sRRy4p0pXkH++/x1sk+EZl5nVEHOe/0EJBqs/P2uJ24sL63ZOUwXLHY/bGaunye+1RXtI5wt5nDoNdZo2f4T2OMS5rP2WBWGygblRY2bHax+zd0fZ2sWtJE38bQTVGU1Ng2EfuWlU12kK3AaKdHBNurlv0w/17EjC8SSId5LA/0PzSvFRUPGfAOekpZEE/NS5CzjjbWH8LwX8gpSdNMl2E="
+
+before_install:
+  - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+
+script: ./configure --enable-debug --enable-maintainer --enable-sanitizer && make
+
+addons:
+  apt:
+    packages: [cppcheck, libgnutls28-dev]
+
+addons:
+  coverity_scan:
+    project:
+      name: "michaelrsweet/htmldoc"
+      description: "HTML conversion utility"
+    notification_email: michael.r.sweet@gmail.com
+    build_command_prepend: "make clean"
+    build_command: "make"
+    branch_pattern: master
+
+notifications:
+  email:
+    recipients:
+      - msweet@msweet.org
