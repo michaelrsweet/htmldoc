@@ -7,7 +7,7 @@
  * ZIPC_ONLY_WRITE to compile with just the ZIP writing code.  Otherwise both
  * ZIP reader and writer code is built.
  *
- * Copyright 2017-2019 by Michael R Sweet.
+ * Copyright 2017-2021 by Michael R Sweet.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -1043,10 +1043,10 @@ zipcOpen(const char *filename,		/* I - Filename of container */
       {
         case ZIPC_LOCAL_HEADER :
             offset            = ftell(zc->fp) - 4;
-            /*version           = */zipc_read_u16(zc);
+            /*version =*/       zipc_read_u16(zc);
             flags             = zipc_read_u16(zc);
             method            = zipc_read_u16(zc);
-            /*modtime           = */zipc_read_u32(zc);
+            /*modtime =*/       zipc_read_u32(zc);
             crc32             = zipc_read_u32(zc);
             compressed_size   = zipc_read_u32(zc);
             uncompressed_size = zipc_read_u32(zc);
@@ -1069,20 +1069,27 @@ zipcOpen(const char *filename,		/* I - Filename of container */
             cfile[cfile_len] = '\0';
 
             if (extra_field_len > 0)
-              fseek(zc->fp, extra_field_len, SEEK_CUR);
+            {
+              if (fseek(zc->fp, extra_field_len, SEEK_CUR) < 0)
+              {
+                fclose(zc->fp);
+                free(zc->files);
+                free(zc);
+                return (NULL);
+              }
+            }
 
             if (zc->num_files >= zc->alloc_files)
             {
               zc->alloc_files += 10;
 
-              if (!zc->files)
-                zf = malloc(zc->alloc_files * sizeof(zipc_file_t));
-              else
-                zf = realloc(zc->files, zc->alloc_files * sizeof(zipc_file_t));
+	      zf = realloc(zc->files, zc->alloc_files * sizeof(zipc_file_t));
 
               if (!zf)
               {
-                zc->error = strerror(errno);
+                fclose(zc->fp);
+                free(zc->files);
+                free(zc);
                 return (NULL);
               }
 
@@ -1104,7 +1111,13 @@ zipcOpen(const char *filename,		/* I - Filename of container */
             zf->offset            = (size_t)offset;
             zf->local_size        = (size_t)(ftell(zc->fp) - offset);
 
-            fseek(zc->fp, compressed_size, SEEK_CUR);
+            if (fseek(zc->fp, compressed_size, SEEK_CUR) < 0)
+            {
+	      fclose(zc->fp);
+	      free(zc->files);
+	      free(zc);
+	      return (NULL);
+            }
             break;
 
        default :
@@ -1191,7 +1204,8 @@ zipcOpenFile(zipc_t     *zc,            /* I - ZIP container */
   {
     if (!strcmp(filename, current->filename))
     {
-      fseek(zc->fp, current->offset + current->local_size, SEEK_SET);
+      if (fseek(zc->fp, current->offset + current->local_size, SEEK_SET) < 0)
+        break;
 
       if (current->method == ZIPC_COMP_DEFLATE)
       {
@@ -1664,13 +1678,21 @@ zipc_write_local_trailer(
     * Update the CRC-32, compressed size, and uncompressed size fields...
     */
 
-    fseek(zc->fp, (long)(zf->offset + 14), SEEK_SET);
+    if (fseek(zc->fp, (long)(zf->offset + 14), SEEK_SET) < 0)
+    {
+      zc->error = strerror(errno);
+      return (-1);
+    }
 
     status |= zipc_write_u32(zc, zf->crc32);
     status |= zipc_write_u32(zc, (unsigned)zf->compressed_size);
     status |= zipc_write_u32(zc, (unsigned)zf->uncompressed_size);
 
-    fseek(zc->fp, 0, SEEK_END);
+    if (fseek(zc->fp, 0, SEEK_END) < 0)
+    {
+      zc->error = strerror(errno);
+      return (-1);
+    }
 
     zf->flags &= ZIPC_FLAG_MASK;
   }
