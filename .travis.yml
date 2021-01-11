@@ -25,7 +25,7 @@ addons:
     notification_email: michael.r.sweet@gmail.com
     build_command_prepend: "make clean"
     build_command: "make"
-    branch_pattern: master
+    branch_pattern: coverity_scan
 
 notifications:
   email:
