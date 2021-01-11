@@ -368,16 +368,18 @@ if test -n "$GXX"; then
     WARNINGS="-Wall -Wunused"
 
     dnl Drop some not-useful/unreliable warnings...
+    AC_LANG_PUSH(C++)
     for warning in char-subscripts format-truncation format-y2k switch unused-result; do
 	AC_MSG_CHECKING([whether compiler supports -Wno-$warning])
-	OLDCFLAGS="$CFLAGS"
-	CFLAGS="$CFLAGS -Wno-$warning -Werror"
+	OLDCXXFLAGS="$CXXFLAGS"
+	CXXFLAGS="$CXXFLAGS -Wno-$warning -Werror"
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM()], [
 	    AC_MSG_RESULT(yes)
 	    WARNINGS="$WARNINGS -Wno-$warning"], [
 	    AC_MSG_RESULT(no)])
-	CFLAGS="$OLDCFLAGS"
+	CXXFLAGS="$OLDCXXFLAGS"
     done
+    AC_LANG_POP()
 
     dnl Maintainer mode enables -Werror...
     if test x$enable_maintainer = xyes; then
