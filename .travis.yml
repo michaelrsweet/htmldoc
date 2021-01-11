@@ -11,7 +11,7 @@ env:
 before_install:
   - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 
-script: ./configure --enable-debug --enable-maintainer --enable-sanitizer && make
+script: ./configure --enable-debug --enable-maintainer && make
 
 addons:
   apt:
