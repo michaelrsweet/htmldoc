@@ -1,8 +1,8 @@
 //
 // GUI routines for HTMLDOC, an HTML document processing program.
 //
-// Copyright 2011-2020 by Michael R Sweet.
-// Copyright 1997-2010 by Easy Software Products.  All rights reserved.
+// Copyright © 2011-2021 by Michael R Sweet.
+// Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
 //
 // This program is free software.  Distribution and use rights are outlined in
 // the file "COPYING".
@@ -309,9 +309,9 @@ GUI::GUI(const char *filename)		// Book file to load initially
   lhImage->callback((Fl_Callback *)lhImageCB, this);
   lhImage->tooltip("The letterhead image for the header or footer.");
 
-  logoBrowse = new Fl_Button(390, 230, 95, 25, "Browse...");
-  logoBrowse->callback((Fl_Callback *)lhImageCB, this);
-  logoBrowse->tooltip("Choose a logo image file.");
+  lhBrowse = new Fl_Button(390, 230, 95, 25, "Browse...");
+  lhBrowse->callback((Fl_Callback *)lhImageCB, this);
+  lhBrowse->tooltip("Choose a logo image file.");
 
   logoImage = new Fl_Input(140, 260, 250, 25, "Logo Image: ");
   logoImage->when(FL_WHEN_CHANGED);
@@ -2843,9 +2843,7 @@ GUI::addFileCB(Fl_Widget *w,	// I - Widget
           if (fgets(line, sizeof(line), fp) == NULL)
 	  {
 	    fl_alert("Unable to import %s:\nMissing file.", gui->fc->value(i));
-	    fclose(fp);
-	    chdir(directory);
-	    continue;
+	    break;
 	  }
 
           line[strlen(line) - 1] = '\0'; // strip newline

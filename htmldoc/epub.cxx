@@ -1,7 +1,7 @@
 /*
  * EPUB exporting functions for HTMLDOC, a HTML document processing program.
  *
- * Copyright 2017-2019 by Michael R Sweet.
+ * Copyright © 2017-2021 by Michael R Sweet.
  *
  * This program is free software.  Distribution and use rights are outlined in
  * the file "COPYING".
@@ -1464,6 +1464,8 @@ write_xhtmlf(zipc_file_t *out,          /* I - Output file */
 
   if (ptr > start)
     status |= zipcFileWrite(out, start, (size_t)(ptr - start));
+
+  va_end(ap);
 
   return (status);
 }

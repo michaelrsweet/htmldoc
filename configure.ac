@@ -1,14 +1,14 @@
 #
 # Configuration script for HTMLDOC, an HTML document processing program.
 #
-# Copyright © 2011-2020 by Michael R Sweet.
+# Copyright © 2011-2021 by Michael R Sweet.
 # Copyright © 1997-2010 by Easy Software Products.
 #
 # This program is free software.  Distribution and use rights are outlined in
 # the file "COPYING".
 #
 
-AC_INIT([HTMLDOC], [1.9.11], [https://github.com/michaelrsweet/htmldoc/issues], [htmldoc],  [https://michaelrsweet.github.io/htmldoc])
+AC_INIT([HTMLDOC], [1.9.12], [https://github.com/michaelrsweet/htmldoc/issues], [htmldoc],  [https://michaelrsweet.github.io/htmldoc])
 AC_CONFIG_HEADER(config.h)
 
 dnl Define the version number...
@@ -365,17 +365,23 @@ if test -n "$GXX"; then
     fi
 
     dnl Show all standard warnings + unused variables when compiling...
-    if test "$uname" = Darwin; then
-	    # macOS Clang is conservative about "-Wall" warnings
-	    WARNINGS="-Wall -Wunused -Wno-char-subscripts"
-    else
-	    # Newer GCCs generate a lot of not-useful/reliable warnings with "-Wall"
-	    WARNINGS="-Wall -Wunused -Wno-unused-result -Wno-char-subscripts -Wno-format-y2k -Wno-maybe-uninitialized -Wno-switch -Wno-format-truncation"
-    fi
+    WARNINGS="-Wall -Wunused"
+
+    dnl Drop some not-useful/unreliable warnings...
+    for warning in char-subscripts format-truncation format-y2k switch unused-result; do
+	AC_MSG_CHECKING([whether compiler supports -Wno-$warning])
+	OLDCFLAGS="$CFLAGS"
+	CFLAGS="$CFLAGS -Wno-$warning -Werror"
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM()], [
+	    AC_MSG_RESULT(yes)
+	    WARNINGS="$WARNINGS -Wno-$warning"], [
+	    AC_MSG_RESULT(no)])
+	CFLAGS="$OLDCFLAGS"
+    done
 
     dnl Maintainer mode enables -Werror...
     if test x$enable_maintainer = xyes; then
-	    WARNINGS="$WARNINGS -Werror"
+	WARNINGS="$WARNINGS -Werror"
     fi
 
     dnl See if GCC supports -fno-rtti...

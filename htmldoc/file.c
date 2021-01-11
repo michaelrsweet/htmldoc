@@ -1,7 +1,7 @@
 /*
  * Filename routines for HTMLDOC, a HTML document processing program.
  *
- * Copyright © 2011-2019 by Michael R Sweet.
+ * Copyright © 2011-2021 by Michael R Sweet.
  * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -625,7 +625,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
     if (strcmp(s, web_cache[i].name) == 0)
     {
       DEBUG_printf(("file_find: Returning cache file \"%s\"!\n", s));
-      return (s);
+      return (web_cache[i].name);
     }
 
   DEBUG_printf(("file_find: \"%s\" not in web cache of %d files...\n", s, (int)web_files));
@@ -725,7 +725,13 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
     }
   }
 
-  return (file_find_check(s));
+  if (file_find_check(s))
+  {
+    strlcpy(filename, s, sizeof(filename));
+    return (filename);
+  }
+  else
+    return (NULL);
 }
 
 

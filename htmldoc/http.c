@@ -1,7 +1,7 @@
 /*
  * HTTP routines for HTMLDOC.
  *
- * Copyright © 2020 by Michael R Sweet
+ * Copyright © 2020-2021 by Michael R Sweet
  * Copyright © 2007-2019 by Apple Inc.
  * Copyright © 1997-2007 by Easy Software Products, all rights reserved.
  *
@@ -3225,7 +3225,8 @@ httpWrite2(http_t     *http,		/* I - HTTP connection */
       DEBUG_printf(("2httpWrite2: Flushing buffer (wused=%d, length="
                     HTMLDOC_LLFMT ")", http->wused, HTMLDOC_LLCAST length));
 
-      httpFlushWrite(http);
+      if (httpFlushWrite(http) < 0)
+        return (-1);
     }
 
     if ((length + (size_t)http->wused) <= sizeof(http->wbuffer) && length < sizeof(http->wbuffer))
@@ -3611,7 +3612,8 @@ http_add_field(http_t       *http,	/* I - HTTP connection */
 
   if (!valuelen)
   {
-    http->_fields[field][0] = '\0';
+    if (field < HTTP_FIELD_ACCEPT_ENCODING)
+      http->_fields[field][0] = '\0';
     return;
   }
 
@@ -3628,6 +3630,8 @@ http_add_field(http_t       *http,	/* I - HTTP connection */
 
   if (total < HTTP_MAX_VALUE && field < HTTP_FIELD_ACCEPT_ENCODING)
   {
+    char combined[HTTP_MAX_VALUE];	/* Combined value string */
+
    /*
     * Copy short values to legacy char arrays (maintained for binary
     * compatibility with CUPS 1.2.x and earlier applications...)
@@ -3635,9 +3639,6 @@ http_add_field(http_t       *http,	/* I - HTTP connection */
 
     if (fieldlen)
     {
-      char	combined[HTTP_MAX_VALUE];
-					/* Combined value string */
-
       snprintf(combined, sizeof(combined), "%s, %s", http->_fields[field], value);
       value = combined;
     }
@@ -4150,30 +4151,16 @@ http_read(http_t *http,			/* I - HTTP connection */
 
   DEBUG_printf(("2http_read: Read " HTMLDOC_LLFMT " bytes into buffer.",
 		HTMLDOC_LLCAST bytes));
-#ifdef DEBUG
-  if (bytes > 0)
-    http_debug_hex("http_read", buffer, (int)bytes);
-#endif /* DEBUG */
 
-  if (bytes < 0)
-  {
-#ifdef _WIN32
-    if (WSAGetLastError() == WSAEINTR)
-      bytes = 0;
-    else
-      http->error = WSAGetLastError();
-#else
-    if (errno == EINTR || (errno == EAGAIN && !http->timeout_cb))
-      bytes = 0;
-    else
-      http->error = errno;
-#endif /* _WIN32 */
-  }
-  else if (bytes == 0)
+  if (bytes == 0)
   {
     http->error = EPIPE;
     return (0);
   }
+
+#ifdef DEBUG
+  http_debug_hex("http_read", buffer, (int)bytes);
+#endif /* DEBUG */
 
   return (bytes);
 }

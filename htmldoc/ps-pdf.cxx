@@ -6,7 +6,7 @@
  * broken into more manageable pieces once we make all of the output
  * "drivers" into classes...
  *
- * Copyright © 2011-2020 by Michael R Sweet.
+ * Copyright © 2011-2021 by Michael R Sweet.
  * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -3614,7 +3614,7 @@ render_contents(tree_t *t,		/* I - Tree to parse */
 		*temp,
 		*next;
   render_t	*r;
-  float		dot_width = _htmlSizes[SIZE_P] * _htmlWidths[t->typeface][t->style]['.'] * 0.001f;
+  float		dot_width;
 
 
   DEBUG_printf(("render_contents(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, y=%.1f, page=%d, heading=%d, chap=%p)\n",
@@ -3622,6 +3622,8 @@ render_contents(tree_t *t,		/* I - Tree to parse */
 
   if (!t)
     return;
+
+  dot_width = _htmlSizes[SIZE_P] * _htmlWidths[t->typeface][t->style]['.'] * 0.001f;
 
  /*
   * Put the text...
@@ -7049,8 +7051,8 @@ parse_table(tree_t *t,			// I - Tree to parse
           temp_height = table.height;
 	temp_height -= 2 * table.cellpadding;
       }
-      else if (temp_height > (PageLength / 8) && height_var == NULL)
-	temp_height = PageLength / 8;
+      else if (temp_height > (PageLength / 8.0) && height_var == NULL)
+	temp_height = PageLength / 8.0;
     }
 
     DEBUG_printf(("BEFORE row = %d, temp_height = %.1f, *y = %.1f, *page = %d\n",

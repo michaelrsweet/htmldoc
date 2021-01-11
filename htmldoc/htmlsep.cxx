@@ -2,7 +2,7 @@
  * Separated HTML export functions for HTMLDOC, a HTML document processing
  * program.
  *
- * Copyright 2011-2019 by Michael R Sweet.
+ * Copyright 2011-2021 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -915,7 +915,10 @@ add_heading(tree_t *t)			// I - Heading node
   // Start by getting the heading text...
   heading = htmlGetText(t->child);
   if (!heading || !*heading)
+  {
+    free(heading);
     return;				// Nothing to do!
+  }
 
   // Sanitize the text...
   for (ptr = heading; *ptr;)
