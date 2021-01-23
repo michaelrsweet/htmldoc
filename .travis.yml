@@ -6,12 +6,12 @@ language: c
 
 env:
   global:
-    - secure: "NROKLX5SdoS/XHewL0BB3NYFHIBkwpRbdDgeqsxV3AoB5qgKA/pOTyZC+W+ez0T3oGYbzZXS5aSGDoEZkEeK6lSZlQ49Q45AZNaxFkf/RHfd0+QQY4NQ4IDSIohyWf4/+GTuB4pQc+1gOU35JKnvc8kyCuJBZZsfH0Ja0O2mT5OybbkbiPPM4rqk6bXEqMqEL4+emARvD6c4olpHHlmWeDRUQfQy65tDmNyQlKqjFaMY4jwUYkZdgLZMW1ywMfprZWhI5rrktnazXnPGVx5s7ZEBrhtRSwkc/1RvGslDqd1CWkN2OlrCFx9ewOIdiRsp1kbVAYE2UR8CtQEMK5PPvyUx/1+h3TqBtw5eZN/jeAXvqyAE2CCyu9TU0jRaljcOQFYQUW5RGvo57MYNc5TNK5II9r3A8YosEF5e9E/4J5vQHvJUwAQx4Uj8IuQUm4fpLhkCq6fqdBW5UzYembRBU2IaOkRHicQuztHybYyQCnN53zoT3v3zbFeZNTEVNjjR93i5duuhQTjVXnVyrITRoNLHT2TxEXRXzp/fHOOydbPdYHpuTfbrOM+YpG5gOUmZ/gUQtzkyH3WwM+emGwgoMzVudTVX7bA8PiNsCT5DsWDj8ALjjNwW2rmxHJBWbvo665jdh4G5Yv9XUOi+/7C/et8YHuaPqRx+wBSCECgzctA="
+    - secure: "uEWddevIc1y3JU61tpDKh5+M4P+0M4OdMIsl9wG9iEhtAbWgIOlS5usTcg8+Y0y3QaglJi6UpeTlIetWp9KqYdCsUs2N9EntziOQroaHD70qTSohT9Lc1laauOVHdedcn7BAO4saOoLrErgt/E/FJGbA7UUxl9gWcJjfZviwd2uZwaxEN/sjKqXc5PwrJzgupAgIF8C5KZw7y+/R3NwdsVNVN5W6zLynpU9KIsgz8O6KXsZ0gSrt1fULy8z3EaPD/Xamrzio9Fim6j7y0v19qZUedxdK9yl0wJXng2KSgX6G/6n1521eiO5GQT7hlsaqHgFTtJ40KLzw9ovQaNzOgUvwqTYzV6xXs5RrJSnOARja/NLdHQZLAmy1I0jkkclRsymCLcOBBQnGfwbL3/It5ZaZtQGJXqfrCqlEAq60mCjQ8wPm9gnCt4g/ZXdeIFnFtLJgxB+JQ2ahzN08m2TA25km7wr7HSU8GV1D2kHXFKeMjFX0lLqg4owMf5E1cd8g9oljjPmMrVs1BzTj+hanq13HeIiuBzAc8f4OmrqugBe+0HpfPER91dKZuaQY8JyacXnm1SxJvgacZdLvWoRkKJhS6UU2z+ZPGzzOhrbfWs6O/RmkETH7BYh3ezX100pEzVsGXE1x71zxwhJB/FgEWPDgLh+YkmeNVUuJ0ehtqsk="
 
 before_install:
   - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 
-script: ./configure --enable-debug --enable-maintainer && make
+script: ./configure --enable-debug && make
 
 addons:
   apt:
