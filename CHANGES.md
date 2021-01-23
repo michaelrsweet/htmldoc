@@ -1,3 +1,9 @@
+# Changes in HTMLDOC v1.9.12
+
+- Fixed a crash bug with "data:" URIs and EPUB output (Issue #410)
+- Fixed some issues reported by Coverity.
+
+
 # Changes in HTMLDOC v1.9.11
 
 - Added high-resolution desktop icons for Linux.

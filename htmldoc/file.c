@@ -622,11 +622,13 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
   */
 
   for (i = 0; i < (int)web_files; i ++)
+  {
     if (strcmp(s, web_cache[i].name) == 0)
     {
       DEBUG_printf(("file_find: Returning cache file \"%s\"!\n", s));
       return (web_cache[i].name);
     }
+  }
 
   DEBUG_printf(("file_find: \"%s\" not in web cache of %d files...\n", s, (int)web_files));
 
@@ -635,11 +637,14 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
   */
 
   if (strchr(s, '%') == NULL)
+  {
     strlcpy(basename, s, sizeof(basename));
+  }
   else
   {
     for (sptr = s, temp = basename;
 	 *sptr && temp < (basename + sizeof(basename) - 1);)
+    {
       if (*sptr == '%' && isxdigit(sptr[1]) && isxdigit(sptr[2]))
       {
        /*
@@ -662,6 +667,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
       }
       else
 	*temp++ = *sptr++;
+    }
 
     *temp = '\0';
   }
@@ -725,13 +731,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
     }
   }
 
-  if (file_find_check(s))
-  {
-    strlcpy(filename, s, sizeof(filename));
-    return (filename);
-  }
-  else
-    return (NULL);
+  return (file_find_check(s));
 }
 
 
@@ -922,7 +922,9 @@ file_localize(const char *filename,	/* I - Filename */
 const char *			/* O - Method string ("http", "ftp", etc.) */
 file_method(const char *s)	/* I - Filename or URL */
 {
-  if (strncmp(s, "http:", 5) == 0)
+  if (strncmp(s, "data:", 5) == 0)
+    return ("data");
+  else if (strncmp(s, "http:", 5) == 0)
     return ("http");
   else if (strncmp(s, "https:", 6) == 0)
     return ("https");
