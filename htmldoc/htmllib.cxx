@@ -3453,8 +3453,8 @@ fix_filename(char *filename,		/* I - Original filename */
              char *base)		/* I - Base directory */
 {
   char		*slash;			/* Location of slash */
-  char		temp[1024],		/* Temporary filename */
-		*tempptr;		/* Pointer into filename */
+  char		*tempptr;		/* Pointer into filename */
+  static char	temp[1024];		/* Temporary filename */
   static char	newfilename[1024];	/* New filename */
 
 
