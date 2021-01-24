@@ -17,7 +17,6 @@ addons:
   apt:
     packages: [cppcheck, libgnutls28-dev]
 
-addons:
   coverity_scan:
     project:
       name: "michaelrsweet/htmldoc"
