@@ -265,7 +265,8 @@ AS_IF([test x$enable_localjpeg = xyes], [
 ], [
     AC_SEARCH_LIBS(jpeg_CreateCompress, turbojpeg jpeg, [
 	JPEGINC=""
-	JPEG="",
+	JPEG=""
+    ], [
 	JPEGINC="-I../jpeg"
 	JPEG="jpeg"
 	NEWLIBS="../jpeg/libjpeg.a $NEWLIBS"
@@ -282,7 +283,8 @@ AS_IF([test x$enable_localzlib = xyes], [
 ], [
     AC_SEARCH_LIBS(gzgets,z, [
 	ZLIBINC=""
-	ZLIB="",
+	ZLIB=""
+    ], [
 	ZLIBINC="-I../zlib"
 	ZLIB="zlib"
 	NEWLIBS="../zlib/libz.a $NEWLIBS"
@@ -299,7 +301,8 @@ AS_IF([test x$enable_localpng = xyes], [
 ], [
     AC_SEARCH_LIBS(png_set_tRNS_to_alpha,png, [
 	PNGINC=""
-	PNG="",
+	PNG=""
+    ], [
 	PNGINC="-I../png"
 	PNG="png"
 	NEWLIBS="../png/libpng.a $NEWLIBS"

@@ -6183,7 +6183,10 @@ then :
   test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
 
 	JPEGINC=""
-	JPEG="",
+	JPEG=""
+
+else $as_nop
+
 	JPEGINC="-I../jpeg"
 	JPEG="jpeg"
 	NEWLIBS="../jpeg/libjpeg.a $NEWLIBS"
@@ -6270,7 +6273,10 @@ then :
   test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
 
 	ZLIBINC=""
-	ZLIB="",
+	ZLIB=""
+
+else $as_nop
+
 	ZLIBINC="-I../zlib"
 	ZLIB="zlib"
 	NEWLIBS="../zlib/libz.a $NEWLIBS"
@@ -6357,7 +6363,10 @@ then :
   test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
 
 	PNGINC=""
-	PNG="",
+	PNG=""
+
+else $as_nop
+
 	PNGINC="-I../png"
 	PNG="png"
 	NEWLIBS="../png/libpng.a $NEWLIBS"
