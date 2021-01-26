@@ -304,6 +304,7 @@ const char *			/* O - File extension */
 file_extension(const char *s)	/* I - Filename or URL */
 {
   const char	*extension;	/* Pointer to directory separator */
+  char		*bufptr;	/* Pointer into buffer */
   static char	buf[1024];	/* Buffer for files with targets */
 
 
@@ -334,7 +335,8 @@ file_extension(const char *s)	/* I - Filename or URL */
 
   strlcpy(buf, extension, sizeof(buf));
 
-  *(char *)strchr(buf, '#') = '\0';
+  if ((bufptr = strchr(buf, '#')) != NULL)
+    *bufptr = '\0';
 
   return (buf);
 }
