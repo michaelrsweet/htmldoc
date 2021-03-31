@@ -383,7 +383,7 @@ AS_IF([test -n "$GXX"], [
 
     dnl Drop some not-useful/unreliable warnings...
     AC_LANG_PUSH(C++)
-    for warning in char-subscripts format-truncation format-y2k switch unused-result; do
+    for warning in char-subscripts deprecated-declarations format-truncation format-y2k switch unused-result; do
 	AC_MSG_CHECKING([whether compiler supports -Wno-$warning])
 	OLDCXXFLAGS="$CXXFLAGS"
 	CXXFLAGS="$CXXFLAGS -Wno-$warning -Werror"
@@ -427,7 +427,7 @@ AS_IF([test -n "$GXX"], [
     CFLAGS="$OLDCFLAGS"
 
     dnl OS-specific options...
-    AS_IF([test "$host_os_name" = darwin], [
+    AS_IF([test "$host_os_name" = darwin -a x$enable_debug != xyes], [
         OPTIM="$OPTIM -mmacosx-version-min=10.14 -arch x86_64 -arch arm64e"
     ])
 ])
