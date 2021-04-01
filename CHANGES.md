@@ -1,8 +1,9 @@
 # Changes in HTMLDOC v1.9.12
 
 - Fixed a crash bug with "data:" URIs and EPUB output (Issue #410)
+- Fixed crash bugs for books (Issue #412, Issue #414)
 - Fixed a number-up crash bug (Issue #413)
-- Fixed JPEG error handling (Issue #414, Issue #415)
+- Fixed JPEG error handling (Issue #415)
 - Fixed crash bugs with bogus table attributes (Issue #416, Issue #417)
 - Fixed a crash bug with malformed URIs (Issue #418)
 - Fixed a crash bug with malformed GIF files (Issue #423)
