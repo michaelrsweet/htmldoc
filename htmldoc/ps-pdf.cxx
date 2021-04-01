@@ -1318,7 +1318,7 @@ pspdf_prepare_outpages()
     chapter_outstarts[c] = num_outpages;
 
     for (i = chapter_starts[c], j = 0, nup = -1, page = pages + i;
-         i <= chapter_ends[c];
+         i <= chapter_ends[c] && num_outpages < num_pages;
 	 i ++, page ++)
     {
       if (nup != page->nup)
