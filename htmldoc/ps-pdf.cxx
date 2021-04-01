@@ -1404,6 +1404,8 @@ pspdf_prepare_page(int page)		/* I - Page number */
 
 
   DEBUG_printf(("pspdf_prepare_page(%d)\n", page));
+  if (page < 0 || page >= num_pages)
+    return;
 
  /*
   * Make a page number; use roman numerals for the table of contents
@@ -12285,6 +12287,9 @@ write_trailer(FILE  *out,		/* I - Output file */
 
       for (j = 1; j <= TocDocCount; j ++)
       {
+        if (chapter_starts[j] < 0)
+          continue;
+
         page  = pages + chapter_starts[j];
 	start = chapter_starts[j] - chapter_starts[1] + 1;
 	type  = 'D';

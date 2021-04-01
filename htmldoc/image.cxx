@@ -1336,6 +1336,15 @@ image_load_gif(image_t *img,	/* I - Image pointer */
 }
 
 
+typedef struct hd_jpeg_err_s	// JPEG error manager extension
+{
+  struct jpeg_error_mgr	jerr;	// JPEG error manager information
+  jmp_buf	retbuf;		// setjmp() return buffer
+  char		message[JMSG_LENGTH_MAX];
+				// Last error message
+} hd_jpeg_err_t;
+
+
 /*
  * 'image_load_jpeg()' - Load a JPEG image file.
  */
@@ -1347,14 +1356,21 @@ image_load_jpeg(image_t *img,	/* I - Image pointer */
                 int     load_data)/* I - 1 = load image data, 0 = just info */
 {
   struct jpeg_decompress_struct	cinfo;		/* Decompressor info */
-  struct jpeg_error_mgr		jerr;		/* Error handler info */
-  JSAMPROW			row;		/* Sample row pointer */
+  hd_jpeg_err_t			jerr;		// JPEG error handler
+JSAMPROW			row;		/* Sample row pointer */
 
 
-  jpeg_std_error(&jerr);
-  jerr.error_exit = jpeg_error_handler;
+  jpeg_std_error(&jerr.jerr);
+  jerr.jerr.error_exit = jpeg_error_handler;
 
-  cinfo.err = &jerr;
+  if (setjmp(jerr.retbuf))
+  {
+    progress_error(HD_ERROR_BAD_FORMAT, "%s (%s)", jerr.message,  file_rlookup(img->filename));
+    jpeg_destroy_decompress(&cinfo);
+    return (-1);
+  }
+
+  cinfo.err = (struct jpeg_error_mgr *)&jerr;
   jpeg_create_decompress(&cinfo);
   jpeg_stdio_src(&cinfo, fp);
   jpeg_read_header(&cinfo, (boolean)1);
@@ -1797,9 +1813,17 @@ image_unload(image_t *img)	// I - Image
  */
 
 static void
-jpeg_error_handler(j_common_ptr)
+jpeg_error_handler(j_common_ptr p)	// Common JPEG data
 {
-  return;
+  hd_jpeg_err_t	*jerr = (hd_jpeg_err_t *)p->err;
+					// JPEG error handler
+
+
+  // Save the error message in the string buffer...
+  (jerr->jerr.format_message)(p, jerr->message);
+
+  // Return to the point we called setjmp()...
+  longjmp(jerr->retbuf, 1);
 }
 
 
