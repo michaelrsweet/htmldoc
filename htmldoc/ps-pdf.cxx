@@ -6379,6 +6379,9 @@ parse_table(tree_t *t,			// I - Tree to parse
       table_width = (float)(atof((char *)var) * (right - left) / 100.0f);
     else
       table_width = (float)(atoi((char *)var) * PagePrintWidth / _htmlBrowserWidth);
+
+    if (table_width < 0.0f || table_width > PagePrintWidth)
+      table_width = right - left;
   }
   else
     table_width = right - left;
@@ -6396,19 +6399,31 @@ parse_table(tree_t *t,			// I - Tree to parse
   DEBUG_printf(("table_width = %.1f\n", table_width));
 
   if ((var = htmlGetVariable(t, (uchar *)"CELLPADDING")) != NULL)
-    table.cellpadding = atoi((char *)var);
+  {
+    if ((table.cellpadding = atoi((char *)var)) < 0.0f)
+      table.cellpadding = 0.0f;
+    else if (table.cellpadding > 20.0f)
+      table.cellpadding = 20.0f;
+  }
   else
     table.cellpadding = 1.0f;
 
   if ((var = htmlGetVariable(t, (uchar *)"CELLSPACING")) != NULL)
-    cellspacing = atoi((char *)var);
+  {
+    if ((cellspacing = atoi((char *)var)) < 0.0f)
+      cellspacing = 0.0f;
+    else if (cellspacing > 20.0f)
+      cellspacing = 20.0f;
+  }
   else
     cellspacing = 0.0f;
 
   if ((var = htmlGetVariable(t, (uchar *)"BORDER")) != NULL)
   {
-    if ((table.border = (float)atof((char *)var)) == 0.0 && var[0] != '0')
+    if ((table.border = (float)atof((char *)var)) <= 0.0 && var[0] != '0')
       table.border = 1.0f;
+    else if (table.border > 20.0f)
+      table.border = 20.0f;
 
     table.cellpadding += table.border;
   }
@@ -6438,7 +6453,7 @@ parse_table(tree_t *t,			// I - Tree to parse
 
   table.border_size = table.border - 1.0f;
 
-  cellspacing *= PagePrintWidth / _htmlBrowserWidth;
+  cellspacing       *= PagePrintWidth / _htmlBrowserWidth;
   table.cellpadding *= PagePrintWidth / _htmlBrowserWidth;
   table.border      *= PagePrintWidth / _htmlBrowserWidth;
   table.border_size *= PagePrintWidth / _htmlBrowserWidth;
