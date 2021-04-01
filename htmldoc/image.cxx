@@ -1245,6 +1245,9 @@ image_load_gif(image_t *img,	/* I - Image pointer */
   img->height = (buf[9] << 8) | buf[8];
   ncolors     = 2 << (buf[10] & 0x07);
 
+  if (img->width <= 0 || img->width > 32767 || img->height <= 0 || img->height > 32767)
+    return (-1);
+
   // If we are writing an encrypted PDF file, bump the use count so we create
   // an image object (Acrobat 6 bug workaround)
   if (Encryption)

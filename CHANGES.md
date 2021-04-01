@@ -2,6 +2,7 @@
 
 - Fixed a crash bug with "data:" URIs and EPUB output (Issue #410)
 - Fixed a crash bug with malformed URIs (Issue #418)
+- Fixed a crash bug with malformed GIF files (Issue #423)
 - Fixed some issues reported by Coverity.
 
 
