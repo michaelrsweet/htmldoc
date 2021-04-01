@@ -5735,7 +5735,7 @@ render_table_row(hdtable_t &table,
       if ((var = htmlGetVariable(cells[row][col], (uchar *)"ROWSPAN")) != NULL)
         table.row_spans[col] = atoi((char *)var);
 
-      if (table.row_spans[col] == 1)
+      if (table.row_spans[col] <= 1)
         table.row_spans[col] = 0;
 
       if (table.row_spans[col] > (table.num_rows - row))
@@ -6570,7 +6570,12 @@ parse_table(tree_t *t,			// I - Tree to parse
         {
 	  // Handle colspan and rowspan stuff...
           if ((var = htmlGetVariable(tempcol, (uchar *)"COLSPAN")) != NULL)
-            colspan = atoi((char *)var);
+          {
+            if ((colspan = atoi((char *)var)) < 1)
+              colspan = 1;
+            else if (colspan > (MAX_COLUMNS - col))
+              colspan = MAX_COLUMNS - col;
+          }
           else
             colspan = 1;
 
@@ -6578,7 +6583,7 @@ parse_table(tree_t *t,			// I - Tree to parse
 	  {
             table.row_spans[col] = atoi((char *)var);
 
-	    if (table.row_spans[col] == 1)
+	    if (table.row_spans[col] <= 1)
 	      table.row_spans[col] = 0;
 
 	    for (tcol = 1; tcol < colspan; tcol ++)
@@ -6600,6 +6605,11 @@ parse_table(tree_t *t,			// I - Tree to parse
 	    {
               col_width -= 2.0 * table.cellpadding;
 	    }
+
+	    if (col_width <= 0.0f)
+	      col_width = 0.0f;
+	    else if (col_width > PageWidth)
+	      col_width = PageWidth;
 	  }
 	  else
 	    col_width = 0.0f;
