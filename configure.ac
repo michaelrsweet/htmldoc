@@ -265,35 +265,33 @@ AS_IF([test "x$with_gui" != xno], [
 
 AC_SUBST(POST)
 
-dnl Check for image libraries if we don't have FLTK...
-AS_IF([test $have_fltk = no], [
-    AS_IF([test "x$PKGCONFIG" != x], [
-	AC_MSG_CHECKING([for libjpeg])
-	AS_IF([$PKGCONFIG --exists libjpeg], [
-	    AC_MSG_RESULT([yes]);
-	    AC_DEFINE([HAVE_LIBJPEG], 1, [Have JPEG library?])
-	    CPPFLAGS="$CPPFLAGS $($PKGCONFIG --cflags libjpeg)"
-	    LIBS="$LIBS $($PKGCONFIG --libs libjpeg)"
-	], [
-	    AC_MSG_RESULT([no]);
-	])
-    ])
-
-    AC_SEARCH_LIBS([gzgets], [z], [
-	LIBS="$LIBS -lz"
-    ], [
-	AC_MSG_ERROR([HTMLDOC requires zlib.])
-    ])
-
-    AC_MSG_CHECKING([for libpng-1.6.x])
-    AS_IF([$PKGCONFIG --exists libpng16], [
+dnl Check for image libraries...
+AS_IF([test "x$PKGCONFIG" != x], [
+    AC_MSG_CHECKING([for libjpeg])
+    AS_IF([$PKGCONFIG --exists libjpeg], [
 	AC_MSG_RESULT([yes]);
-	AC_DEFINE([HAVE_LIBPNG], 1, [Have PNG library?])
-	CPPFLAGS="$CPPFLAGS $($PKGCONFIG --cflags libpng16)"
-	LIBS="$($PKGCONFIG --libs libpng16) $LIBS"
+	AC_DEFINE([HAVE_LIBJPEG], 1, [Have JPEG library?])
+	CPPFLAGS="$CPPFLAGS $($PKGCONFIG --cflags libjpeg)"
+	LIBS="$LIBS $($PKGCONFIG --libs libjpeg)"
     ], [
 	AC_MSG_RESULT([no]);
     ])
+])
+
+AC_SEARCH_LIBS([gzgets], [z], [
+    LIBS="$LIBS -lz"
+], [
+    AC_MSG_ERROR([HTMLDOC requires zlib.])
+])
+
+AC_MSG_CHECKING([for libpng-1.6.x])
+AS_IF([$PKGCONFIG --exists libpng16], [
+    AC_MSG_RESULT([yes]);
+    AC_DEFINE([HAVE_LIBPNG], 1, [Have PNG library?])
+    CPPFLAGS="$CPPFLAGS $($PKGCONFIG --cflags libpng16)"
+    LIBS="$($PKGCONFIG --libs libpng16) $LIBS"
+], [
+    AC_MSG_RESULT([no]);
 ])
 
 dnl Directories for config.h...

@@ -6107,35 +6107,32 @@ fi
 
 
 
-if test $have_fltk = no
+if test "x$PKGCONFIG" != x
 then :
 
-    if test "x$PKGCONFIG" != x
-then :
-
-	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libjpeg" >&5
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libjpeg" >&5
 printf %s "checking for libjpeg... " >&6; }
-	if $PKGCONFIG --exists libjpeg
+    if $PKGCONFIG --exists libjpeg
 then :
 
-	    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; };
 
 printf "%s\n" "#define HAVE_LIBJPEG 1" >>confdefs.h
 
-	    CPPFLAGS="$CPPFLAGS $($PKGCONFIG --cflags libjpeg)"
-	    LIBS="$LIBS $($PKGCONFIG --libs libjpeg)"
+	CPPFLAGS="$CPPFLAGS $($PKGCONFIG --cflags libjpeg)"
+	LIBS="$LIBS $($PKGCONFIG --libs libjpeg)"
 
 else $as_nop
 
-	    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; };
 
 fi
 
 fi
 
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing gzgets" >&5
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing gzgets" >&5
 printf %s "checking for library containing gzgets... " >&6; }
 if test ${ac_cv_search_gzgets+y}
 then :
@@ -6192,34 +6189,32 @@ if test "$ac_res" != no
 then :
   test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
 
-	LIBS="$LIBS -lz"
+    LIBS="$LIBS -lz"
 
 else $as_nop
 
-	as_fn_error $? "HTMLDOC requires zlib." "$LINENO" 5
+    as_fn_error $? "HTMLDOC requires zlib." "$LINENO" 5
 
 fi
 
 
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libpng-1.6.x" >&5
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libpng-1.6.x" >&5
 printf %s "checking for libpng-1.6.x... " >&6; }
-    if $PKGCONFIG --exists libpng16
+if $PKGCONFIG --exists libpng16
 then :
 
-	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; };
 
 printf "%s\n" "#define HAVE_LIBPNG 1" >>confdefs.h
 
-	CPPFLAGS="$CPPFLAGS $($PKGCONFIG --cflags libpng16)"
-	LIBS="$($PKGCONFIG --libs libpng16) $LIBS"
+    CPPFLAGS="$CPPFLAGS $($PKGCONFIG --cflags libpng16)"
+    LIBS="$($PKGCONFIG --libs libpng16) $LIBS"
 
 else $as_nop
 
-	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; };
-
-fi
 
 fi
 
