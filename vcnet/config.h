@@ -130,6 +130,20 @@ typedef long ssize_t;
 
 
 /*
+ * Do we have the JPEG library?
+ */
+
+#define HAVE_LIBJPEG 1
+
+
+/*
+ * Do we have the PNG library?
+ */
+
+#define HAVE_LIBPNG 1
+
+
+/*
  * Do we have the Xpm library?
  */
 

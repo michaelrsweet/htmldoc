@@ -1,8 +1,8 @@
 /*
  * Image handling routines for HTMLDOC, a HTML document processing program.
  *
- * Copyright 2011-2017 by Michael R Sweet.
- * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
+ * Copyright © 2011-2021 by Michael R Sweet.
+ * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
  * the file "COPYING".
@@ -14,11 +14,15 @@
 
 #include "htmldoc.h"
 
+#ifdef HAVE_LIBJPEG
 extern "C" {		/* Workaround for JPEG header problems... */
-#include <jpeglib.h>	/* JPEG/JFIF image definitions */
+#  include <jpeglib.h>	/* JPEG/JFIF image definitions */
 }
+#endif // HAVE_JPEG
 
-#include <png.h>	/* Portable Network Graphics (PNG) definitions */
+#ifdef HAVE_LIBPNG
+#  include <png.h>	/* Portable Network Graphics (PNG) definitions */
+#endif // HAVE_LIBPNG
 
 
 /*
@@ -68,12 +72,19 @@ static int	gif_read_lzw(FILE *fp, int first_time, int input_code_size);
 static int	image_compare(image_t **img1, image_t **img2);
 static int	image_load_bmp(image_t *img, FILE *fp, int gray, int load_data);
 static int	image_load_gif(image_t *img, FILE *fp, int gray, int load_data);
+
+#ifdef HAVE_LIBJPEG
 static int	image_load_jpeg(image_t *img, FILE *fp, int gray, int load_data);
+static void	jpeg_error_handler(j_common_ptr);
+#endif // HAVE_LIBJPEG
+
+#ifdef HAVE_LIBPNG
 static int	image_load_png(image_t *img, FILE *fp, int gray, int load_data);
+#endif // HAVE_LIBPNG
+
 static void	image_need_mask(image_t *img, int scaling = 1);
 static void	image_set_mask(image_t *img, int x, int y, uchar alpha = 0);
 
-static void		jpeg_error_handler(j_common_ptr);
 static int		read_long(FILE *fp);
 static unsigned short	read_word(FILE *fp);
 static unsigned int	read_dword(FILE *fp);
@@ -818,10 +829,14 @@ image_load(const char *filename,/* I - Name of image file */
     status = image_load_gif(img,  fp, gray, load_data);
   else if (memcmp(header, "BM", 2) == 0)
     status = image_load_bmp(img, fp, gray, load_data);
+#ifdef HAVE_LIBPNG
   else if (memcmp(header, "\211PNG", 4) == 0)
     status = image_load_png(img, fp, gray, load_data);
+#endif // HAVE_LIBPNG
+#ifdef HAVE_LIBJPEG
   else if (memcmp(header, "\377\330\377", 3) == 0)
     status = image_load_jpeg(img, fp, gray, load_data);
+#endif // HAVE_LIBJPEG
   else
   {
     progress_error(HD_ERROR_BAD_FORMAT, "Unknown image file format for \"%s\".",
@@ -1336,6 +1351,7 @@ image_load_gif(image_t *img,	/* I - Image pointer */
 }
 
 
+#ifdef HAVE_LIBJPEG
 typedef struct hd_jpeg_err_s	// JPEG error manager extension
 {
   struct jpeg_error_mgr	jerr;	// JPEG error manager information
@@ -1432,8 +1448,10 @@ JSAMPROW			row;		/* Sample row pointer */
 
   return (0);
 }
+#endif // HAVE_LIBJPEG
 
 
+#ifdef HAVE_LIBPNG
 /*
  * 'image_load_png()' - Load a PNG image file.
  */
@@ -1501,10 +1519,10 @@ image_load_png(image_t *img,	/* I - Image pointer */
 
   png_init_io(pp, fp);
 
-#if defined(PNG_SKIP_sRGB_CHECK_PROFILE) && defined(PNG_SET_OPTION_SUPPORTED)
+#  if defined(PNG_SKIP_sRGB_CHECK_PROFILE) && defined(PNG_SET_OPTION_SUPPORTED)
   // Don't throw errors with "invalid" sRGB profiles produced by Adobe apps.
   png_set_option(pp, PNG_SKIP_sRGB_CHECK_PROFILE, PNG_OPTION_ON);
-#endif // PNG_SKIP_sRGB_CHECK_PROFILE && PNG_SET_OPTION_SUPPORTED
+#  endif // PNG_SKIP_sRGB_CHECK_PROFILE && PNG_SET_OPTION_SUPPORTED
 
  /*
   * Get the image dimensions and convert to grayscale or RGB...
@@ -1536,11 +1554,11 @@ image_load_png(image_t *img,	/* I - Image pointer */
   }
   else if (bit_depth == 16)
   {
-#if PNG_LIBPNG_VER >= 10504
+#  if PNG_LIBPNG_VER >= 10504
     png_set_scale_16(pp);
-#else
+#  else
     png_set_strip_16(pp);
-#endif // PNG_LIBPNG_VER >= 10504
+#  endif // PNG_LIBPNG_VER >= 10504
   }
 
   if (color_type & PNG_COLOR_MASK_COLOR)
@@ -1569,7 +1587,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
     depth ++;
   }
 
-#ifdef DEBUG
+#  ifdef DEBUG
   printf("bit_depth=%d, color_type=0x%04x, depth=%d, img->width=%d, img->height=%d, img->depth=%d\n", bit_depth, color_type, depth, img->width, img->height, img->depth);
   if (color_type & PNG_COLOR_MASK_COLOR)
     puts("    COLOR");
@@ -1579,7 +1597,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
     puts("    ALPHA");
   if (color_type & PNG_COLOR_MASK_PALETTE)
     puts("    PALETTE");
-#endif // DEBUG
+#  endif // DEBUG
 
   if (!load_data)
   {
@@ -1611,7 +1629,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
 
   if (color_type & PNG_COLOR_MASK_ALPHA)
   {
-#ifdef DEBUG
+#  ifdef DEBUG
     for (inptr = img->pixels, i = 0; i < img->height; i ++)
     {
       for (j = 0; j < img->width; j ++, inptr += depth)
@@ -1627,7 +1645,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
 
       putchar('\n');
     }
-#endif // DEBUG
+#  endif // DEBUG
 
     for (inptr = img->pixels + depth - 1, i = 0; i < img->height; i ++)
       for (j = 0; j < img->width; j ++, inptr += depth)
@@ -1686,6 +1704,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
 
   return (0);
 }
+#endif // HAVE_LIBPNG
 
 
 /*
@@ -1808,6 +1827,7 @@ image_unload(image_t *img)	// I - Image
 }
 
 
+#ifdef HAVE_LIBJPEG
 /*
  * 'jpeg_error_handler()' - Handle JPEG errors by not exiting.
  */
@@ -1825,6 +1845,7 @@ jpeg_error_handler(j_common_ptr p)	// Common JPEG data
   // Return to the point we called setjmp()...
   longjmp(jerr->retbuf, 1);
 }
+#endif // HAVE_LIBJPEG
 
 
 /*

@@ -9,7 +9,6 @@ HTMLDOC - HTML Conversion Software
 [![LGTM Alerts](https://img.shields.io/lgtm/alerts/github/michaelrsweet/htmldoc)](https://lgtm.com/projects/g/michaelrsweet/htmldoc/)
 
 
-
 HTMLDOC is a program that reads HTML and Markdown source files or web pages and
 generates corresponding EPUB, HTML, PostScript, or PDF files with an optional
 table of contents.
@@ -121,7 +120,7 @@ of Ghostscript, among other things).
 Legal Stuff
 -----------
 
-HTMLDOC is copyright © 1997-2020 by Michael R Sweet.  This program is free
+HTMLDOC is copyright © 1997-2021 by Michael R Sweet.  This program is free
 software.  Distribution and use rights are outlined in the file "COPYING".
 
 HTMLDOC includes code to encrypt PDF document files using the RC4 algorithm

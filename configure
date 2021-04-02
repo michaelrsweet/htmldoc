@@ -650,12 +650,6 @@ ac_header_c_list=
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
 WARNINGS
-ZLIBINC
-ZLIB
-PNGINC
-PNG
-JPEGINC
-JPEG
 POST
 SSLLIBS
 SSLFLAGS
@@ -744,9 +738,6 @@ enable_largefile
 enable_ssl
 enable_gnutls
 enable_cdsassl
-enable_localjpeg
-enable_localzlib
-enable_localpng
 enable_maintainer
 enable_sanitizer
 '
@@ -1389,9 +1380,6 @@ Optional Features:
   --disable-ssl           turn off SSL/TLS support, default=enabled
   --enable-gnutls         use GNU TLS for SSL/TLS support, default=auto
   --enable-cdsassl        use CDSA for SSL/TLS support, default=auto
-  --enable-localjpeg      use local JPEG library, default=auto
-  --enable-localzlib      use local ZLIB library, default=auto
-  --enable-localpng       use local PNG library, default=auto
   --enable-maintainer     turn on maintainer mode, default=no
   --enable-sanitizer      build with AddressSanitizer
 
@@ -4645,6 +4633,13 @@ else
 fi
 
 
+if test x$PKGCONFIG = x
+then :
+
+    as_fn_error $? "pkg-config is required for library checks." "$LINENO" 5
+
+fi
+
 
 
 if test "$ac_cv_prog_ranlib" = ":"
@@ -5983,6 +5978,7 @@ printf "%s\n" "$as_me: Using SSLFLAGS=\"$SSLFLAGS\", SSLLIBS=\"$SSLLIBS\"" >&6;}
 
 
 
+have_fltk=no
 POST=:
 if test "x$with_gui" != xno
 then :
@@ -5990,8 +5986,16 @@ then :
     if test "x$FLTKCONFIG" != x
 then :
 
+        have_fltk=yes
 	LIBS="$LIBS `$FLTKCONFIG --use-images --ldflags`"
-	printf "%s\n" "#define HAVE_LIBFLTK 1" >>confdefs.h
+
+printf "%s\n" "#define HAVE_LIBFLTK 1" >>confdefs.h
+
+
+printf "%s\n" "#define HAVE_LIBJPEG 1" >>confdefs.h
+
+
+printf "%s\n" "#define HAVE_LIBPNG 1" >>confdefs.h
 
 	POST="$FLTKCONFIG --post"
 
@@ -6084,125 +6088,51 @@ fi
 
 else $as_nop
 
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: FLTK not available so no GUI will be built." >&5
+        if test "x$with_gui" = xyes
+then :
+
+	    as_fn_error $? "FLTK not available." "$LINENO" 5
+
+else $as_nop
+
+	    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: FLTK not available so no GUI will be built." >&5
 printf "%s\n" "$as_me: WARNING: FLTK not available so no GUI will be built." >&2;}
 
 fi
 
 fi
 
-
-
-NEWLIBS=""
-
-# Check whether --enable-localjpeg was given.
-if test ${enable_localjpeg+y}
-then :
-  enableval=$enable_localjpeg;
 fi
 
-if test x$enable_localjpeg = xyes
+
+
+if test $have_fltk = no
 then :
 
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing jpeg_CreateCompress" >&5
-printf %s "checking for library containing jpeg_CreateCompress... " >&6; }
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: local libjpeg" >&5
-printf "%s\n" "local libjpeg" >&6; }
-    JPEGINC="-I../jpeg"
-    JPEG="jpeg"
-    NEWLIBS="../jpeg/libjpeg.a $NEWLIBS"
+    if test "x$PKGCONFIG" != x
+then :
+
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libjpeg" >&5
+printf %s "checking for libjpeg... " >&6; }
+	if $PKGCONFIG --exists libjpeg
+then :
+
+	    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; };
+
+printf "%s\n" "#define HAVE_LIBJPEG 1" >>confdefs.h
+
+	    CPPFLAGS="$CPPFLAGS $($PKGCONFIG --cflags libjpeg)"
+	    LIBS="$LIBS $($PKGCONFIG --libs libjpeg)"
 
 else $as_nop
 
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing jpeg_CreateCompress" >&5
-printf %s "checking for library containing jpeg_CreateCompress... " >&6; }
-if test ${ac_cv_search_jpeg_CreateCompress+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  ac_func_search_save_LIBS=$LIBS
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-char jpeg_CreateCompress ();
-int
-main (void)
-{
-return jpeg_CreateCompress ();
-  ;
-  return 0;
-}
-_ACEOF
-for ac_lib in '' turbojpeg jpeg
-do
-  if test -z "$ac_lib"; then
-    ac_res="none required"
-  else
-    ac_res=-l$ac_lib
-    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
-  fi
-  if ac_fn_c_try_link "$LINENO"
-then :
-  ac_cv_search_jpeg_CreateCompress=$ac_res
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext
-  if test ${ac_cv_search_jpeg_CreateCompress+y}
-then :
-  break
-fi
-done
-if test ${ac_cv_search_jpeg_CreateCompress+y}
-then :
-
-else $as_nop
-  ac_cv_search_jpeg_CreateCompress=no
-fi
-rm conftest.$ac_ext
-LIBS=$ac_func_search_save_LIBS
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_jpeg_CreateCompress" >&5
-printf "%s\n" "$ac_cv_search_jpeg_CreateCompress" >&6; }
-ac_res=$ac_cv_search_jpeg_CreateCompress
-if test "$ac_res" != no
-then :
-  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
-
-	JPEGINC=""
-	JPEG=""
-
-else $as_nop
-
-	JPEGINC="-I../jpeg"
-	JPEG="jpeg"
-	NEWLIBS="../jpeg/libjpeg.a $NEWLIBS"
+	    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; };
 
 fi
 
-
 fi
-
-# Check whether --enable-localzlib was given.
-if test ${enable_localzlib+y}
-then :
-  enableval=$enable_localzlib;
-fi
-
-if test x$enable_localzlib = xyes
-then :
-
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing gzgets" >&5
-printf %s "checking for library containing gzgets... " >&6; }
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: local libz" >&5
-printf "%s\n" "local libz" >&6; }
-    ZLIBINC="-I../zlib"
-    ZLIB="zlib"
-    NEWLIBS="../zlib/libz.a $NEWLIBS"
-
-else $as_nop
 
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing gzgets" >&5
 printf %s "checking for library containing gzgets... " >&6; }
@@ -6261,125 +6191,36 @@ if test "$ac_res" != no
 then :
   test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
 
-	ZLIBINC=""
-	ZLIB=""
+	LIBS="$LIBS -lz"
 
 else $as_nop
 
-	ZLIBINC="-I../zlib"
-	ZLIB="zlib"
-	NEWLIBS="../zlib/libz.a $NEWLIBS"
+	as_fn_error $? "HTMLDOC requires zlib." "$LINENO" 5
 
 fi
 
 
-fi
-
-# Check whether --enable-localpng was given.
-if test ${enable_localpng+y}
-then :
-  enableval=$enable_localpng;
-fi
-
-if test x$enable_localpng = xyes
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libpng-1.6.x" >&5
+printf %s "checking for libpng-1.6.x... " >&6; }
+    if $PKGCONFIG --exists libpng16
 then :
 
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing png_set_tRNS_to_alpha" >&5
-printf %s "checking for library containing png_set_tRNS_to_alpha... " >&6; }
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: local libpng" >&5
-printf "%s\n" "local libpng" >&6; }
-    PNGINC="-I../png"
-    PNG="png"
-    NEWLIBS="../png/libpng.a $NEWLIBS"
-
-else $as_nop
-
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing png_set_tRNS_to_alpha" >&5
-printf %s "checking for library containing png_set_tRNS_to_alpha... " >&6; }
-if test ${ac_cv_search_png_set_tRNS_to_alpha+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  ac_func_search_save_LIBS=$LIBS
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-char png_set_tRNS_to_alpha ();
-int
-main (void)
-{
-return png_set_tRNS_to_alpha ();
-  ;
-  return 0;
-}
-_ACEOF
-for ac_lib in '' png
-do
-  if test -z "$ac_lib"; then
-    ac_res="none required"
-  else
-    ac_res=-l$ac_lib
-    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
-  fi
-  if ac_fn_c_try_link "$LINENO"
-then :
-  ac_cv_search_png_set_tRNS_to_alpha=$ac_res
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext
-  if test ${ac_cv_search_png_set_tRNS_to_alpha+y}
-then :
-  break
-fi
-done
-if test ${ac_cv_search_png_set_tRNS_to_alpha+y}
-then :
-
-else $as_nop
-  ac_cv_search_png_set_tRNS_to_alpha=no
-fi
-rm conftest.$ac_ext
-LIBS=$ac_func_search_save_LIBS
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_png_set_tRNS_to_alpha" >&5
-printf "%s\n" "$ac_cv_search_png_set_tRNS_to_alpha" >&6; }
-ac_res=$ac_cv_search_png_set_tRNS_to_alpha
-if test "$ac_res" != no
-then :
-  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
-
-	PNGINC=""
-	PNG=""
-
-else $as_nop
-
-	PNGINC="-I../png"
-	PNG="png"
-	NEWLIBS="../png/libpng.a $NEWLIBS"
-
-fi
-
-
-fi
-
-
-
-
-
-
-
-
-printf "%s\n" "#define HAVE_LIBJPEG 1" >>confdefs.h
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; };
 
 printf "%s\n" "#define HAVE_LIBPNG 1" >>confdefs.h
 
-printf "%s\n" "#define HAVE_LIBZ 1" >>confdefs.h
+	CPPFLAGS="$CPPFLAGS $($PKGCONFIG --cflags libpng16)"
+	LIBS="$($PKGCONFIG --libs libpng16) $LIBS"
 
+else $as_nop
 
-LIBS="$NEWLIBS $LIBS"
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; };
+
+fi
+
+fi
 
 if test "$prefix" = "NONE"
 then :

@@ -1,16 +1,14 @@
 How to Install HTMLDOC from Source
 ==================================
 
-To compile HTMLDOC you'll need C and C++ compilers (gcc is fine, most vendor
-compilers work, too).  The JPEG, PNG, and ZLIB libraries are provided with
-HTMLDOC.
+To compile HTMLDOC you'll need C and C++ compilers (clang and gcc are fine)
+along with the following libraries:
 
-For the GUI support you'll need FLTK 1.1.x or 1.3.x.  FLTK is a LGPL'd cross-
-platform GUI toolkit and can be downloaded from:
-
-    http://www.fltk.org/
-
-For HTTPS support you'll need GNU TLS on Linux and UNIX.
+- FLTK 1.1.x or higher for GUI support
+- GNU TLS for HTTPS support (except on macOS and Windows)
+- libjpeg (7 or higher) or libjpeg-turbo for JPEG support
+- libpng 1.6 or higher for PNG support
+- zlib 1.1 or higher
 
 
 Windows
@@ -69,9 +67,7 @@ You should install the following packages:
 CentOS, Fedora, and RHEL Notes
 ------------------------------
 
-The version of GCC bundled with older releases of these operating systems cannot
-handle the version of libpng that is bundled with HTMLDOC.  Install the
-following packages to avoid this and get full functionality:
+Install the following packages to get full functionality:
 
     sudo yum install autoconf fltk-devel gnutls-devel libjpeg-devel \
     	libpng-devel pkgconfig zlib-devel

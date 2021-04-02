@@ -48,7 +48,21 @@
  * Do we have the FLTK library?
  */
 
-/* #undef HAVE_LIBFLTK */
+#define HAVE_LIBFLTK 1
+
+
+/*
+ * Do we have the JPEG library?
+ */
+
+#define HAVE_LIBJPEG 1
+
+
+/*
+ * Do we have the PNG library?
+ */
+
+#define HAVE_LIBPNG 1
 
 
 /*

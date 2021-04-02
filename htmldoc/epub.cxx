@@ -572,7 +572,8 @@ write_title(zipc_file_t *out,           /* I - Output file */
     {
       image_t *img = image_load(TitleImage, !OutputColor);
 
-      status |= write_xhtmlf(out, "      <p><img src=\"%s\" width=\"%d\" height=\"%d\" alt=\"%s\" /></p>\n", file_basename((char *)TitleImage), img->width, img->height, title ? title : (uchar *)"");
+      if (img)
+        status |= write_xhtmlf(out, "      <p><img src=\"%s\" width=\"%d\" height=\"%d\" alt=\"%s\" /></p>\n", file_basename((char *)TitleImage), img->width, img->height, title ? title : (uchar *)"");
     }
 
     if (title != NULL)
