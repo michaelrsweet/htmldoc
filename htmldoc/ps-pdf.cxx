@@ -6061,7 +6061,7 @@ render_table_row(hdtable_t &table,
 
   // Update all current columns with ROWSPAN <= rowspan to use the same
   // end page and row...
-  for (col = 0, temp_page = -1, temp_y = 99999999; col < table.num_cols; col ++)
+  for (col = 0, temp_page = -1, temp_y = 99999999.0f; col < table.num_cols; col ++)
     if (table.row_spans[col] <= rowspan &&
         cells[row][col] != NULL && cells[row][col]->child != NULL)
     {
