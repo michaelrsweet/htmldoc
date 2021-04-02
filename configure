@@ -5987,7 +5987,8 @@ then :
 then :
 
         have_fltk=yes
-	LIBS="$LIBS `$FLTKCONFIG --use-images --ldflags`"
+	CPPFLAGS="$CPPFLAGS $($FLTKCONFIG --use-images --cflags)"
+	LIBS="$LIBS $($FLTKCONFIG --use-images --ldflags)"
 
 printf "%s\n" "#define HAVE_LIBFLTK 1" >>confdefs.h
 
@@ -7736,4 +7737,13 @@ if test -n "$ac_unrecognized_opts" && test "$enable_option_checking" != no; then
 printf "%s\n" "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
 
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: Using CPPFLAGS=$CPPFLAGS" >&5
+printf "%s\n" "$as_me: Using CPPFLAGS=$CPPFLAGS" >&6;}
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: Using CXXFLAGS=$CXXFLAGS" >&5
+printf "%s\n" "$as_me: Using CXXFLAGS=$CXXFLAGS" >&6;}
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: Using LDFLAGS=$LDFLAGS" >&5
+printf "%s\n" "$as_me: Using LDFLAGS=$LDFLAGS" >&6;}
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: Using LIBS=$LIBS" >&5
+printf "%s\n" "$as_me: Using LIBS=$LIBS" >&6;}
 

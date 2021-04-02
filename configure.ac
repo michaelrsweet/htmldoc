@@ -245,7 +245,8 @@ POST=:
 AS_IF([test "x$with_gui" != xno], [
     AS_IF([test "x$FLTKCONFIG" != x], [
         have_fltk=yes
-	LIBS="$LIBS `$FLTKCONFIG --use-images --ldflags`"
+	CPPFLAGS="$CPPFLAGS $($FLTKCONFIG --use-images --cflags)"
+	LIBS="$LIBS $($FLTKCONFIG --use-images --ldflags)"
 	AC_DEFINE([HAVE_LIBFLTK], [1], [Do we have the FLTK library?])
 	AC_DEFINE([HAVE_LIBJPEG], 1, [Have JPEG library?])
 	AC_DEFINE([HAVE_LIBPNG], 1, [Have PNG library?])
@@ -414,3 +415,8 @@ AS_IF([test "x$with_gui" != xno], [
 dnl Generate the top-level Makefile and Makedefs file...
 AC_CONFIG_FILES([Makedefs Makefile desktop/htmldoc.plist])
 AC_OUTPUT
+
+AC_MSG_NOTICE([Using CPPFLAGS=$CPPFLAGS])
+AC_MSG_NOTICE([Using CXXFLAGS=$CXXFLAGS])
+AC_MSG_NOTICE([Using LDFLAGS=$LDFLAGS])
+AC_MSG_NOTICE([Using LIBS=$LIBS])
