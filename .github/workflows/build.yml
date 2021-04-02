@@ -18,7 +18,7 @@ jobs:
     - name: configure
       env:
         CC: /usr/bin/gcc
-      run: ./configure --enable-debug --enable-maintainer
+      run: ./configure --enable-debug
     - name: make
       run: make
 
