@@ -1404,7 +1404,7 @@ pspdf_prepare_page(int page)		/* I - Page number */
 
 
   DEBUG_printf(("pspdf_prepare_page(%d)\n", page));
-  if (page < 0 || page >= num_pages)
+  if (page < 0 || (size_t)page >= num_pages)
     return;
 
  /*
