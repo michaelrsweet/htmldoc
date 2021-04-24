@@ -7,7 +7,7 @@
  * ZIPC_ONLY_WRITE to compile with just the ZIP writing code.  Otherwise both
  * ZIP reader and writer code is built.
  *
- * Copyright 2017-2021 by Michael R Sweet.
+ * Copyright © 2017-2021 by Michael R Sweet.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -493,8 +493,8 @@ zipcFileGets(zipc_file_t *zf,           /* I - ZIP container file */
              char        *line,         /* I - Line string buffer */
              size_t      linesize)      /* I - Size of buffer */
 {
-  char  ch,                             /* Current character */
-        *lineptr,                       /* Pointer into buffer */
+  int   ch;                             /* Current character */
+  char  *lineptr,                       /* Pointer into buffer */
         *lineend;                       /* Pointer to end of buffer */
 
 
@@ -730,8 +730,8 @@ zipcFileXMLGets(zipc_file_t *zf,        /* I - ZIP container file */
                 char        *fragment,  /* I - Fragment string buffer */
                 size_t      fragsize)   /* I - Size of buffer */
 {
-  char  ch,                             /* Current character */
-        *fragptr,                       /* Pointer into buffer */
+  int   ch;                             /* Current character */
+  char  *fragptr,                       /* Pointer into buffer */
         *fragend;                       /* Pointer to end of buffer */
 
 
@@ -1209,11 +1209,21 @@ zipcOpenFile(zipc_t     *zc,            /* I - ZIP container */
 
       if (current->method == ZIPC_COMP_DEFLATE)
       {
+        int err;                        /* Error status from inflateInit2 */
+
         zc->stream.zalloc = (alloc_func)0;
         zc->stream.zfree  = (free_func)0;
         zc->stream.opaque = (voidpf)0;
 
-        inflateInit2(&zc->stream, -15);
+        if ((err = inflateInit2(&zc->stream, -15)) < 0)
+        {
+          if (err == Z_STREAM_ERROR)
+            zc->error = strerror(EINVAL);
+          else
+            zc->error = strerror(ENOMEM);
+
+          return (NULL);
+        }
 
         zc->stream.next_in  = (Bytef *)zc->buffer;
         zc->stream.avail_in = 0;
@@ -1407,7 +1417,12 @@ zipc_add_file(zipc_t     *zc,		/* I - ZIP container */
     zc->stream.zfree  = (free_func)0;
     zc->stream.opaque = (voidpf)0;
 
-    deflateInit2(&zc->stream, Z_BEST_COMPRESSION, Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY);
+    if (deflateInit2(&zc->stream, Z_BEST_COMPRESSION, Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY) < 0)
+    {
+      zc->num_files --;
+      zc->error = strerror(ENOMEM);
+      return (NULL);
+    }
 
     zc->stream.next_out  = (Bytef *)zc->buffer;
     zc->stream.avail_out = sizeof(zc->buffer);

@@ -6695,7 +6695,10 @@ parse_table(tree_t *t,			// I - Tree to parse
   */
 
   if (table.num_cols == 0)
+  {
+    free(cells);
     return;
+  }
 
  /*
   * Now figure out the width of the table...
@@ -12810,7 +12813,11 @@ flate_open_stream(FILE *out)		/* I - Output file */
   compressor.zfree  = (free_func)0;
   compressor.opaque = (voidpf)0;
 
-  deflateInit(&compressor, Compression);
+  if (deflateInit(&compressor, Compression) < Z_OK)
+  {
+    progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to compress object in PDF file.");
+    exit(1);
+  }
 
   compressor.next_out  = (Bytef *)comp_buffer;
   compressor.avail_out = sizeof(comp_buffer);
