@@ -1,7 +1,7 @@
 /*
  * HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
- * Copyright 2011-2019 by Michael R Sweet.
+ * Copyright 2011-2021 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -585,7 +585,7 @@ write_node(FILE   *out,		/* I - Output file */
           for (ptr = t->data; *ptr; ptr ++)
             fputs((char *)iso8859(*ptr), out);
 
-	  if (t->data[strlen((char *)t->data) - 1] == '\n')
+	  if (t->data[0] && t->data[strlen((char *)t->data) - 1] == '\n')
             col = 0;
 	  else
             col += strlen((char *)t->data);

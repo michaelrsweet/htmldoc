@@ -1602,7 +1602,7 @@ write_file(tree_t *t,		/* I - Tree entry */
         for (ptr = t->data; *ptr != '\0'; ptr ++)
           fputs((char *)iso8859(*ptr), fp);
 
-	if (t->data[strlen((char *)t->data) - 1] == '\n')
+	if (t->data[0] && t->data[strlen((char *)t->data) - 1] == '\n')
           col = 0;
 	else
           col += strlen((char *)t->data);

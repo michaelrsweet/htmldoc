@@ -591,7 +591,7 @@ write_node(FILE   *out,		/* I - Output file */
           for (ptr = t->data; *ptr; ptr ++)
             fputs((char *)iso8859(*ptr), out);
 
-	  if (t->data[strlen((char *)t->data) - 1] == '\n')
+	  if (t->data[0] && t->data[strlen((char *)t->data) - 1] == '\n')
             col = 0;
 	  else
             col += strlen((char *)t->data);
