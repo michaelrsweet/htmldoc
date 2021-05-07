@@ -200,12 +200,21 @@ static void
 show_tree(tree_t *t,                    /* I - Parent node */
           int    indent)                /* I - Indentation */
 {
+  static const char * const markups[] =
+  {
+    "FILE",
+    "UNKNOWN",
+    "ERROR"
+  };
+
   while (t)
   {
     if (t->markup == MARKUP_NONE)
       printf("%*s\"%s\"\n", indent, "", t->data);
-    else
+    else if (t->markup > MARKUP_NONE)
       printf("%*s%s\n", indent, "", _htmlMarkups[t->markup]);
+    else
+      printf("%*s%s\n", indent, "", markups[t->markup - MARKUP_FILE]);
 
     if (t->child)
       show_tree(t->child, indent + 2);

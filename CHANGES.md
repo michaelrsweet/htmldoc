@@ -7,6 +7,7 @@
 - Fixed crash bugs with bogus table attributes (Issue #416, Issue #417)
 - Fixed a crash bug with malformed URIs (Issue #418)
 - Fixed a crash bug with malformed GIF files (Issue #423)
+- Fixed a crash bug with empty titles (Issue #425)
 - Fixed some issues reported by Coverity.
 - Removed the bundled libjpeg, libpng, and zlib.
 
