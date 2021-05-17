@@ -3905,12 +3905,21 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 
 	    check_pages(*page);
 
-	    if (t->markup == MARKUP_B &&
-		pages[*page].chapter == pages[*page - 1].chapter)
+	    if (t->markup == MARKUP_B && pages[*page].chapter == pages[*page - 1].chapter)
+	    {
 	      pages[*page].chapter = htmlGetText(t->child->child);
+	      
+              for (int i = *page + 1; i < num_pages; i ++)
+                pages[i].chapter = pages[*page].chapter;
+            }
 
 	    if (pages[*page].heading == pages[*page - 1].heading)
+	    {
 	      pages[*page].heading = htmlGetText(t->child->child);
+
+              for (int i = *page + 1; i < num_pages; i ++)
+                pages[i].heading = pages[*page].heading;
+	    }
 
            /*
             * Next heading...
@@ -4596,7 +4605,12 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
   check_pages(*page);
 
   if (t->markup == MARKUP_H1 && !title_page)
+  {
     pages[*page].chapter = htmlGetText(current_heading);
+
+    for (int i = *page + 1; i < num_pages; i ++)
+      pages[i].chapter = pages[*page].chapter;
+  }
 
   if ((pages[*page].heading == NULL || t->markup == MARKUP_H1 ||
       (*page > 0 && pages[*page].heading == pages[*page - 1].heading)) &&
@@ -4604,6 +4618,12 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
   {
     pages[*page].heading  = htmlGetText(current_heading);
     pages[*page].headnode = current_heading;
+
+    for (int i = *page + 1; i < num_pages; i ++)
+    {
+      pages[i].heading  = pages[*page].heading;
+      pages[i].headnode = current_heading;
+    }
   }
 
   if ((t->markup - MARKUP_H1) < TocLevels && !title_page)
