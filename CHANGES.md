@@ -8,7 +8,7 @@
 - Fixed a crash bug with malformed URIs (Issue #418)
 - Fixed a crash bug with malformed GIF files (Issue #423)
 - Fixed a crash bug with empty titles (Issue #425)
-- Fixed a crash bug with bogus text (Issue #426)
+- Fixed a crash bug with bogus text (Issue #426, Issue #431)
 - Fixed some issues reported by Coverity.
 - Removed the bundled libjpeg, libpng, and zlib.
 

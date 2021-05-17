@@ -5010,7 +5010,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	{
 	  break;
 	}
-	else if (prev->markup == MARKUP_NONE)
+	else if (prev->markup == MARKUP_NONE && *(prev->data))
 	{
 	  int	ch = prev->data[strlen((char *)prev->data) - 1];
 
