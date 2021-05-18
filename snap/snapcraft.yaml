@@ -1,5 +1,4 @@
 name: htmldoc
-base: core18
 version: 1.9.12
 summary: HTML and Markdown conversion utility
 description: |
