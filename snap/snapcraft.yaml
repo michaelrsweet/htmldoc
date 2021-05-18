@@ -1,4 +1,5 @@
 name: htmldoc
+base: core18
 version: 1.9.12
 summary: HTML and Markdown conversion utility
 description: |
@@ -26,4 +27,4 @@ parts:
         source: .
         after: [desktop-gtk3]
 
-build-packages: [libfltk1.3-dev libjpeg8-dev libpng-dev]
+build-packages: [libfltk1.3-dev, libgnutls28-dev, libjpeg8-dev, libpng-dev, zlib1g-dev]
