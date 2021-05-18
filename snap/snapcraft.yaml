@@ -26,4 +26,4 @@ parts:
         source: .
         after: [desktop-gtk3]
 
-build-packages: [libfltk1.3-dev]
+build-packages: [libfltk1.3-dev libjpeg-dev libpng-dev]
