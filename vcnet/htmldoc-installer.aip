@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="15.3" version="17.4" Modules="simple" RootPath="." Language="en" Id="{8101414C-E32A-4865-B7D9-ABB4FFFB336F}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="15.3" version="18.2" Modules="simple" RootPath="." Language="en" Id="{8101414C-E32A-4865-B7D9-ABB4FFFB336F}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
+    <ROW Property="AI_CURRENT_YEAR" Value="2021" ValueLocId="-"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_ghtmldoc.exe" Value="x64\Release\ghtmldoc"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_htmldoc.exe" Value="x64\Release\htmldoc"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_ghtmldoc.exe" Value="ghtmldoc.exe"/>
@@ -13,10 +14,10 @@
     <ROW Property="ARPPRODUCTICON" Value="htmldoc.exe" Type="8"/>
     <ROW Property="ARPURLINFOABOUT" Value="https://www.msweet.org/htmldoc"/>
     <ROW Property="Manufacturer" Value="Michael R Sweet"/>
-    <ROW Property="ProductCode" Value="1033:{B677E9E6-1277-4EAC-B5F9-9D7FF0FB7F53} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{4B1F115F-B6D6-4D95-A780-EC50A67251FE} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="HTMLDOC"/>
-    <ROW Property="ProductVersion" Value="1.9.10.0" Type="32"/>
+    <ROW Property="ProductVersion" Value="1.9.12.0" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{4016A37E-404B-4785-B768-D4FF161DE6E9}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>

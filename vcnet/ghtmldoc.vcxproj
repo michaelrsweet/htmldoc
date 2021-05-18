@@ -384,18 +384,6 @@
       <Project>{287d2fb4-9941-4b64-b973-55a6ec04eafc}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="jpeg.vcxproj">
-      <Project>{07169a72-08a9-4ec8-bc6c-ccbc1f01ea58}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="libpng.vcxproj">
-      <Project>{1132a142-f8a1-4464-881c-7f50d77a1cd2}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="zlib.vcxproj">
-      <Project>{f4b8b6f3-8198-4fc3-92a3-c944644b570a}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

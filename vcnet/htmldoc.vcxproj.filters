@@ -9,6 +9,12 @@
       <UniqueIdentifier>{6d5f0e2e-804d-4c00-8307-6021e69f7392}</UniqueIdentifier>
       <Extensions>h</Extensions>
     </Filter>
+    <Filter Include="any">
+      <UniqueIdentifier>{41307285-61d1-4816-bca7-9a81137643fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="any\any">
+      <UniqueIdentifier>{9b98c423-450f-4ef5-a796-f2ac58688dd8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\htmldoc\file.c">
@@ -130,5 +136,13 @@
     <ClInclude Include="..\htmldoc\zipc.h">
       <Filter>Headers</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="any\any\zlib.static.txt">
+      <Filter>any\any</Filter>
+    </Text>
   </ItemGroup>
 </Project>
