@@ -19,12 +19,11 @@ apps:
     htmldoc:
         command: desktop-launch $SNAP/bin/htmldoc
         desktop: share/applications/htmldoc.desktop
-        plugs: [home, network, x11]
+        plugs: [desktop, home, network, x11]
 
 parts:
     main:
         plugin: autotools
         source: .
-        after: [desktop]
 
 build-packages: [libfltk1.3-dev, libgnutls28-dev, libjpeg8-dev, libpng16-dev, zlib1g-dev]
