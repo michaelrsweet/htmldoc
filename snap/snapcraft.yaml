@@ -26,6 +26,5 @@ parts:
     main:
         plugin: autotools
         source: .
-
-build-packages: [build-essential, pkg-config, libfltk1.3-dev, libgnutls28-dev, libjpeg-turbo8-dev, libpng-dev, zlib1g-dev]
-stage-packages: [libfltk-images1.3, libfltk1.3, libfontconfig1, libfreetype6, libjpeg-turbo8, libpng16-16, libx11-6, libxau6, libxcb1, libxcursor1, libxdmcp6, libxext6, libxfixes3, libxft2, libxinerama1, libxrender1]
+        build-packages: [build-essential, pkg-config, libfltk1.3-dev, libgnutls28-dev, libjpeg-turbo8-dev, libpng-dev, zlib1g-dev]
+        stage-packages: [libfltk-images1.3, libfltk1.3, libfontconfig1, libfreetype6, libjpeg-turbo8, libpng16-16, libx11-6, libxau6, libxcb1, libxcursor1, libxdmcp6, libxext6, libxfixes3, libxft2, libxinerama1, libxrender1]
