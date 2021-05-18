@@ -74,15 +74,15 @@ install:
 
 #
 # Sign the HTMLDOC application bundle and make a disk image...  Set the
-# APPLEID and TEAMID environment variables from the Apple developer pages.
+# CODESIGN_IDENTITY, APPLEID, and TEAMID environment variables from the Apple
+# developer pages.
 #
 
-IDENTITY	=	"Developer ID Application"
-VERSION		=	@SVERSION@
+VERSION		=	1.9.12
 
 dmg:
 	echo Signing HTMLDOC application bundle
-	codesign -s "$(IDENTITY)" --timestamp -o runtime htmldoc/htmldoc.app
+	codesign -s "$(CODESIGN_IDENTITY)" --timestamp -o runtime htmldoc/htmldoc.app
 	echo Creating archive for notarization
 	rm -f htmldoc/htmldoc.zip
 	ditto -c -k --keepParent htmldoc/htmldoc.app htmldoc/htmldoc.zip
