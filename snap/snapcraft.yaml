@@ -1,4 +1,5 @@
 name: htmldoc
+base: core20
 version: 1.9.12
 summary: HTML and Markdown conversion utility
 description: |
@@ -24,6 +25,6 @@ parts:
     main:
         plugin: autotools
         source: .
-        after: [desktop-gtk3]
+        after: [desktop]
 
 build-packages: [libfltk1.3-dev, libgnutls28-dev, libjpeg8-dev, libpng16-dev, zlib1g-dev]
