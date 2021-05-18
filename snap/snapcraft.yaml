@@ -18,7 +18,7 @@ icon: desktop/htmldoc-128.png
 apps:
     htmldoc:
         extensions: [gnome-3-38]
-        command: $SNAP/bin/htmldoc
+        command: usr/bin/htmldoc
         desktop: share/applications/htmldoc.desktop
         plugs: [desktop, home, network, x11]
 
