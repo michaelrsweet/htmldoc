@@ -400,7 +400,7 @@ AS_IF([test -n "$GXX"], [
 
     dnl OS-specific options...
     AS_IF([test "$host_os_name" = darwin -a x$enable_debug != xyes], [
-        OPTIM="$OPTIM -mmacosx-version-min=10.14 -arch x86_64 -arch arm64e"
+        OPTIM="$OPTIM -mmacosx-version-min=10.14 -arch x86_64 -arch arm64"
     ])
 ])
 
