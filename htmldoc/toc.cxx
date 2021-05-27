@@ -122,36 +122,6 @@ parse_tree(tree_t *t)		/* I - Document tree */
 		*existing;	/* Existing link string */
   int		i, level;	/* Header level */
   uchar		*var;		/* Starting value/type for this level */
-  static const char *ones[10] =
-		{
-		  "",	"i",	"ii",	"iii",	"iv",
-		  "v",	"vi",	"vii",	"viii",	"ix"
-		},
-		*tens[10] =
-		{
-		  "",	"x",	"xx",	"xxx",	"xl",
-		  "l",	"lx",	"lxx",	"lxxx",	"xc"
-		},
-		*hundreds[10] =
-		{
-		  "",	"c",	"cc",	"ccc",	"cd",
-		  "d",	"dc",	"dcc",	"dccc",	"cm"
-		},
-		*ONES[10] =
-		{
-		  "",	"I",	"II",	"III",	"IV",
-		  "V",	"VI",	"VII",	"VIII",	"IX"
-		},
-		*TENS[10] =
-		{
-		  "",	"X",	"XX",	"XXX",	"XL",
-		  "L",	"LX",	"LXX",	"LXXX",	"XC"
-		},
-		*HUNDREDS[10] =
-		{
-		  "",	"C",	"CC",	"CCC",	"CD",
-		  "D",	"DC",	"DCC",	"DCCC",	"CM"
-		};
 
 
   while (t != NULL)
@@ -212,30 +182,7 @@ parse_tree(tree_t *t)		/* I - Document tree */
             else
               snprintf((char *)baseptr, sizeof(baselink) - (size_t)(baseptr - baselink), "%d", heading_numbers[i]);
 
-            switch (heading_types[i])
-            {
-              case '1' :
-                  snprintf((char *)headptr, sizeof(heading) - (size_t)(headptr - heading), "%d", heading_numbers[i]);
-                  break;
-              case 'a' :
-                  if (heading_numbers[i] > 26)
-                    snprintf((char *)headptr, sizeof(heading) - (size_t)(headptr - heading), "%c%c", 'a' + (heading_numbers[i] / 26) - 1, 'a' + (heading_numbers[i] % 26) - 1);
-                  else
-                    snprintf((char *)headptr, sizeof(heading) - (size_t)(headptr - heading), "%c", 'a' + heading_numbers[i] - 1);
-                  break;
-              case 'A' :
-                  if (heading_numbers[i] > 26)
-                    snprintf((char *)headptr, sizeof(heading) - (size_t)(headptr - heading), "%c%c", 'A' + (heading_numbers[i] / 26) - 1, 'A' + (heading_numbers[i] % 26) - 1);
-                  else
-                    snprintf((char *)headptr, sizeof(heading) - (size_t)(headptr - heading), "%c", 'A' + heading_numbers[i] - 1);
-                  break;
-              case 'i' :
-                  snprintf((char *)headptr, sizeof(heading) - (size_t)(headptr - heading), "%s%s%s", hundreds[heading_numbers[i] / 100], tens[(heading_numbers[i] / 10) % 10], ones[heading_numbers[i] % 10]);
-                  break;
-              case 'I' :
-                  snprintf((char *)headptr, sizeof(heading) - (size_t)(headptr - heading), "%s%s%s", HUNDREDS[heading_numbers[i] / 100], TENS[(heading_numbers[i] / 10) % 10], ONES[heading_numbers[i] % 10]);
-                  break;
-            }
+            strlcpy((char *)headptr, format_number(heading_numbers[i], heading_types[i]), sizeof(heading) - (size_t)(headptr - heading));
 
             if (i < level)
             {
