@@ -1,5 +1,6 @@
 # Changes in HTMLDOC v1.9.13
 
+- Now install a 32x32 icon for Linux (Issue #432)
 - Fixed an issue with large values for roman numerals and letters in headings
   (Issue #433)
 
