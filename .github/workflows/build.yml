@@ -13,6 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: update build environment
+      run: sudo apt-get update --fix-missing -y
     - name: install prerequisites
       run: sudo apt-get install -y cppcheck libfltk1.3-dev libgnutls28-dev libjpeg-dev libpng-dev zlib1g-dev
     - name: configure
