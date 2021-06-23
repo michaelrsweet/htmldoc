@@ -3908,7 +3908,7 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 	    if (t->markup == MARKUP_B && pages[*page].chapter == pages[*page - 1].chapter)
 	    {
 	      pages[*page].chapter = htmlGetText(t->child->child);
-	      
+
               for (int i = *page + 1; i < num_pages; i ++)
                 pages[i].chapter = pages[*page].chapter;
             }
@@ -7429,7 +7429,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
   if (para != NULL && para->child != NULL && para->child->next == NULL &&
       para->child->child == NULL && para->child->markup == MARKUP_NONE &&
-      strcmp((const char *)para->child->data, " ") == 0)
+      para->child->data && strcmp((const char *)para->child->data, " ") == 0)
   {
     // Remove paragraph consisting solely of whitespace...
     htmlDeleteTree(para->child);

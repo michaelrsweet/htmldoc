@@ -3,6 +3,8 @@
 - Now install a 32x32 icon for Linux (Issue #432)
 - Fixed an issue with large values for roman numerals and letters in headings
   (Issue #433)
+- Fixed a crash bug when a HTML comment contains an invalid nul character
+  (Issue #439)
 
 
 # Changes in HTMLDOC v1.9.12
