@@ -5,6 +5,7 @@
   (Issue #433)
 - Fixed a crash bug when a HTML comment contains an invalid nul character
   (Issue #439)
+- Fixed a crash bug with bogus BMP images (Issue #444)
 
 
 # Changes in HTMLDOC v1.9.12

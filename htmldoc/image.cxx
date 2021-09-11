@@ -915,6 +915,9 @@ image_load_bmp(image_t *img,	/* I - Image to load into */
   colors_used      = (int)read_dword(fp);
   read_dword(fp);
 
+  if (img->width <= 0 || img->width > 8192 || img->height <= 0 || img->height > 8192)
+    return (-1);
+
   if (info_size > 40)
     for (info_size -= 40; info_size > 0; info_size --)
       getc(fp);
@@ -926,7 +929,7 @@ image_load_bmp(image_t *img,	/* I - Image to load into */
   fread(colormap, (size_t)colors_used, 4, fp);
 
   // Setup image and buffers...
-  img->depth  = gray ? 1 : 3;
+  img->depth = gray ? 1 : 3;
 
   // If this image is indexed and we are writing an encrypted PDF file, bump the use count so
   // we create an image object (Acrobat 6 bug workaround)
@@ -1076,7 +1079,7 @@ image_load_bmp(image_t *img,	/* I - Image to load into */
             if (bit == 0xf0)
 	    {
               if (color < 0)
-		temp = getc(fp);
+		temp = getc(fp) & 255;
 	      else
 		temp = color;
 
