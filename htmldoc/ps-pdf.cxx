@@ -11595,7 +11595,7 @@ write_prolog(FILE  *out,		/* I - Output file */
 
     const char *version = SVERSION;
 
-    fprintf(out, "%%%%BeginResource: procset htmldoc-page 1.8 %s\n", version + 4);
+    fprintf(out, "%%%%BeginResource: procset htmldoc-page 1.9 %s\n", version + 4);
     fputs("/BD{bind def}bind def", out);
     fputs("/B{dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto\n"
           "closepath stroke}BD", out);
@@ -11684,7 +11684,7 @@ write_prolog(FILE  *out,		/* I - Output file */
                        "Unable to open data file \"%s\" - %s", temp,
                        strerror(errno));
 
-	fprintf(out, "%%%%BeginResource: procset htmldoc-device 1.8 %s\n", version + 4);
+	fprintf(out, "%%%%BeginResource: procset htmldoc-device 1.9 %s\n", version + 4);
 	fputs("languagelevel 1 eq{/setpagedevice{pop}BD}if\n", out);
 	fputs("/SetDuplexMode{<</Duplex 3 index/Tumble 5 index>>setpagedevice "
               "pop pop}BD\n", out);
