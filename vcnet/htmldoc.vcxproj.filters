@@ -140,9 +140,4 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="any\any\zlib.static.txt">
-      <Filter>any\any</Filter>
-    </Text>
-  </ItemGroup>
 </Project>
