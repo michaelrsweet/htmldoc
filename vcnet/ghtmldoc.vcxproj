@@ -62,7 +62,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..;../vcnet;packages\libpng_native.1.6.30\build\native\include;packages\libjpeg-turbo-v142.2.0.4.3\build\native\include;packages\zlib_native.1.2.11\build\native\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;../vcnet;packages\libpng_native.1.6.30\build\native\include;packages\libjpeg-turbo-v142.2.0.4.3\build\native\include;packages\zlib_native.1.2.11\build\native\include;packages\fltk_native.1.3.7|build\native\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;WIN32_LEAN_AND_MEAN;VC_EXTRA_LEAN;WIN32_EXTRA_LEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -102,7 +102,7 @@
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..;../vcnet;packages\libpng_native.1.6.30\build\native\include;packages\libjpeg-turbo-v142.2.0.4.3\build\native\include;packages\zlib_native.1.2.11\build\native\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;../vcnet;packages\libpng_native.1.6.30\build\native\include;packages\libjpeg-turbo-v142.2.0.4.3\build\native\include;packages\zlib_native.1.2.11\build\native\include;packages\fltk_native.1.3.7|build\native\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;WIN32_LEAN_AND_MEAN;VC_EXTRA_LEAN;WIN32_EXTRA_LEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
