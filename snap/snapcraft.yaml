@@ -1,5 +1,5 @@
 name: htmldoc
-base: core18
+base: core20
 version: 1.9.13
 summary: HTML and Markdown conversion utility
 description: |
@@ -17,7 +17,7 @@ icon: desktop/htmldoc-128.png
 
 apps:
     htmldoc:
-        extensions: [gnome-3-34]
+        extensions: [gnome-3-38]
         command: bin/htmldoc
         desktop: share/applications/htmldoc.desktop
         plugs: [desktop, home, network, x11]
