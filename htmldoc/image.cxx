@@ -919,12 +919,16 @@ image_load_bmp(image_t *img,	/* I - Image to load into */
     return (-1);
 
   if (info_size > 40)
+  {
     for (info_size -= 40; info_size > 0; info_size --)
       getc(fp);
+  }
 
   // Get colormap...
   if (colors_used == 0 && depth <= 8)
     colors_used = 1 << depth;
+  else if (colors_used > 256)
+    return (-1);
 
   fread(colormap, (size_t)colors_used, 4, fp);
 
