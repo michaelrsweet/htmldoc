@@ -14,8 +14,10 @@ along with the following libraries:
 Windows
 -------
 
-A Visual Studio solution is included in the "vcnet" directory.  You must add the
-FLTK include and library directories separately for the solution to build.
+Visual Studio + Advanced Installer solutions are included in the "vcnet"
+directory.  The Visual Studio solution uses NuGet packages for all of the
+dependent libraries, and the current version of Advanced Installer is required
+to build the installer (MSI) target.
 
 We highly recommend building and installing the HTMLDOC MSI target, as it takes
 care of registering the installation location with Windows.  If you want to
