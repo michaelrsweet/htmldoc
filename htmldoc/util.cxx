@@ -98,15 +98,15 @@ format_number(int  n,		/* I - Number */
 
     case 'i' :
         if (n >= 3000)
-          n = (n % 3000) + 1;
-        
+          n = ((n - 3000) % 2999) + 1;
+
 	snprintf(buffer, sizeof(buffer), "%s%s%s", hundreds[n / 100], tens[(n / 10) % 10], ones[n % 10]);
         break;
 
     case 'I' :
         if (n >= 3000)
-          n = (n % 3000) + 1;
-        
+          n = ((n - 3000) % 2999) + 1;
+
 	snprintf(buffer, sizeof(buffer), "%s%s%s", HUNDREDS[n / 100], TENS[(n / 10) % 10], ONES[n % 10]);
         break;
   }
