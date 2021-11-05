@@ -48,4 +48,4 @@ jobs:
     - name: nuget restore
       run: cd vcnet; nuget restore htmldoc.sln
     - name: msbuild
-      run: cd vcnet; msbuild htmldoc.sln
+      run: cd vcnet; msbuild htmldoc.sln -t:htmldoc -t:ghtmldoc
