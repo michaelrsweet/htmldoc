@@ -78,7 +78,7 @@ install:
 # developer pages.
 #
 
-VERSION		=	1.9.12
+VERSION		=	@SVERSION@
 
 dmg:
 	echo Signing HTMLDOC application bundle
