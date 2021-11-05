@@ -3,7 +3,7 @@ HTMLDOC - HTML Conversion Software
 
 ![Version](https://img.shields.io/github/v/release/michaelrsweet/htmldoc?include_prereleases)
 ![GPL-2.0](https://img.shields.io/github/license/michaelrsweet/htmldoc)
-[![Build Status](https://travis-ci.com/michaelrsweet/htmldoc.svg?branch=master)](https://travis-ci.com/github/michaelrsweet/htmldoc)
+[![Build](https://github.com/michaelrsweet/pdfio/workflows/Build/badge.svg)](https://github.com/michaelrsweet/htmldoc/actions/workflows/build.yml)
 [![Coverity Scan Status](https://img.shields.io/coverity/scan/22389.svg)](https://scan.coverity.com/projects/michaelrsweet-htmldoc)
 [![LGTM Grade](https://img.shields.io/lgtm/grade/cpp/github/michaelrsweet/htmldoc)](https://lgtm.com/projects/g/michaelrsweet/htmldoc/context:cpp)
 [![LGTM Alerts](https://img.shields.io/lgtm/alerts/github/michaelrsweet/htmldoc)](https://lgtm.com/projects/g/michaelrsweet/htmldoc/)

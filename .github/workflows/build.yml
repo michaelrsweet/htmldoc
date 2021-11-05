@@ -9,7 +9,7 @@ on:
 jobs:
   build-linux:
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
@@ -36,3 +36,16 @@ jobs:
       run: ./configure --enable-debug --enable-maintainer --enable-sanitizer
     - name: make
       run: make
+
+  build-windows:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: setup-msbuild
+      uses: microsoft/setup-msbuild@v1.0.2
+    - name: nuget restore
+      run: cd vcnet; nuget restore htmldoc.sln
+    - name: msbuild
+      run: cd vcnet; msbuild htmldoc.sln
