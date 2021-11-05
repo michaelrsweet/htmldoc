@@ -1,5 +1,5 @@
 queries:
-  - exclude: cpp/missing-header-guard
-  - exclude: cpp/uncontrolled-allocation-size
+#  - exclude: cpp/missing-header-guard
+#  - exclude: cpp/uncontrolled-allocation-size
   - exclude: cpp/weak-cryptographic-algorithm
-  - exclude: cpp/cleartext-storage-file
+#  - exclude: cpp/cleartext-storage-file
