@@ -1345,6 +1345,10 @@ image_load_gif(image_t *img,	/* I - Image pointer */
           img->width  = (buf[5] << 8) | buf[4];
           img->height = (buf[7] << 8) | buf[6];
           img->depth  = gray ? 1 : 3;
+
+	  if (img->width <= 0 || img->width > 32767 || img->height <= 0 || img->height > 32767)
+	    return (-1);
+
 	  if (!load_data)
 	    return (0);
 
