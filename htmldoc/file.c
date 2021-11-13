@@ -407,7 +407,7 @@ file_find_check(const char *filename)	/* I - File or URL */
 
     const char	*data;			/* Pointer to data */
     int		len;			/* Number of bytes */
-    char	buffer[8192];		/* Data buffer */
+    char	*buffer;		/* Data buffer */
 
     for (i = 0; i < (int)web_files; i ++)
     {
@@ -420,18 +420,22 @@ file_find_check(const char *filename)	/* I - File or URL */
 
     if ((data = strstr(filename, ";base64,")) != NULL)
     {
-      len = sizeof(buffer);
+      len = strlen(filename);
+      buffer = (char *) malloc(len);
+
       httpDecode64_2(buffer, &len, data + 8);
 
       if ((fp = file_temp(tempname, sizeof(tempname))) == NULL)
       {
 	progress_hide();
 	progress_error(HD_ERROR_WRITE_ERROR, "Unable to create temporary file \"%s\": %s", tempname, strerror(errno));
+	free(buffer);
 	return (NULL);
       }
 
       fwrite(buffer, 1, (size_t)len, fp);
       fclose(fp);
+      free(buffer);
 
       progress_hide();
 
