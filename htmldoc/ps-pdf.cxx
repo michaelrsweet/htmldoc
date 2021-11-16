@@ -11920,7 +11920,7 @@ write_prolog(FILE  *out,		/* I - Output file */
     fputs("/Producer", out);
     write_string(out, (uchar *)HTMLDOC_PRODUCER, 0);
     fputs("/CreationDate", out);
-    snprintf(temp, sizeof(temp), "D:%04d%02d%02d%02d%02d%02d+0000",
+    snprintf(temp, sizeof(temp), "D:%04d%02d%02d%02d%02d%02dZ",
             doc_date.tm_year + 1900, doc_date.tm_mon + 1, doc_date.tm_mday,
             doc_date.tm_hour, doc_date.tm_min, doc_date.tm_sec);
     write_string(out, (uchar *)temp, 0);

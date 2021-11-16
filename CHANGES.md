@@ -1,3 +1,8 @@
+# Changes in HTMLDOC v1.9.14
+
+- Fixed the PDF creation date (Issue #455)
+
+
 # Changes in HTMLDOC v1.9.13
 
 - Now install a 32x32 icon for Linux (Issue #432)
