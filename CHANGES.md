@@ -1,6 +1,7 @@
 # Changes in HTMLDOC v1.9.14
 
 - Fixed the PDF creation date (Issue #455)
+- Fixed a compile issue when libpng was not available (Issue #458)
 
 
 # Changes in HTMLDOC v1.9.13

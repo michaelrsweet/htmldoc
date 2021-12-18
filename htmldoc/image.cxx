@@ -13,6 +13,7 @@
  */
 
 #include "htmldoc.h"
+#include <setjmp.h>
 
 #ifdef HAVE_LIBJPEG
 extern "C" {		/* Workaround for JPEG header problems... */
