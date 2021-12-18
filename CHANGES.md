@@ -1,6 +1,9 @@
 # Changes in HTMLDOC v1.9.14
 
+- BMP image support is now deprecated and will be removed in a future
+  release of HTMLDOC.
 - Fixed the PDF creation date (Issue #455)
+- Fixed a potential stack overflow bug with BMP images (Issue #456)
 - Fixed a compile issue when libpng was not available (Issue #458)
 
 

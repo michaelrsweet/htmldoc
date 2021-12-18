@@ -916,7 +916,7 @@ image_load_bmp(image_t *img,	/* I - Image to load into */
   colors_used      = (int)read_dword(fp);
   read_dword(fp);
 
-  if (img->width <= 0 || img->width > 8192 || img->height <= 0 || img->height > 8192)
+  if (img->width <= 0 || img->width > 8192 || img->height <= 0 || img->height > 8192 || info_size < 0)
     return (-1);
 
   if (info_size > 40)
@@ -928,7 +928,7 @@ image_load_bmp(image_t *img,	/* I - Image to load into */
   // Get colormap...
   if (colors_used == 0 && depth <= 8)
     colors_used = 1 << depth;
-  else if (colors_used > 256)
+  else if (colors_used < 0 || colors_used > 256)
     return (-1);
 
   fread(colormap, (size_t)colors_used, 4, fp);
