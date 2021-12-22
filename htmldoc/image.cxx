@@ -311,7 +311,7 @@ gif_read_image(FILE       *fp,		/* I - Input file */
 
   temp = img->pixels;
 
-  while ((pixel = gif_read_lzw(fp, 0, code_size)) >= 0)
+  while ((pixel = gif_read_lzw(fp, 0, code_size)) >= 0 && pixel < 256)
   {
     temp[0] = cmap[pixel][0];
 
