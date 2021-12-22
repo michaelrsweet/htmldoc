@@ -21,7 +21,7 @@ dnl We need at least autoconf 2.69 for the AS_HELP_STRING macro...
 AC_PREREQ([2.69])
 
 
-AC_INIT([HTMLDOC], [1.9.13], [https://github.com/michaelrsweet/htmldoc/issues], [htmldoc], [https://www.msweet.org/htmldoc])
+AC_INIT([HTMLDOC], [1.9.14], [https://github.com/michaelrsweet/htmldoc/issues], [htmldoc], [https://www.msweet.org/htmldoc])
 AC_CONFIG_HEADERS([config.h])
 
 

@@ -1,6 +1,6 @@
 name: htmldoc
 base: core20
-version: 1.9.13
+version: 1.9.14
 summary: HTML and Markdown conversion utility
 description: |
   HTMLDOC is a program that reads HTML and Markdown source files or web pages
