@@ -1,3 +1,8 @@
+# Changes in HTMLDOC v1.9.15
+
+- Fixed a potential heap overflow bug with GIF images (Issue #461)
+
+
 # Changes in HTMLDOC v1.9.14
 
 - BMP image support is now deprecated and will be removed in a future

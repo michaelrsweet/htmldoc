@@ -1312,6 +1312,13 @@ image_load_gif(image_t *img,	/* I - Image pointer */
 	      return (-1);
 	  }
 
+          img->width  = (buf[5] << 8) | buf[4];
+          img->height = (buf[7] << 8) | buf[6];
+          img->depth  = gray ? 1 : 3;
+
+	  if (img->width <= 0 || img->width > 32767 || img->height <= 0 || img->height > 32767)
+	    return (-1);
+
           if (transparent >= 0)
           {
            /*
@@ -1342,13 +1349,6 @@ image_load_gif(image_t *img,	/* I - Image pointer */
 
             image_need_mask(img);
 	  }
-
-          img->width  = (buf[5] << 8) | buf[4];
-          img->height = (buf[7] << 8) | buf[6];
-          img->depth  = gray ? 1 : 3;
-
-	  if (img->width <= 0 || img->width > 32767 || img->height <= 0 || img->height > 32767)
-	    return (-1);
 
 	  if (!load_data)
 	    return (0);
@@ -1784,7 +1784,7 @@ image_set_mask(image_t *img,	/* I - Image to operate on */
 
 
   if (img == NULL || img->mask == NULL || x < 0 || x >= img->width ||
-      y < 0 || y > img->height)
+      y < 0 || y >= img->height)
     return;
 
   if (img->maskscale == 8)
