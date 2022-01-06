@@ -1,6 +1,7 @@
 # Changes in HTMLDOC v1.9.15
 
 - Fixed a potential heap overflow bug with GIF images (Issue #461)
+- Fixed a potential double-free bug with PNG images (Issue #462)
 
 
 # Changes in HTMLDOC v1.9.14

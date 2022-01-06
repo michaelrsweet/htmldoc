@@ -1478,7 +1478,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
   png_structp	pp;		/* PNG read pointer */
   png_infop	info;		/* PNG info pointers */
   int		depth;		/* Input image depth */
-  png_bytep	*rows;		/* PNG row pointers */
+  png_bytep	*rows = NULL;	/* PNG row pointers */
   uchar		*inptr,		/* Input pixels */
 		*outptr;	/* Output pixels */
   int		color_type,	/* PNG color mode */
@@ -1508,19 +1508,20 @@ image_load_png(image_t *img,	/* I - Image pointer */
     return (-1);
   }
 
-  rows = NULL;
-
   if (setjmp(png_jmpbuf(pp)))
   {
     progress_error(HD_ERROR_BAD_FORMAT, "PNG file contains errors!");
 
     png_destroy_read_struct(&pp, &info, NULL);
 
-    if (img != NULL && img->pixels != NULL)
+    if (img != NULL)
+    {
       free(img->pixels);
+      img->pixels = NULL;
+    }
 
-    if (rows != NULL)
-      free(rows);
+    free(rows);
+    rows = NULL;
 
     return (-1);
   }
@@ -1617,7 +1618,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
     return (0);
   }
 
-  img->pixels = (uchar *)calloc(1,(size_t)(img->width * img->height * depth));
+  img->pixels = (uchar *)calloc(1, (size_t)(img->width * img->height * depth));
 
  /*
   * Allocate pointers...
@@ -1709,10 +1710,10 @@ image_load_png(image_t *img,	/* I - Image pointer */
   * Free memory and return...
   */
 
-  free(rows);
-
   png_read_end(pp, info);
   png_destroy_read_struct(&pp, &info, NULL);
+
+  free(rows);
 
   return (0);
 }

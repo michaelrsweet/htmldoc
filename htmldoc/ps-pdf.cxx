@@ -10304,6 +10304,9 @@ write_image(FILE     *out,		/* I - Output file */
   if (!img->pixels && !img->obj)
     image_load(img->filename, !OutputColor, 1);
 
+  if (!img->pixels)
+    return;
+
   // Note: Acrobat 6 tries to decrypt the colormap of indexed in-line images twice, which
   //       is 1) not consistent with prior Acrobat releases and 2) in violation of their
   //       PDF spec.  The "img->use > 1 || !Encryption" test prevents the use of indexed
