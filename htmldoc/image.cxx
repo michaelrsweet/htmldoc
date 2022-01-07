@@ -305,6 +305,12 @@ gif_read_image(FILE       *fp,		/* I - Input file */
   pass      = 0;
   code_size = (uchar)getc(fp);
 
+  if (code_size > 12)
+  {
+    progress_error(HD_ERROR_READ_ERROR, "Bad GIF file \"%s\" - invalid code size %d.", img->filename, code_size);
+    return (-1);
+  }
+
   if (gif_read_lzw(fp, 1, code_size) < 0)
     return (-1);
 
@@ -432,7 +438,7 @@ gif_read_lzw(FILE *fp,			/* I - File to read from */
   if (sp > stack)
     return (*--sp);
 
-  while ((code = gif_get_code (fp, code_size, 0)) >= 0)
+  while ((code = gif_get_code(fp, code_size, 0)) >= 0)
   {
     if (code == clear_code)
     {
