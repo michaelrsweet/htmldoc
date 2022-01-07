@@ -1,7 +1,7 @@
 /*
  * Image handling routines for HTMLDOC, a HTML document processing program.
  *
- * Copyright © 2011-2021 by Michael R Sweet.
+ * Copyright © 2011-2022 by Michael R Sweet.
  * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -225,8 +225,7 @@ gif_get_code(FILE *fp,		/* I - File to read from */
 
     if (done)
     {
-      progress_error(HD_ERROR_READ_ERROR,
-                     "Not enough data left to read GIF compression code.");
+      progress_error(HD_ERROR_READ_ERROR, "Not enough data left to read GIF compression code.");
       return (-1);	/* Sorry, no more... */
     }
 
@@ -250,7 +249,7 @@ gif_get_code(FILE *fp,		/* I - File to read from */
     * Read in another buffer...
     */
 
-    if ((count = gif_get_block (fp, buf + last_byte)) <= 0)
+    if ((count = gif_get_block(fp, buf + last_byte)) <= 0)
     {
      /*
       * Whoops, no more data!
@@ -264,7 +263,7 @@ gif_get_code(FILE *fp,		/* I - File to read from */
     * Update buffer state...
     */
 
-    curbit    = (curbit - lastbit) + 8 * last_byte;
+    curbit    = curbit + 8 * last_byte - lastbit;
     last_byte += (unsigned)count;
     lastbit   = last_byte * 8;
   }
