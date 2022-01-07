@@ -6,7 +6,7 @@
  * broken into more manageable pieces once we make all of the output
  * "drivers" into classes...
  *
- * Copyright © 2011-2021 by Michael R Sweet.
+ * Copyright © 2011-2022 by Michael R Sweet.
  * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -68,7 +68,7 @@ extern "C" {		/* Workaround for JPEG header problems... */
 
 #define HTMLDOC_ASCII85
 //#define HTMLDOC_INTERPOLATION
-#define HTMLDOC_PRODUCER "htmldoc " SVERSION " Copyright 2011-2021 by Michael R Sweet"
+#define HTMLDOC_PRODUCER "htmldoc " SVERSION " Copyright 2011-2022 by Michael R Sweet"
 
 
 /*
