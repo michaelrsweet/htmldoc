@@ -3,6 +3,7 @@
 - Fixed a potential heap overflow bug with GIF images (Issue #461)
 - Fixed a potential double-free bug with PNG images (Issue #462)
 - Fixed a potential stack overflow bug with GIF images (Issue #463)
+- Fixed a potential heap underflow bug with empty attributes (Issue #464)
 
 
 # Changes in HTMLDOC v1.9.14
