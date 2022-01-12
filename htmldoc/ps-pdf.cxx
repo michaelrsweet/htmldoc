@@ -9072,7 +9072,7 @@ get_cell_size(tree_t *t,		// I - Cell
   prefw = 0.0f;
 
   // Then the height...
-  if ((var = htmlGetVariable(t, (uchar *)"HEIGHT")) != NULL)
+  if ((var = htmlGetVariable(t, (uchar *)"HEIGHT")) != NULL && *var)
   {
     // Yes, use it!
     if (var[strlen((char *)var) - 1] == '%')
