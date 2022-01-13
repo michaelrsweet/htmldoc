@@ -1192,7 +1192,7 @@ image_load_bmp(image_t *img,	/* I - Image to load into */
 	    */
 
             if (color < 0)
-	      temp = getc(fp);
+	      temp = getc(fp) & 255;
 	    else
 	      temp = color;
 
