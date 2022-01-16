@@ -624,8 +624,8 @@ zipcFileRead(zipc_file_t *zf,           /* I - ZIP container file */
   if (zc->readptr && zc->readptr < zc->readend)
   {
     rbytes = zc->readend - zc->readptr;
-    if (rbytes > bytes)
-      rbytes = bytes;
+    if (rbytes > (ssize_t)bytes)
+      rbytes = (ssize_t)bytes;
 
     memcpy(data, zc->readptr, rbytes);
     zc->readptr += rbytes;

@@ -59,7 +59,7 @@ GUI::showLicenseCB(void)
   group->labelsize(18);
 
   box = new Fl_Box(20, 45, 600, 110,
-    "Copyright © 2011-2020 by Michael R Sweet.\n\n"
+    "Copyright © 2011-2022 by Michael R Sweet.\n\n"
     "HTMLDOC is provided under the terms of the GNU General Public License and "
     "comes with absolutely no warranty.  Please report problems on the Github "
     "issues page at:\n\n"

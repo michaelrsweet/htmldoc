@@ -1758,7 +1758,7 @@ _httpResolveURI(
 #endif /* DEBUG */
 
 
-  DEBUG_printf(("_httpResolveURI(uri=\"%s\", resolved_uri=%p, resolved_size=" CUPS_LLFMT ", options=0x%x, cb=%p, context=%p)", uri, (void *)resolved_uri, CUPS_LLCAST resolved_size, options, (void *)cb, context));
+  DEBUG_printf(("_httpResolveURI(uri=\"%s\", resolved_uri=%p, resolved_size=" HTMLDOC_LLFMT ", options=0x%x, cb=%p, context=%p)", uri, (void *)resolved_uri, HTMLDOC_LLCAST resolved_size, options, (void *)cb, context));
 
  /*
   * Get the device URI...

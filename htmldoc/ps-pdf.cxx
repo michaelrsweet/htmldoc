@@ -3911,7 +3911,7 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 	    {
 	      pages[*page].chapter = htmlGetText(t->child->child);
 
-              for (int i = *page + 1; i < num_pages; i ++)
+              for (int i = *page + 1; i < (int)num_pages; i ++)
                 pages[i].chapter = pages[*page].chapter;
             }
 
@@ -3919,7 +3919,7 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 	    {
 	      pages[*page].heading = htmlGetText(t->child->child);
 
-              for (int i = *page + 1; i < num_pages; i ++)
+              for (int i = *page + 1; i < (int)num_pages; i ++)
                 pages[i].heading = pages[*page].heading;
 	    }
 
@@ -4610,7 +4610,7 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
   {
     pages[*page].chapter = htmlGetText(current_heading);
 
-    for (int i = *page + 1; i < num_pages; i ++)
+    for (int i = *page + 1; i < (int)num_pages; i ++)
       pages[i].chapter = pages[*page].chapter;
   }
 
@@ -4621,7 +4621,7 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
     pages[*page].heading  = htmlGetText(current_heading);
     pages[*page].headnode = current_heading;
 
-    for (int i = *page + 1; i < num_pages; i ++)
+    for (int i = *page + 1; i < (int)num_pages; i ++)
     {
       pages[i].heading  = pages[*page].heading;
       pages[i].headnode = current_heading;

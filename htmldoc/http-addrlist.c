@@ -491,19 +491,19 @@ httpAddrGetList(const char *hostname,	/* I - Hostname, IP address, or NULL for p
 					/* Global data */
 
 
-#ifdef DEBUG
-  _cups_debug_printf("httpAddrGetList(hostname=\"%s\", family=AF_%s, "
-                     "service=\"%s\")\n",
-		     hostname ? hostname : "(nil)",
-		     family == AF_UNSPEC ? "UNSPEC" :
-#  ifdef AF_LOCAL
-	                 family == AF_LOCAL ? "LOCAL" :
-#  endif /* AF_LOCAL */
-#  ifdef AF_INET6
-	                 family == AF_INET6 ? "INET6" :
-#  endif /* AF_INET6 */
-	                 family == AF_INET ? "INET" : "???", service);
-#endif /* DEBUG */
+//#ifdef DEBUG
+//  _cups_debug_printf("httpAddrGetList(hostname=\"%s\", family=AF_%s, "
+//                     "service=\"%s\")\n",
+//		     hostname ? hostname : "(nil)",
+//		     family == AF_UNSPEC ? "UNSPEC" :
+//#  ifdef AF_LOCAL
+//	                 family == AF_LOCAL ? "LOCAL" :
+//#  endif /* AF_LOCAL */
+//#  ifdef AF_INET6
+//	                 family == AF_INET6 ? "INET6" :
+//#  endif /* AF_INET6 */
+//	                 family == AF_INET ? "INET" : "???", service);
+//#endif /* DEBUG */
 
 #if 0
 #ifdef HAVE_RES_INIT

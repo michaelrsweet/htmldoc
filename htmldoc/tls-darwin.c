@@ -449,7 +449,7 @@ httpCredentialsString(
   SecCertificateRef	secCert;	/* Certificate reference */
 
 
-  DEBUG_printf(("httpCredentialsString(credentials=%p, buffer=%p, bufsize=" CUPS_LLFMT ")", (void *)credentials, (void *)buffer, CUPS_LLCAST bufsize));
+  DEBUG_printf(("httpCredentialsString(credentials=%p, buffer=%p, bufsize=" HTMLDOC_LLFMT ")", (void *)credentials, (void *)buffer, HTMLDOC_LLCAST bufsize));
 
   if (!buffer)
     return (0);
