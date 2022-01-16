@@ -2979,15 +2979,17 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
       free(text);
     }
 
-    i = heading_pages[*heading];
-    x = 0.0f;
-    y = heading_tops[*heading] + pages[i].bottom;
-    pspdf_transform_coords(pages + i, x, y);
+    if (*heading < (int)num_headings)
+    {
+      i = heading_pages[*heading];
+      x = 0.0f;
+      y = heading_tops[*heading] + pages[i].bottom;
+      pspdf_transform_coords(pages + i, x, y);
 
-    fprintf(out, "/Dest[%d 0 R/XYZ %.0f %.0f 0]",
-            pages_object + 2 * pages[i].outpage + 1, x, y);
+      fprintf(out, "/Dest[%d 0 R/XYZ %.0f %.0f 0]", pages_object + 2 * pages[i].outpage + 1, x, y);
 
-    (*heading) ++;
+      (*heading) ++;
+    }
   }
 
   if (prev > 0)
