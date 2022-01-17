@@ -48,11 +48,17 @@
 		27A9F6F118D527AC00804DE9 /* rc4.c in Sources */ = {isa = PBXBuildFile; fileRef = 27A9F6E718D527AC00804DE9 /* rc4.c */; };
 		27A9F6F318D527D300804DE9 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27A9F6F218D527D300804DE9 /* Security.framework */; };
 		27A9F6F518D527D900804DE9 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27A9F6F418D527D900804DE9 /* CoreFoundation.framework */; };
-		27A9F6F718D527E400804DE9 /* libresolv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27A9F6F618D527E400804DE9 /* libresolv.dylib */; };
-		27A9F6FB18D528C200804DE9 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27A9F6FA18D528C200804DE9 /* libz.dylib */; };
 		27A9F6FE18D5450C00804DE9 /* htmldoc.man in CopyFiles */ = {isa = PBXBuildFile; fileRef = 27A9F6FD18D5294000804DE9 /* htmldoc.man */; };
+		27CACC3E2794ED5A00BC4A11 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 27CACC3D2794ED5A00BC4A11 /* libz.tbd */; };
+		27CACC402794ED6200BC4A11 /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 27CACC3F2794ED6200BC4A11 /* libresolv.tbd */; };
+		27CACC412794EDA200BC4A11 /* libpng16.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D3E1822794DC0D0034494A /* libpng16.a */; };
+		27CACC442794F22500BC4A11 /* libfltk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 27CACC422794F22500BC4A11 /* libfltk.a */; };
+		27CACC452794F22500BC4A11 /* libfltk_images.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 27CACC432794F22500BC4A11 /* libfltk_images.a */; };
+		27CACC472794F23000BC4A11 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27CACC462794F23000BC4A11 /* CoreGraphics.framework */; };
+		27CACC492794F23C00BC4A11 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27CACC482794F23C00BC4A11 /* CoreText.framework */; };
+		27CACC4D2794F25500BC4A11 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27CACC4C2794F25500BC4A11 /* Cocoa.framework */; };
+		27CACC502794F2CF00BC4A11 /* gui.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27CACC4E2794F2CF00BC4A11 /* gui.cxx */; };
 		27D3E1852794DC0D0034494A /* libjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D3E1832794DC0D0034494A /* libjpeg.a */; };
-		27D3E1862794DD6F0034494A /* libpng16.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D3E1822794DC0D0034494A /* libpng16.a */; };
 		27D5714A1C3863E200D93F41 /* tls.c in Sources */ = {isa = PBXBuildFile; fileRef = 27D571461C3863E200D93F41 /* tls.c */; };
 		27D5714E1C386EFF00D93F41 /* array.c in Sources */ = {isa = PBXBuildFile; fileRef = 27D5714C1C386EFF00D93F41 /* array.c */; };
 		27DD25520EC01A3300B76D4E /* html.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD252F0EC01A3300B76D4E /* html.cxx */; };
@@ -290,9 +296,17 @@
 		27A9F6E718D527AC00804DE9 /* rc4.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rc4.c; path = ../htmldoc/rc4.c; sourceTree = "<group>"; };
 		27A9F6F218D527D300804DE9 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		27A9F6F418D527D900804DE9 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
-		27A9F6F618D527E400804DE9 /* libresolv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libresolv.dylib; path = usr/lib/libresolv.dylib; sourceTree = SDKROOT; };
-		27A9F6FA18D528C200804DE9 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		27A9F6FD18D5294000804DE9 /* htmldoc.man */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = htmldoc.man; path = ../doc/htmldoc.man; sourceTree = "<group>"; };
+		27CACC3D2794ED5A00BC4A11 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		27CACC3F2794ED6200BC4A11 /* libresolv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = usr/lib/libresolv.tbd; sourceTree = SDKROOT; };
+		27CACC422794F22500BC4A11 /* libfltk.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfltk.a; path = ../../../../../usr/local/lib/libfltk.a; sourceTree = "<group>"; };
+		27CACC432794F22500BC4A11 /* libfltk_images.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfltk_images.a; path = ../../../../../usr/local/lib/libfltk_images.a; sourceTree = "<group>"; };
+		27CACC462794F23000BC4A11 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		27CACC482794F23C00BC4A11 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
+		27CACC4A2794F24700BC4A11 /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = SDKROOT; };
+		27CACC4C2794F25500BC4A11 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		27CACC4E2794F2CF00BC4A11 /* gui.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gui.cxx; path = ../htmldoc/gui.cxx; sourceTree = "<group>"; };
+		27CACC4F2794F2CF00BC4A11 /* gui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gui.h; path = ../htmldoc/gui.h; sourceTree = "<group>"; };
 		27D3E1822794DC0D0034494A /* libpng16.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpng16.a; path = ../../../../../usr/local/lib/libpng16.a; sourceTree = "<group>"; };
 		27D3E1832794DC0D0034494A /* libjpeg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjpeg.a; path = ../../../../../usr/local/lib/libjpeg.a; sourceTree = "<group>"; };
 		27D571431C3863E200D93F41 /* tls-darwin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "tls-darwin.c"; path = "../htmldoc/tls-darwin.c"; sourceTree = "<group>"; };
@@ -405,10 +419,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				27D3E1862794DD6F0034494A /* libpng16.a in Frameworks */,
+				27CACC4D2794F25500BC4A11 /* Cocoa.framework in Frameworks */,
+				27CACC492794F23C00BC4A11 /* CoreText.framework in Frameworks */,
+				27CACC472794F23000BC4A11 /* CoreGraphics.framework in Frameworks */,
+				27CACC442794F22500BC4A11 /* libfltk.a in Frameworks */,
+				27CACC452794F22500BC4A11 /* libfltk_images.a in Frameworks */,
+				27CACC412794EDA200BC4A11 /* libpng16.a in Frameworks */,
+				27CACC402794ED6200BC4A11 /* libresolv.tbd in Frameworks */,
+				27CACC3E2794ED5A00BC4A11 /* libz.tbd in Frameworks */,
 				27D3E1852794DC0D0034494A /* libjpeg.a in Frameworks */,
-				27A9F6FB18D528C200804DE9 /* libz.dylib in Frameworks */,
-				27A9F6F718D527E400804DE9 /* libresolv.dylib in Frameworks */,
 				27A9F6F518D527D900804DE9 /* CoreFoundation.framework in Frameworks */,
 				27A9F6F318D527D300804DE9 /* Security.framework in Frameworks */,
 			);
@@ -440,6 +459,8 @@
 				2788A4C81EAEF234007ED0E1 /* epub.cxx */,
 				27A9F6DB18D527AC00804DE9 /* file.c */,
 				27DD252D0EC01A3300B76D4E /* file.h */,
+				27CACC4E2794F2CF00BC4A11 /* gui.cxx */,
+				27CACC4F2794F2CF00BC4A11 /* gui.h */,
 				27DD252E0EC01A3300B76D4E /* hdstring.h */,
 				27DD252F0EC01A3300B76D4E /* html.cxx */,
 				27DD25300EC01A3300B76D4E /* html.h */,
@@ -494,10 +515,16 @@
 		27A9F6FC18D528CB00804DE9 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				27CACC4C2794F25500BC4A11 /* Cocoa.framework */,
+				27CACC4A2794F24700BC4A11 /* ApplicationServices.framework */,
+				27CACC482794F23C00BC4A11 /* CoreText.framework */,
+				27CACC462794F23000BC4A11 /* CoreGraphics.framework */,
+				27CACC432794F22500BC4A11 /* libfltk_images.a */,
+				27CACC422794F22500BC4A11 /* libfltk.a */,
+				27CACC3F2794ED6200BC4A11 /* libresolv.tbd */,
+				27CACC3D2794ED5A00BC4A11 /* libz.tbd */,
 				27D3E1832794DC0D0034494A /* libjpeg.a */,
 				27D3E1822794DC0D0034494A /* libpng16.a */,
-				27A9F6FA18D528C200804DE9 /* libz.dylib */,
-				27A9F6F618D527E400804DE9 /* libresolv.dylib */,
 				27A9F6F418D527D900804DE9 /* CoreFoundation.framework */,
 				27A9F6F218D527D300804DE9 /* Security.framework */,
 			);
@@ -658,6 +685,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				27DD25520EC01A3300B76D4E /* html.cxx in Sources */,
+				27CACC502794F2CF00BC4A11 /* gui.cxx in Sources */,
 				27DD25530EC01A3300B76D4E /* htmldoc.cxx in Sources */,
 				27DD25540EC01A3300B76D4E /* htmllib.cxx in Sources */,
 				27DD255A0EC01A3300B76D4E /* image.cxx in Sources */,
@@ -788,6 +816,7 @@
 					.,
 					/usr/local/include,
 				);
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				ONLY_ACTIVE_ARCH = YES;
 				RUN_CLANG_STATIC_ANALYZER = YES;
@@ -849,6 +878,7 @@
 					.,
 					/usr/local/include,
 				);
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = macosx;
