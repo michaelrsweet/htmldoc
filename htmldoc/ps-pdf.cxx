@@ -2838,6 +2838,9 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
     * This is for the Table of Contents page...
     */
 
+    if (chapter_starts[0] < 0 || chapter_starts[0] >= (int)num_pages)
+      return;
+
     thisobj = pdf_start_object(out);
 
     fprintf(out, "/Parent %d 0 R", parent);
