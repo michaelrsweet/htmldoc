@@ -7,6 +7,7 @@
 - Fixed a potential stack overflow bug with BMP images (Issue #466)
 - Fixed a potential heap overflow bug with the table-of-contents (Issue #467)
 - Fixed a potential heap overflow bug with headings (Issue #468)
+- Fixed a potential stack overflow bug with GIF images (Issue #470)
 
 
 # Changes in HTMLDOC v1.9.14
