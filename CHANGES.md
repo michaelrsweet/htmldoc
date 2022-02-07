@@ -1,3 +1,8 @@
+# Changes in HTMLDOC v1.9.16
+
+- Updated the GUI interface for current display fonts.
+
+
 # Changes in HTMLDOC v1.9.15
 
 - Fixed a potential heap overflow bug with GIF images (Issue #461)
