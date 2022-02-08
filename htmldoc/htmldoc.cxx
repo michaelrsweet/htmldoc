@@ -1,7 +1,7 @@
 /*
  * Main entry for HTMLDOC, a HTML document processing program.
  *
- * Copyright 2011-2020 by Michael R Sweet.
+ * Copyright 2011-2022 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -2607,7 +2607,7 @@ usage(const char *arg)			// I - Bad argument string
   if (CGIMode)
     puts("Content-Type: text/plain\r\n\r");
 
-  puts("HTMLDOC Version " SVERSION " Copyright 2011-2020 by Michael R Sweet.");
+  puts("HTMLDOC Version " SVERSION " Copyright 2011-2022 by Michael R Sweet.");
   puts("HTMLDOC is provided under the terms of the GNU General Public License and");
   puts("comes with absolutely no warranty.  This software is based in part on the work");
   puts("of the Independent JPEG Group.");
