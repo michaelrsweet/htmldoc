@@ -1,7 +1,7 @@
 /*
  * HTTP routines for HTMLDOC.
  *
- * Copyright © 2020-2021 by Michael R Sweet
+ * Copyright © 2020-2022 by Michael R Sweet
  * Copyright © 2007-2019 by Apple Inc.
  * Copyright © 1997-2007 by Easy Software Products, all rights reserved.
  *
@@ -2421,6 +2421,7 @@ httpReconnect2(http_t *http,		/* I - HTTP connection */
     if (_httpTLSStart(http) != 0)
     {
       httpAddrClose(NULL, http->fd);
+      http->fd = -1;
 
       return (-1);
     }
@@ -3555,7 +3556,9 @@ http_add_field(http_t       *http,	/* I - HTTP connection */
                const char   *value,	/* I - Value string */
                int          append)	/* I - Append value? */
 {
-  char		temp[1024];		/* Temporary value string */
+  char		temp[1024],		/* Temporary value string */
+		combined[HTTP_MAX_VALUE];
+					/* Combined value string */
   size_t	fieldlen,		/* Length of existing value */
 		valuelen,		/* Length of value string */
 		total;			/* Total length of string */
@@ -3630,8 +3633,6 @@ http_add_field(http_t       *http,	/* I - HTTP connection */
 
   if (total < HTTP_MAX_VALUE && field < HTTP_FIELD_ACCEPT_ENCODING)
   {
-    char combined[HTTP_MAX_VALUE];	/* Combined value string */
-
    /*
     * Copy short values to legacy char arrays (maintained for binary
     * compatibility with CUPS 1.2.x and earlier applications...)
@@ -3652,21 +3653,21 @@ http_add_field(http_t       *http,	/* I - HTTP connection */
     * Expand the field value...
     */
 
-    char	*combined;		/* New value string */
+    char	*mcombined;		/* New value string */
 
     if (http->fields[field] == http->_fields[field])
     {
-      if ((combined = malloc(total + 1)) != NULL)
+      if ((mcombined = malloc(total + 1)) != NULL)
       {
-	http->fields[field] = combined;
-	snprintf(combined, total + 1, "%s, %s", http->_fields[field], value);
+	http->fields[field] = mcombined;
+	snprintf(mcombined, total + 1, "%s, %s", http->_fields[field], value);
       }
     }
-    else if ((combined = realloc(http->fields[field], total + 1)) != NULL)
+    else if ((mcombined = realloc(http->fields[field], total + 1)) != NULL)
     {
-      http->fields[field] = combined;
-      strlcat(combined, ", ", total + 1);
-      strlcat(combined, value, total + 1);
+      http->fields[field] = mcombined;
+      strlcat(mcombined, ", ", total + 1);
+      strlcat(mcombined, value, total + 1);
     }
   }
   else
@@ -4613,6 +4614,7 @@ http_tls_upgrade(http_t *http)		/* I - HTTP connection */
   * Restore the HTTP request data...
   */
 
+  httpClearFields(http);
   memcpy(http->_fields, myhttp._fields, sizeof(http->_fields));
   memcpy(http->fields, myhttp.fields, sizeof(http->fields));
 

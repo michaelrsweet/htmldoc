@@ -1,6 +1,7 @@
 # Changes in HTMLDOC v1.9.16
 
 - Updated the GUI interface for current display fonts.
+- Fixed some minor Coverity warnings.
 
 
 # Changes in HTMLDOC v1.9.15

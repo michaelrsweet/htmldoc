@@ -2279,6 +2279,8 @@ pdf_write_document(uchar  *author,	// I - Author of document
       if (images[i] == hfimage[hfi])
         break;
 
+    memset(&temp, 0, sizeof(temp));	// For Coverity, not explicitly necessary
+
     if (images[i]->use > 1 || images[i]->mask ||
         (images[i]->width * images[i]->height * images[i]->depth) > 65536 ||
 	images[i] == background_image ||

@@ -481,7 +481,7 @@ gif_read_lzw(FILE *fp,			/* I - File to read from */
 
     while (code >= clear_code)
     {
-      if (sp >= (stack + sizeof(stack)))
+      if (sp >= (stack + sizeof(stack) / sizeof(stack[0])))
         return (255);
 
       *sp++ = table[1][code];
@@ -492,7 +492,7 @@ gif_read_lzw(FILE *fp,			/* I - File to read from */
       code = table[0][code];
     }
 
-    if (sp >= (stack + sizeof(stack)))
+    if (sp >= (stack + sizeof(stack) / sizeof(stack[0])))
       return (255);
 
     *sp++ = firstcode = table[1][code];
