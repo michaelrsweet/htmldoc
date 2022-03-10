@@ -27,6 +27,13 @@ extern "C" {		/* Workaround for JPEG header problems... */
 
 
 /*
+ * Limits...
+ */
+
+#define IMAGE_MAX_DIM	37837		// Maximum dimension - sqrt(4GiB / 3)
+
+
+/*
  * GIF definitions...
  */
 
@@ -926,7 +933,7 @@ image_load_bmp(image_t *img,	/* I - Image to load into */
   colors_used      = (int)read_dword(fp);
   read_dword(fp);
 
-  if (img->width <= 0 || img->width > 8192 || img->height <= 0 || img->height > 8192 || info_size < 0)
+  if (img->width <= 0 || img->width > IMAGE_MAX_DIM || img->height <= 0 || img->height > IMAGE_MAX_DIM || info_size < 0)
     return (-1);
 
   if (info_size > 40)
@@ -1278,7 +1285,7 @@ image_load_gif(image_t *img,	/* I - Image pointer */
   img->height = (buf[9] << 8) | buf[8];
   ncolors     = 2 << (buf[10] & 0x07);
 
-  if (img->width <= 0 || img->width > 32767 || img->height <= 0 || img->height > 32767)
+  if (img->width <= 0 || img->width > IMAGE_MAX_DIM || img->height <= 0 || img->height > IMAGE_MAX_DIM)
     return (-1);
 
   // If we are writing an encrypted PDF file, bump the use count so we create
@@ -1326,7 +1333,7 @@ image_load_gif(image_t *img,	/* I - Image pointer */
           img->height = (buf[7] << 8) | buf[6];
           img->depth  = gray ? 1 : 3;
 
-	  if (img->width <= 0 || img->width > 32767 || img->height <= 0 || img->height > 32767)
+	  if (img->width <= 0 || img->width > IMAGE_MAX_DIM || img->height <= 0 || img->height > IMAGE_MAX_DIM)
 	    return (-1);
 
           if (transparent >= 0)
@@ -1442,6 +1449,12 @@ JSAMPROW			row;		/* Sample row pointer */
   img->width  = (int)cinfo.output_width;
   img->height = (int)cinfo.output_height;
   img->depth  = (int)cinfo.output_components;
+
+  if (img->width <= 0 || img->width > IMAGE_MAX_DIM || img->height <= 0 || img->height > IMAGE_MAX_DIM)
+  {
+    jpeg_destroy_decompress(&cinfo);
+    return (-1);
+  }
 
   if (!load_data)
   {
@@ -1597,6 +1610,12 @@ image_load_png(image_t *img,	/* I - Image pointer */
 
   img->width  = (int)png_get_image_width(pp, info);
   img->height = (int)png_get_image_height(pp, info);
+
+  if (img->width <= 0 || img->width > IMAGE_MAX_DIM || img->height <= 0 || img->height > IMAGE_MAX_DIM)
+  {
+    png_destroy_read_struct(&pp, &info, NULL);
+    return (-1);
+  }
 
   if (color_type & PNG_COLOR_MASK_ALPHA)
   {
