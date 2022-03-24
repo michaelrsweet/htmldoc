@@ -6131,6 +6131,7 @@ render_table_row(hdtable_t &table,
       // Draw background on multiple pages...
 
       // Bottom of first page...
+      check_pages(*page);
       new_render(*page, RENDER_BOX, table.border_left, bottom,
                  width, row_starty - bottom + table.cellpadding, bgrgb,
                  pages[*page].start);
@@ -6138,13 +6139,13 @@ render_table_row(hdtable_t &table,
       // Intervening pages...
       for (temp_page = *page + 1; temp_page < row_page; temp_page ++)
       {
+	check_pages(temp_page);
         new_render(temp_page, RENDER_BOX, table.border_left, bottom,
                    width, top - bottom, bgrgb, pages[temp_page].start);
       }
 
       // Top of last page...
-      check_pages(*page);
-
+      check_pages(row_page);
       new_render(row_page, RENDER_BOX, table.border_left, row_y,
                  width, top - row_y, bgrgb,
                  pages[row_page].start);
@@ -6152,6 +6153,7 @@ render_table_row(hdtable_t &table,
     else
     {
       // Draw background in row...
+      check_pages(row_page);
       new_render(row_page, RENDER_BOX, table.border_left, row_y,
                  width, row_height + 2 * table.cellpadding, bgrgb,
                  pages[row_page].start);
