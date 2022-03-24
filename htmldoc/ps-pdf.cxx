@@ -6248,9 +6248,12 @@ render_table_row(hdtable_t &table,
         }
 
         if (bgcolor != NULL)
+        {
+          check_pages(temp_page);
           new_render(temp_page, RENDER_BOX, table.border_left, bottom,
                      width + table.border, top - bottom, bgrgb,
                      pages[temp_page].start);
+	}
       }
 
       if (table.border > 0.0f)
@@ -6275,7 +6278,6 @@ render_table_row(hdtable_t &table,
       if (bgcolor != NULL)
       {
         check_pages(table.cell_endpage[col]);
-
         new_render(table.cell_endpage[col], RENDER_BOX, table.border_left, row_y,
                    width + table.border, top - row_y, bgrgb,
                    pages[table.cell_endpage[col]].start);
