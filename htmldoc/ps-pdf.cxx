@@ -3585,6 +3585,8 @@ pdf_write_names(FILE *out)		/* I - Output file */
     pdf_start_object(out);
     float x, y;
 
+    check_pages(link->page);
+
     x = 0.0f;
     y = link->top + pages[link->page].bottom;
     pspdf_transform_coords(pages + link->page, x, y);
