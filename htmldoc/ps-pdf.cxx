@@ -3077,6 +3077,8 @@ pdf_write_files(FILE   *out,		// I - Output file
 
       if ((link = find_link(htmlGetVariable(temp, (uchar *)"_HD_FILENAME"))) != NULL)
       {
+        check_pages(link->page);
+
 	x = 0.0f;
 	y = link->top + pages[link->page].bottom;
 	pspdf_transform_coords(pages + link->page, x, y);
@@ -3407,6 +3409,8 @@ pdf_write_links(FILE *out)		/* I - Output file */
             fprintf(out, "/Rect[%.1f %.1f %.1f %.1f]", x1, y1, x2, y2);
 
             fputs("/Border[0 0 0]", out);
+
+            check_pages(link->page);
 
             x1 = 0.0f;
 	    y1 = link->top + pages[link->page].bottom;
