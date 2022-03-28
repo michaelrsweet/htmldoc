@@ -11649,7 +11649,12 @@ write_prolog(FILE  *out,		/* I - Output file */
     fputs("%%Creator: " HTMLDOC_PRODUCER "\n", out);
     fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02d%03d00\n",
             doc_date.tm_year + 1900, doc_date.tm_mon + 1, doc_date.tm_mday,
-            doc_date.tm_hour, doc_date.tm_min, doc_date.tm_sec, (int)(doc_date.tm_gmtoff / 3600));
+            doc_date.tm_hour, doc_date.tm_min, doc_date.tm_sec,
+#ifdef WIN32
+            (int)(_timezone / 3600));
+#else
+	    (int)(doc_date.tm_gmtoff / 3600));
+#endif // WIN32
     if (doc_title != NULL)
       fprintf(out, "%%%%Title: %s\n", doc_title);
     if (author != NULL)
@@ -12033,7 +12038,12 @@ write_prolog(FILE  *out,		/* I - Output file */
     fputs("/CreationDate", out);
     snprintf(temp, sizeof(temp), "D:%04d%02d%02d%02d%02d%02d%03d00",
             doc_date.tm_year + 1900, doc_date.tm_mon + 1, doc_date.tm_mday,
-            doc_date.tm_hour, doc_date.tm_min, doc_date.tm_sec, (int)(doc_date.tm_gmtoff / 3600));
+            doc_date.tm_hour, doc_date.tm_min, doc_date.tm_sec,
+#ifdef WIN32
+            (int)(_timezone / 3600));
+#else
+	    (int)(doc_date.tm_gmtoff / 3600));
+#endif // WIN32
     write_string(out, (uchar *)temp, 0);
 
     if (doc_title != NULL)
