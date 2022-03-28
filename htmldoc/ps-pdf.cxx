@@ -7198,6 +7198,7 @@ parse_table(tree_t *t,			// I - Tree to parse
       // Draw background on multiple pages...
 
       // Bottom of first page...
+      check_pages(table_page);
       new_render(table_page, RENDER_BOX, table.border_left, bottom,
 	         width, table_y - bottom, bgrgb,
 		 pages[table_page].start);
@@ -7205,19 +7206,20 @@ parse_table(tree_t *t,			// I - Tree to parse
       // Intervening pages...
       for (temp_page = table_page + 1; temp_page < *page; temp_page ++)
       {
+        check_pages(temp_page);
         new_render(temp_page, RENDER_BOX, table.border_left, bottom,
                    width, top - bottom, bgrgb, pages[temp_page].start);
       }
 
       // Top of last page...
       check_pages(*page);
-
       new_render(*page, RENDER_BOX, table.border_left, *y,
 	         width, top - *y, bgrgb, pages[*page].start);
     }
     else
     {
       // Draw background in row...
+      check_pages(table_page);
       new_render(table_page, RENDER_BOX, table.border_left, *y,
 	         width, table_y - *y, bgrgb, pages[table_page].start);
     }

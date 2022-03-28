@@ -2,7 +2,7 @@
 
 - Fixed a potential image overflow bug with JPEG and PNG images (Issue #471)
 - Fixed potential heap overflow bugs with pages (Issue #477, Issue #478,
-  Issue #480)
+  Issue #480, Issue #483)
 - Fixed potential use-after-free in blocks (Issue #484)
 - Fixed some minor Coverity warnings.
 - Updated the GUI interface for current display fonts.
