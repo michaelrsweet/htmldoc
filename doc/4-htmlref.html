@@ -298,7 +298,10 @@ dollar sign (<CODE>$</CODE>):</P>
 
 	<!-- NEED 1in -->
 	<DT><CODE>$DATE</CODE>
-	<DD>Inserts the current date.
+	<DT><CODE>$DATE(format)</CODE>
+	<DD>Inserts the current date.  See <a href="#DATETIME">Date/Time
+	Formats</a> for details on the format string. When no format is
+	supplied, the default date format for the current locale is used.
 
 	<!-- NEED 1in -->
 	<DT><CODE>$HEADING</CODE>
@@ -348,7 +351,10 @@ dollar sign (<CODE>$</CODE>):</P>
 
 	<!-- NEED 1in -->
 	<DT><CODE>$TIME</CODE>
-	<DD>Inserts the current time.
+	<DT><CODE>$TIME(format)</CODE>
+	<DD>Inserts the current time.  See <a href="#DATETIME">Date/Time
+	Formats</a> for details on the format string. When no format is
+	supplied, the default time format for the current locale is used.
 
 	<!-- NEED 1in -->
 	<DT><CODE>$TITLE</CODE>
@@ -359,6 +365,47 @@ dollar sign (<CODE>$</CODE>):</P>
 	<DD>Inserts the document filename or URL.
 
 </DL>
+
+<H3><A NAME="DATETIME">Date/Time Formats</A></H3>
+
+<p>The <CODE>$DATE</CODE> and <CODE>$TIME</CODE> header/footer strings support
+an optional format string in parenthesis. Letters represent date/time values
+while other characters are inserted verbatim. The following letters are
+supported:</p>
+
+<center>
+<table border="1" cellpadding="5">
+<tr><th>Letter</th><th>Description</th></tr>
+<tr><td><code>A</code></td><td>Full weekday name</td></tr>
+<tr><td><code>a</code></td><td>Abbreviated weekday name</td></tr>
+<tr><td><code>B</code></td><td>Full month name</td></tr>
+<tr><td><code>b</code></td><td>Abbreviated month name</td></tr>
+<tr><td><code>C</code></td><td>Century (CC)</td></tr>
+<tr><td><code>c</code></td><td>Default date and time format</td></tr>
+<tr><td><code>d</code></td><td>Day of the month ("01" to "31")</td></tr>
+<tr><td><code>e</code></td><td>Day of the month (" 1" to "31")</td></tr>
+<tr><td><code>F</code></td><td>YYYY-MM-DD</td></tr>
+<tr><td><code>H</code></td><td>Hours for 24-hour clock ("00" to "23")</td></tr>
+<tr><td><code>I</code></td><td>Hours for 12-hour clock ("01" to "12")</td></tr>
+<tr><td><code>j</code></td><td>Day of the year ("001" to "366")</td></tr>
+<tr><td><code>k</code></td><td>Hours for 24-hour clock (" 0" to "23")</td></tr>
+<tr><td><code>l</code></td><td>Hours for 12-hour clock (" 1" to "12")</td></tr>
+<tr><td><code>M</code></td><td>Minutes ("00" to "59")</td></tr>
+<tr><td><code>m</code></td><td>Month number ("01" to "12")</td></tr>
+<tr><td><code>p</code></td><td>"am" or "pm"</td></tr>
+<tr><td><code>R</code></td><td>Hours and minutes ("HH:MM")</td></tr>
+<tr><td><code>r</code></td><td>Hours, minutes, seconds, and am/pm ("HH:MM:SS am/pm")</td></tr>
+<tr><td><code>S</code></td><td>Seconds ("00" to "60")</td></tr>
+<tr><td><code>T</code></td><td>Hours, minutes, and seconds ("HH:MM:SS")</td></tr>
+<tr><td><code>X</code></td><td>Default time format</td></tr>
+<tr><td><code>x</code></td><td>Default date format</td></tr>
+<tr><td><code>Y</code></td><td>Year with century (CCYY)</td></tr>
+<tr><td><code>y</code></td><td>Year without century (YY)</td></tr>
+<tr><td><code>Z</code></td><td>Time zone name</td></tr>
+<tr><td><code>z</code></td><td>Time zone offset from UTC</td></tr>
+</table>
+</center>
+
 
 <!-- NEED 5in -->
 <H2><A NAME="FONT">FONT Attributes</A></H2>

@@ -1,5 +1,7 @@
 # Changes in HTMLDOC v1.9.16
 
+- Added support for `$DATE(format)` and `$TIME(format)` header/footer strings
+  (Issue #472)
 - Fixed a potential image overflow bug with JPEG and PNG images (Issue #471)
 - Fixed potential heap overflow bugs with pages (Issue #477, Issue #478,
   Issue #480, Issue #482, Issue #483)

@@ -537,7 +537,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
   if (!source_date_epoch || (doc_time = (time_t)strtol(source_date_epoch, NULL, 10)) <= 0)
     doc_time = time(NULL);
 
-  gmtime_r(&doc_time, &doc_date);
+  localtime_r(&doc_time, &doc_date);
 
   num_headings   = 0;
   alloc_headings = 0;
@@ -1706,14 +1706,96 @@ pspdf_prepare_heading(int   page,	// I - Page number
 	  }
 	  else if (formatlen == 4 && strncasecmp(formatptr, "TIME", 4) == 0)
 	  {
+	    char	timefmt[256];	// Time format
+
             formatptr += 4;
-            strftime(bufptr, sizeof(buffer) - 1 - (size_t)(bufptr - buffer), "%X", &doc_date);
+            if (*formatptr == '(')
+            {
+              // Support "$TIME(format)"
+              char	*timeptr;	// Pointer into time format
+
+              for (timeptr = timefmt, formatptr ++; *formatptr && *formatptr != ')'; formatptr ++)
+              {
+                if (isalpha(*formatptr))
+                {
+                  if (timeptr < (timefmt + sizeof(timefmt) - 2))
+                  {
+                    *timeptr++ = '%';
+                    *timeptr++ = *formatptr;
+                  }
+                  else
+                    break;
+                }
+                else if (timeptr < (timefmt + sizeof(timefmt) - 1))
+                {
+                  *timeptr++ = *formatptr;
+                }
+                else
+                  break;
+              }
+
+              *timeptr = '\0';
+
+              while (*formatptr && *formatptr != ')')
+                formatptr ++;
+
+              if (*formatptr)
+                formatptr ++;
+            }
+            else
+            {
+              // Use the locale default format...
+              strlcpy(timefmt, "%X", sizeof(timefmt));
+            }
+
+            strftime(bufptr, sizeof(buffer) - 1 - (size_t)(bufptr - buffer), timefmt, &doc_date);
 	    bufptr += strlen(bufptr);
 	  }
 	  else if (formatlen == 4 && strncasecmp(formatptr, "DATE", 4) == 0)
 	  {
+	    char	datefmt[256];	// Date format
+
             formatptr += 4;
-            strftime(bufptr, sizeof(buffer) - 1 - (size_t)(bufptr - buffer), "%x", &doc_date);
+            if (*formatptr == '(')
+            {
+              // Support "$DATE(format)"
+              char	*dateptr;	// Pointer into date format
+
+              for (dateptr = datefmt, formatptr ++; *formatptr && *formatptr != ')'; formatptr ++)
+              {
+                if (isalpha(*formatptr))
+                {
+                  if (dateptr < (datefmt + sizeof(datefmt) - 2))
+                  {
+                    *dateptr++ = '%';
+                    *dateptr++ = *formatptr;
+                  }
+                  else
+                    break;
+                }
+                else if (dateptr < (datefmt + sizeof(datefmt) - 1))
+                {
+                  *dateptr++ = *formatptr;
+                }
+                else
+                  break;
+              }
+
+              *dateptr = '\0';
+
+              while (*formatptr && *formatptr != ')')
+                formatptr ++;
+
+              if (*formatptr)
+                formatptr ++;
+            }
+            else
+            {
+              // Use the locale default format...
+              strlcpy(datefmt, "%x", sizeof(datefmt));
+            }
+
+            strftime(bufptr, sizeof(buffer) - 1 - (size_t)(bufptr - buffer), datefmt, &doc_date);
 	    bufptr += strlen(bufptr);
 	  }
 	  else if (formatlen == 3 && strncasecmp(formatptr, "URL", 3) == 0)
@@ -11565,9 +11647,9 @@ write_prolog(FILE  *out,		/* I - Output file */
       fprintf(out, "%%%%BoundingBox: 0 0 %d %d\n", PageWidth, PageLength);
     fprintf(out,"%%%%LanguageLevel: %d\n", PSLevel);
     fputs("%%Creator: " HTMLDOC_PRODUCER "\n", out);
-    fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02d+0000\n",
+    fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02d%03d00\n",
             doc_date.tm_year + 1900, doc_date.tm_mon + 1, doc_date.tm_mday,
-            doc_date.tm_hour, doc_date.tm_min, doc_date.tm_sec);
+            doc_date.tm_hour, doc_date.tm_min, doc_date.tm_sec, (int)(doc_date.tm_gmtoff / 3600));
     if (doc_title != NULL)
       fprintf(out, "%%%%Title: %s\n", doc_title);
     if (author != NULL)
@@ -11949,9 +12031,9 @@ write_prolog(FILE  *out,		/* I - Output file */
     fputs("/Producer", out);
     write_string(out, (uchar *)HTMLDOC_PRODUCER, 0);
     fputs("/CreationDate", out);
-    snprintf(temp, sizeof(temp), "D:%04d%02d%02d%02d%02d%02dZ",
+    snprintf(temp, sizeof(temp), "D:%04d%02d%02d%02d%02d%02d%03d00",
             doc_date.tm_year + 1900, doc_date.tm_mon + 1, doc_date.tm_mday,
-            doc_date.tm_hour, doc_date.tm_min, doc_date.tm_sec);
+            doc_date.tm_hour, doc_date.tm_min, doc_date.tm_sec, (int)(doc_date.tm_gmtoff / 3600));
     write_string(out, (uchar *)temp, 0);
 
     if (doc_title != NULL)

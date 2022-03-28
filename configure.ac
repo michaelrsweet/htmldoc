@@ -1,5 +1,5 @@
 dnl
-dnl Con])guration script for HTMLDOC, an HTML document processing program.
+dnl Configuration script for HTMLDOC, an HTML document processing program.
 dnl
 dnl Copyright © 2011-2022 by Michael R Sweet.
 dnl Copyright © 1997-2010 by Easy Software Products.
