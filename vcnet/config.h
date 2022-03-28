@@ -50,6 +50,7 @@
  */
 
 #define gmtime_r(t,tm)	gmtime_s(tm,t)
+#define localtime_r(t,tm) localtime_s(tm,t)
 
 
 /*
