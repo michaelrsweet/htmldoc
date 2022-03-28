@@ -4878,6 +4878,9 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         else
           flat = temp->next;
 
+        if (temp->next != NULL)
+          temp->next->prev = prev;
+
         free(temp);
         temp = prev;
       }
@@ -4958,6 +4961,9 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
           prev->next = temp->next;
         else
           flat = temp->next;
+
+        if (temp->next != NULL)
+          temp->next->prev = prev;
 
         free(temp);
         temp = prev;
@@ -5200,7 +5206,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
       case ALIGN_JUSTIFY :
           linex = image_left;
-	  if (flat != NULL && flat->prev->markup != MARKUP_BR && num_chars > 1)
+	  if (flat != NULL && flat->prev && flat->prev->markup != MARKUP_BR && num_chars > 1)
 	    char_spacing = (format_width - width) / (num_chars - 1);
 	  break;
     }
@@ -5390,7 +5396,10 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       prev = temp;
       temp = temp->next;
       if (prev != linetype)
+      {
         free(prev);
+        prev = NULL;
+      }
     }
 
    /*
@@ -5413,6 +5422,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
         r->y -= height - linetype->height;
 
       free(linetype);
+      linetype = NULL;
     }
 
    /*
