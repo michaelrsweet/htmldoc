@@ -6,6 +6,8 @@
 - Fixed potential heap overflow bugs with pages (Issue #477, Issue #478,
   Issue #480, Issue #482, Issue #483)
 - Fixed potential use-after-free in blocks (Issue #484)
+- Updated the GNU TLS HTTPS support code to use a faster connection shutdown
+  mode (Issue #487)
 - Fixed some minor Coverity warnings.
 - Updated the GUI interface for current display fonts.
 
