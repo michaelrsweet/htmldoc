@@ -6,5 +6,5 @@ TryExec=htmldoc
 Exec=htmldoc %F
 Icon=htmldoc
 Terminal=false
-Categories=Application;Office;X-Red-Hat-Base;
+Categories=Office;X-Red-Hat-Base;
 Keywords=HTML;PDF;EPUB;Converter
