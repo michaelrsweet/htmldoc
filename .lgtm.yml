@@ -1,7 +1,0 @@
-queries:
-  - exclude: cpp/weak-cryptographic-algorithm
-  - exclude: cpp/suspicious-add-sizeof
-  - exclude: cpp/cleartext-storage-file
-#  - exclude: cpp/missing-header-guard
-#  - exclude: cpp/uncontrolled-allocation-size
-#  - exclude: cpp/cleartext-storage-file
