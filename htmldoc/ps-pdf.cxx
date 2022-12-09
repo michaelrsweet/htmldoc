@@ -6098,7 +6098,6 @@ render_table_row(hdtable_t &table,
 
       if (table.row_spans[col] == 1)
       {
-        int tcol;
         float span_height = 0.0f;
 
         for (tcol = 0; tcol < table.num_cols; tcol ++)
@@ -6685,7 +6684,7 @@ parse_table(tree_t *t,			// I - Tree to parse
 	for (col = 0; col < table.num_cols; col ++)
 	  table.row_spans[col] -= rowspan;
 
-	for (col = 0; table.row_spans[col] && col < table.num_cols; col ++)
+	for (col = 0; col < table.num_cols && table.row_spans[col]; col ++)
           cells[table.num_rows][col] = cells[table.num_rows - 1][col];
       }
       else
@@ -6791,7 +6790,7 @@ parse_table(tree_t *t,			// I - Tree to parse
             colspan --;
           }
 
-          while (table.row_spans[col] && col < table.num_cols)
+          while (col < table.num_cols && table.row_spans[col])
 	  {
             cells[table.num_rows][col] = cells[table.num_rows - 1][col];
 	    col ++;

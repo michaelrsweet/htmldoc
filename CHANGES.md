@@ -1,3 +1,8 @@
+# Changes in HTMLDOC v1.9.17
+
+- Fixed some minor CodeQL warnings.
+
+
 # Changes in HTMLDOC v1.9.16
 
 - Added support for `$DATE(format)` and `$TIME(format)` header/footer strings

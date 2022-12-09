@@ -313,18 +313,18 @@ epub_export(tree_t *document,           /* I - Document to export */
                            "    <item id=\"body\" href=\"body.xhtml\" media-type=\"application/xhtml+xml\" />\n");
     for (size_t i = 0; !status && i < num_images; i ++)
     {
-      const char *mimetype, *image_ext = file_extension(images[i]);
+      const char *image_mimetype, *image_ext = file_extension(images[i]);
 
       if (!strcmp(image_ext, "bmp"))
-        mimetype = "image/bmp";
+        image_mimetype = "image/bmp";
       else if (!strcmp(image_ext, "gif"))
-        mimetype = "image/gif";
+        image_mimetype = "image/gif";
       else if (!strcmp(image_ext, "jpg"))
-        mimetype = "image/jpeg";
+        image_mimetype = "image/jpeg";
       else
-        mimetype = "image/png";
+        image_mimetype = "image/png";
 
-      status |= write_xhtmlf(epubf, "    <item id=\"%s\" href=\"%s\" media-type=\"%s\" />\n", images[i], images[i], mimetype);
+      status |= write_xhtmlf(epubf, "    <item id=\"%s\" href=\"%s\" media-type=\"%s\" />\n", images[i], images[i], image_mimetype);
     }
     status |= zipcFilePuts(epubf,
                            "  </manifest>\n"
