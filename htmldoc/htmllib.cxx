@@ -2510,6 +2510,8 @@ htmlSetCharSet(const char *cs)		/* I - Character set file to load */
     // bottom 128 characters matching US ASCII...
     _htmlUTF8 = 0x80;
 
+    memset(_htmlCharacters, 0, sizeof(_htmlCharacters));
+
     for (i = 0; i < 128; i ++)
     {
      /*
