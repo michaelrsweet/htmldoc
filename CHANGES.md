@@ -1,5 +1,6 @@
 # Changes in HTMLDOC v1.9.17
 
+- Now link to CUPS library instead of embedding its HTTP code.
 - Fixed multiple conversions of UTF-8 HTML files from the GUI (Issue #496)
 - Fixed some minor CodeQL warnings.
 
