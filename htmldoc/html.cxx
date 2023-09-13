@@ -311,7 +311,7 @@ write_header(FILE   **out,	/* IO - Output file */
     fprintf(*out, "H6 { font-family: %s; }\n", families[_htmlHeadingFont]);
     fputs("SUB { font-size: smaller; }\n", *out);
     fputs("SUP { font-size: smaller; }\n", *out);
-    fputs("PRE { font-family: monospace; margin-left: 36pt; }\n", *out);
+    fprintf(*out, "PRE { font-family: monospace; margin-left: %dpt; }\n", PreIndent);
 
     if (!LinkStyle)
       fputs("A { text-decoration: none; }\n", *out);

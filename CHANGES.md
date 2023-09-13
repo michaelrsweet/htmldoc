@@ -1,5 +1,7 @@
 # Changes in HTMLDOC v1.9.17
 
+- Added new `--pre-indent` option to control indentation of pre-formatted text
+  (Issue #505)
 - Now link to CUPS library instead of embedding its HTTP code.
 - Fixed multiple conversions of UTF-8 HTML files from the GUI (Issue #496)
 - Fixed a compile bug on Solaris (Issue #498)

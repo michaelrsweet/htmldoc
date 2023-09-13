@@ -1,7 +1,7 @@
 /*
  * GUI definitions for HTMLDOC, an HTML document processing program.
  *
- * Copyright 2011-2020 by Michael R Sweet.
+ * Copyright 2011-2023 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -134,6 +134,7 @@ class GUI
   Fl_Counter		*fontBaseSize,
 			*fontSpacing,
 			*headFootSize;
+  Fl_Input		*preIndent;
   Fl_Choice		*charset;
   Fl_Check_Button	*embedFonts;
 

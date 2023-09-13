@@ -1,7 +1,7 @@
 /*
  * Header file for HTMLDOC, a HTML document processing program.
  *
- * Copyright 2011-2020 by Michael R Sweet.
+ * Copyright 2011-2023 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -169,6 +169,8 @@ VAR int		PageWidth	VALUE(595),	/* Page width in points */
 		PageDuplex	VALUE(0),	/* Adjust margins/pages for duplexing? */
 		Landscape	VALUE(0),	/* Landscape orientation? */
 		NumberUp	VALUE(1);	/* Number-up pages */
+
+VAR int		PreIndent	VALUE(36);	/* Indentation of PRE content */
 
 VAR typeface_t	HeadFootType	VALUE(TYPE_HELVETICA);
 						/* Typeface for header & footer */

@@ -1,7 +1,7 @@
 //
 // GUI routines for HTMLDOC, an HTML document processing program.
 //
-// Copyright © 2011-2022 by Michael R Sweet.
+// Copyright © 2011-2023 by Michael R Sweet.
 // Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
 //
 // This program is free software.  Distribution and use rights are outlined in
@@ -726,10 +726,15 @@ GUI::GUI(const char *filename)		// Book file to load initially
   charset->callback((Fl_Callback *)changeCB, this);
   charset->tooltip("Choose the encoding of text.");
 
-  group = new Fl_Group(200, 255, 285, 25, "Options: ");
+  preIndent = new Fl_Input(200, 255, 60, 25, "PRE Indent: ");
+  preIndent->when(FL_WHEN_CHANGED);
+  preIndent->callback((Fl_Callback *)changeCB, this);
+  preIndent->tooltip("Enter the indentation for pre-formatted text.");
+
+  group = new Fl_Group(200, 285, 285, 25, "Options: ");
   group->align(FL_ALIGN_LEFT);
 
-    embedFonts = new Fl_Check_Button(200, 255, 110, 25, "Embed Fonts");
+    embedFonts = new Fl_Check_Button(200, 285, 110, 25, "Embed Fonts");
     embedFonts->callback((Fl_Callback *)changeCB, this);
     embedFonts->tooltip("Check to embed fonts in the output file.");
 
@@ -1292,6 +1297,7 @@ GUI::loadSettings()
   PDFEffectDuration = effectDuration->value();
   Links             = links->value();
   EmbedFonts        = embedFonts->value();
+  PreIndent         = get_measurement((char *)preIndent->value());
 
   Encryption  = encryptionYes->value();
   Permissions = -64;
@@ -1496,6 +1502,9 @@ GUI::newBook(void)
       charset->value(i);
       break;
     }
+
+  snprintf(size, sizeof(size), "%.2fin", PreIndent / 72.0f);
+  preIndent->value(size);
 
   compression->value(Compression);
   compGroup->deactivate();
@@ -2193,6 +2202,8 @@ GUI::parseOptions(const char *line)	// I - Line from file
 	  break;
 	}
     }
+    else if (strcmp(temp, "--pre-indent") == 0)
+      preIndent->value(temp2);
     else if (strcmp(temp, "--pagemode") == 0)
     {
       for (i = 0; i < (int)(sizeof(PDFModes) / sizeof(PDFModes[0])); i ++)
@@ -2534,6 +2545,9 @@ GUI::saveBook(const char *filename)	// I - Name of book file
   fprintf(fp, " --headfootsize %.1f", headFootSize->value());
   fprintf(fp, " --headfootfont %s", fonts[headFootFont->value()]);
   fprintf(fp, " --charset %s", charset->text(charset->value()));
+
+  if (pageLeft->size() > 0)
+    fprintf(fp, " --pre-indent %s", preIndent->value());
 
   if (typePDF->value())
   {
@@ -4270,7 +4284,7 @@ GUI::showAboutCB(void)
   label->image(&logo);
 
   label = new Fl_Box(60, 45, 530, 35,
-          "HTMLDOC " SVERSION "\nCopyright © 2011-2022 by Michael R Sweet."
+          "HTMLDOC " SVERSION "\nCopyright © 2011-2023 by Michael R Sweet."
 	  );
   label->align(FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP);
 
