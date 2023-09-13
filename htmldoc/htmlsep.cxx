@@ -455,10 +455,11 @@ write_title(FILE  *out,		/* I - Output file */
     {
       image_t *img = image_load(TitleImage, !OutputColor);
 
-      fprintf(out, "<IMG SRC=\"%s\" WIDTH=\"%d\" HEIGHT=\"%d\" "
-	           "ALT=\"%s\"><BR>\n",
-              file_basename((char *)TitleImage), img->width, img->height,
-	      title ? (char *)title : "");
+      if (img)
+	fprintf(out, "<IMG SRC=\"%s\" WIDTH=\"%d\" HEIGHT=\"%d\" "
+		     "ALT=\"%s\"><BR>\n",
+		file_basename((char *)TitleImage), img->width, img->height,
+		title ? (char *)title : "");
     }
 
     if (title != NULL)
