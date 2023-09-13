@@ -5,8 +5,6 @@ HTMLDOC - HTML Conversion Software
 ![GPL-2.0](https://img.shields.io/github/license/michaelrsweet/htmldoc)
 [![Build](https://github.com/michaelrsweet/pdfio/workflows/Build/badge.svg)](https://github.com/michaelrsweet/htmldoc/actions/workflows/build.yml)
 [![Coverity Scan Status](https://img.shields.io/coverity/scan/22389.svg)](https://scan.coverity.com/projects/michaelrsweet-htmldoc)
-[![LGTM Grade](https://img.shields.io/lgtm/grade/cpp/github/michaelrsweet/htmldoc)](https://lgtm.com/projects/g/michaelrsweet/htmldoc/context:cpp)
-[![LGTM Alerts](https://img.shields.io/lgtm/alerts/github/michaelrsweet/htmldoc)](https://lgtm.com/projects/g/michaelrsweet/htmldoc/)
 
 
 HTMLDOC is a program that reads HTML and Markdown source files or web pages and
@@ -120,7 +118,7 @@ of Ghostscript, among other things).
 Legal Stuff
 -----------
 
-HTMLDOC is copyright © 1997-2022 by Michael R Sweet.  This program is free
+HTMLDOC is copyright © 1997-2023 by Michael R Sweet.  This program is free
 software.  Distribution and use rights are outlined in the file "COPYING".
 
 HTMLDOC includes code to encrypt PDF document files using the RC4 algorithm
