@@ -6,7 +6,7 @@
  * broken into more manageable pieces once we make all of the output
  * "drivers" into classes...
  *
- * Copyright © 2011-2022 by Michael R Sweet.
+ * Copyright © 2011-2023 by Michael R Sweet.
  * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -11651,8 +11651,12 @@ write_prolog(FILE  *out,		/* I - Output file */
             doc_date.tm_hour, doc_date.tm_min, doc_date.tm_sec,
 #ifdef WIN32
             (int)(_timezone / 3600));
-#else
+#elif HAVE_TM_GMTOFF
 	    (int)(doc_date.tm_gmtoff / 3600));
+#elif defined(__sun)
+            (int)(timezone / 3600));
+#else
+            0);
 #endif // WIN32
     if (doc_title != NULL)
       fprintf(out, "%%%%Title: %s\n", doc_title);
@@ -12040,8 +12044,12 @@ write_prolog(FILE  *out,		/* I - Output file */
             doc_date.tm_hour, doc_date.tm_min, doc_date.tm_sec,
 #ifdef WIN32
             (int)(_timezone / 3600));
-#else
+#elif HAVE_TM_GMTOFF
 	    (int)(doc_date.tm_gmtoff / 3600));
+#elif defined(__sun)
+            (int)(timezone / 3600));
+#else
+            0);
 #endif // WIN32
     write_string(out, (uchar *)temp, 0);
 

@@ -2,8 +2,9 @@
 
 - Now link to CUPS library instead of embedding its HTTP code.
 - Fixed multiple conversions of UTF-8 HTML files from the GUI (Issue #496)
-- Fixed some minor CodeQL warnings.
+- Fixed a compile bug on Solaris (Issue #498)
 - Fixed a crash bug with bad title images (Issue #510)
+- Fixed some minor CodeQL warnings.
 
 
 # Changes in HTMLDOC v1.9.16
