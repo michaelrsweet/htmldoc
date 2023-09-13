@@ -82,7 +82,7 @@ typedef unsigned long useconds_t;
 #undef const
 #undef __CHAR_UNSIGNED__
 #define __attribute__(x)
-typedef long ssize_t;
+typedef off_t ssize_t;
 
 
 /*
