@@ -11,7 +11,7 @@ jobs:
       - name: update build environment
         run: sudo apt-get update --fix-missing -y
       - name: install prerequisites
-        run: sudo apt-get install -y libfltk1.3-dev libgnutls28-dev libjpeg-dev libpng-dev zlib1g-dev
+        run: sudo apt-get install -y libfltk1.3-dev libcups2-dev libgnutls28-dev libjpeg-dev libpng-dev zlib1g-dev
       - name: Download Coverity Build Tool
         run: |
           wget -q https://scan.coverity.com/download/linux64 --post-data token="$TOKEN&project=$GITHUB_REPOSITORY" -O cov-analysis-linux64.tar.gz

@@ -170,14 +170,30 @@ AS_IF([test $ac_cv_c_long_long = yes], [
 AC_CHECK_FUNC(strtoll, AC_DEFINE(HAVE_STRTOLL))
 
 dnl Check for CUPS libraries...
-AC_MSG_CHECKING([for libcups])
+AC_PATH_TOOL([CUPSCONFIG], [cups-config])
+AC_MSG_CHECKING([for CUPS library v2.2 or higher])
 AS_IF([$PKGCONFIG --exists cups], [
-    AC_MSG_RESULT([yes]);
-    CPPFLAGS="$($PKGCONFIG --cflags cups) $CPPFLAGS"
-    LIBS="$($PKGCONFIG --libs cups) $LIBS"
+    CUPS_VERSION="$($PKGCONFIG --modversion cups)"
+    AC_MSG_RESULT([yes, v$CUPS_VERSION])
+
+    CPPFLAGS="$CPPFLAGS $($PKGCONFIG --cflags cups)"
+    LIBS="$LIBS $($PKGCONFIG --libs cups)"
+], [test "x$CUPSCONFIG" = x], [
+    AC_MSG_RESULT(no)
+    AC_MSG_ERROR([Sorry, this software requires libcups-dev.])
 ], [
-    AC_MSG_RESULT([no]);
-    AC_MSG_ERROR([HTMLDOC requires the CUPS libraries for HTTP/HTTPS support.])
+    CUPS_VERSION="$($CUPSCONFIG --api-version)"
+    AS_CASE(["$CUPS_VERSION"],
+	[1.* | 2.0 | 2.1], [
+	    AC_MSG_RESULT(no)
+	    AC_MSG_ERROR([Sorry, you need CUPS 2.2.0 or higher.])
+    ])
+
+    AC_MSG_RESULT([yes, v$CUPS_VERSION])
+
+    CPPFLAGS="$CPPFLAGS $($CUPSCONFIG --cflags)"
+    LDFLAGS="$LDFLAGS $($CUPSCONFIG --ldflags)"
+    LIBS="$LIBS $($CUPSCONFIG --libs)"
 ])
 
 dnl Check for GUI libraries...
