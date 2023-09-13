@@ -6,7 +6,8 @@
 - Updated PostScript and PDF date/time information to use UTC (Issue #490)
 - Fixed multiple conversions of UTF-8 HTML files from the GUI (Issue #496)
 - Fixed a compile bug on Solaris (Issue #498)
-- Fixed a markdown parsing issue (Issue #503)
+- Fixed a markdown parsing bug (Issue #503)
+- Fixed a relative URL handling bug (Issue #507)
 - Fixed a crash bug with bad title images (Issue #510)
 - Fixed some minor CodeQL warnings.
 

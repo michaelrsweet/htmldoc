@@ -3460,7 +3460,7 @@ fix_filename(char *filename,		/* I - Original filename */
   static char	newfilename[1024];	/* New filename */
 
 
-//  printf("fix_filename(filename=\"%s\", base=\"%s\")\n", filename, base);
+  printf("fix_filename(filename=\"%s\", base=\"%s\")\n", filename, base);
 
   if (filename == NULL)
     return (NULL);
@@ -3529,10 +3529,6 @@ fix_filename(char *filename,		/* I - Original filename */
     }
     else
     {
-      // Relative path, strip the last component from the resource...
-      if ((slash = strrchr(resource, '/')) != NULL)
-	*slash = '\0';
-
       // Handle "../" in filename...
       while (!strncmp(filename, "../", 3))
       {
