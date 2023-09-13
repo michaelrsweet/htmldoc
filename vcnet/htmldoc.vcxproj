@@ -130,17 +130,12 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\htmldoc\array.c" />
     <ClCompile Include="..\htmldoc\epub.cxx" />
     <ClCompile Include="..\htmldoc\file.c" />
     <ClCompile Include="..\htmldoc\html.cxx" />
     <ClCompile Include="..\htmldoc\htmldoc.cxx" />
     <ClCompile Include="..\htmldoc\htmllib.cxx" />
     <ClCompile Include="..\htmldoc\htmlsep.cxx" />
-    <ClCompile Include="..\htmldoc\http-addr.c" />
-    <ClCompile Include="..\htmldoc\http-addrlist.c" />
-    <ClCompile Include="..\htmldoc\http-support.c" />
-    <ClCompile Include="..\htmldoc\http.c" />
     <ClCompile Include="..\htmldoc\image.cxx" />
     <ClCompile Include="..\htmldoc\iso8859.cxx" />
     <ClCompile Include="..\htmldoc\markdown.cxx" />
@@ -150,7 +145,6 @@
     <ClCompile Include="..\htmldoc\ps-pdf.cxx" />
     <ClCompile Include="..\htmldoc\rc4.c" />
     <ClCompile Include="..\htmldoc\string.c" />
-    <ClCompile Include="..\htmldoc\tls.c" />
     <ClCompile Include="..\htmldoc\toc.cxx" />
     <ClCompile Include="..\htmldoc\util.cxx" />
     <ClCompile Include="..\htmldoc\zipc.c" />
@@ -160,13 +154,11 @@
     <ClInclude Include="..\htmldoc\file.h" />
     <ClInclude Include="..\htmldoc\html.h" />
     <ClInclude Include="..\htmldoc\htmldoc.h" />
-    <ClInclude Include="..\htmldoc\http-private.h" />
     <ClInclude Include="..\htmldoc\image.h" />
     <ClInclude Include="..\htmldoc\iso8859.h" />
     <ClInclude Include="..\htmldoc\markdown.h" />
     <ClInclude Include="..\htmldoc\md5-private.h" />
     <ClInclude Include="..\htmldoc\mmd.h" />
-    <ClInclude Include="..\htmldoc\sspi-private.h" />
     <ClInclude Include="..\htmldoc\string.h" />
     <ClInclude Include="..\htmldoc\types.h" />
     <ClInclude Include="..\htmldoc\zipc.h" />
