@@ -165,6 +165,7 @@ typedef struct				//// Output page info
 
 static time_t	doc_time;		// Current time
 static struct tm doc_date;		// Current date
+static struct tm doc_gmdate;		// Current date (UTC)
 
 static uchar    *current_url = NULL;
 static int	title_page;
@@ -538,6 +539,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     doc_time = time(NULL);
 
   localtime_r(&doc_time, &doc_date);
+  gmtime_r(&doc_time, &doc_gmdate);
 
   num_headings   = 0;
   alloc_headings = 0;
@@ -11646,18 +11648,9 @@ write_prolog(FILE  *out,		/* I - Output file */
       fprintf(out, "%%%%BoundingBox: 0 0 %d %d\n", PageWidth, PageLength);
     fprintf(out,"%%%%LanguageLevel: %d\n", PSLevel);
     fputs("%%Creator: " HTMLDOC_PRODUCER "\n", out);
-    fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02d%03d00\n",
-            doc_date.tm_year + 1900, doc_date.tm_mon + 1, doc_date.tm_mday,
-            doc_date.tm_hour, doc_date.tm_min, doc_date.tm_sec,
-#ifdef WIN32
-            (int)(_timezone / 3600));
-#elif HAVE_TM_GMTOFF
-	    (int)(doc_date.tm_gmtoff / 3600));
-#elif defined(__sun)
-            (int)(timezone / 3600));
-#else
-            0);
-#endif // WIN32
+    fprintf(out, "%%%%CreationDate: D:%04d%02d%02d%02d%02d%02d00000\n",
+            doc_gmdate.tm_year + 1900, doc_gmdate.tm_mon + 1, doc_gmdate.tm_mday,
+            doc_gmdate.tm_hour, doc_gmdate.tm_min, doc_gmdate.tm_sec);
     if (doc_title != NULL)
       fprintf(out, "%%%%Title: %s\n", doc_title);
     if (author != NULL)
@@ -12039,18 +12032,9 @@ write_prolog(FILE  *out,		/* I - Output file */
     fputs("/Producer", out);
     write_string(out, (uchar *)HTMLDOC_PRODUCER, 0);
     fputs("/CreationDate", out);
-    snprintf(temp, sizeof(temp), "D:%04d%02d%02d%02d%02d%02d%03d00",
-            doc_date.tm_year + 1900, doc_date.tm_mon + 1, doc_date.tm_mday,
-            doc_date.tm_hour, doc_date.tm_min, doc_date.tm_sec,
-#ifdef WIN32
-            (int)(_timezone / 3600));
-#elif HAVE_TM_GMTOFF
-	    (int)(doc_date.tm_gmtoff / 3600));
-#elif defined(__sun)
-            (int)(timezone / 3600));
-#else
-            0);
-#endif // WIN32
+    snprintf(temp, sizeof(temp), "D:%04d%02d%02d%02d%02d%02d00000",
+            doc_gmdate.tm_year + 1900, doc_gmdate.tm_mon + 1, doc_gmdate.tm_mday,
+            doc_gmdate.tm_hour, doc_gmdate.tm_min, doc_gmdate.tm_sec);
     write_string(out, (uchar *)temp, 0);
 
     if (doc_title != NULL)
