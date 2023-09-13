@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/mmd
  *
- * Copyright © 2017-2021 by Michael R Sweet.
+ * Copyright © 2017-2023 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.	See the file "LICENSE" for more
  * information.
@@ -13,9 +13,7 @@
  * Define DEBUG to get debug printf messages to stderr.
  */
 
-#ifndef DEBUG
-#  define DEBUG 0
-#endif // !DEBUG
+#define DEBUG 0
 #if DEBUG > 0
 #  define DEBUG_printf(...)	fprintf(stderr, __VA_ARGS__)
 #  define DEBUG_puts(s)		fputs(s, stderr);
@@ -69,7 +67,6 @@
 
 #ifdef _WIN32
 #  define snprintf	_snprintf
-#  define strcasecmp	_stricmp
 #  define strdup	_strdup
 #endif /* _WIN32 */
 
@@ -184,30 +181,17 @@ mmdCopyAllText(mmd_t *node)		/* I - Parent node */
       */
 
       textlen = strlen(current->text);
+      allsize += textlen + (size_t)current->whitespace;
+      temp    = realloc(all, allsize);
 
-      if (allsize == 0)
+      if (!temp)
       {
-	allsize = textlen + (size_t)current->whitespace + 1;
-	all	= malloc(allsize);
-	allptr	= all;
-
-	if (!all)
-	  return (NULL);
+	free(all);
+	return (NULL);
       }
-      else
-      {
-	allsize += textlen + (size_t)current->whitespace;
-	temp	= realloc(all, allsize);
 
-	if (!temp)
-	{
-	  free(all);
-	  return (NULL);
-	}
-
-	allptr = temp + (allptr - all);
-	all    = temp;
-      }
+      allptr = temp + (allptr - all);
+      all    = temp;
 
       if (current->whitespace)
 	*allptr++ = ' ';
@@ -469,25 +453,29 @@ mmdIsBlock(mmd_t *node)			/* I - Node */
  * 'mmdLoad()' - Load a markdown file into nodes.
  */
 
-mmd_t *					/* O - First node in markdown */
-mmdLoad(const char *filename)		/* I - File to load */
+mmd_t *					/* O - Root node in markdown */
+mmdLoad(mmd_t      *root,		/* I - Root node for document or `NULL` for a new document */
+        const char *filename)		/* I - File to load */
 {
   FILE		*fp;			/* File */
-  mmd_t		*doc;			/* Document */
 
 
  /*
-  * Open the file and create an empty document...
+  * Open the file and load the document...
   */
 
   if ((fp = fopen(filename, "r")) == NULL)
     return (NULL);
 
-  doc = mmdLoadFile(fp);
+  root = mmdLoadFile(root, fp);
+
+ /*
+  * Close and return...
+  */
 
   fclose(fp);
 
-  return (doc);
+  return (root);
 }
 
 
@@ -496,7 +484,8 @@ mmdLoad(const char *filename)		/* I - File to load */
  */
 
 mmd_t *					/* O - First node in markdown */
-mmdLoadFile(FILE *fp)			/* I - File to load */
+mmdLoadFile(mmd_t *root,
+            FILE  *fp)			/* I - File to load */
 {
   size_t	i;			/* Looping var */
   _mmd_doc_t	doc;			/* Document */
@@ -519,14 +508,17 @@ mmdLoadFile(FILE *fp)			/* I - File to load */
 
 
  /*
-  * Create an empty document...
+  * Create an empty document as needed...
   */
 
   DEBUG_printf("mmdLoadFile: mmd_options=%d%s%s\n", mmd_options, (mmd_options & MMD_OPTION_METADATA) ? " METADATA" : "", (mmd_options & MMD_OPTION_TABLES) ? " TABLES" : "");
 
   memset(&doc, 0, sizeof(doc));
 
-  doc.root = mmd_add(NULL, MMD_TYPE_DOCUMENT, 0, NULL, NULL);
+  if (root)
+    doc.root = root;
+  else
+    doc.root = mmd_add(NULL, MMD_TYPE_DOCUMENT, 0, NULL, NULL);
 
   if (!doc.root)
     return (NULL);
@@ -545,6 +537,10 @@ mmdLoadFile(FILE *fp)			/* I - File to load */
   memset(&file, 0, sizeof(file));
   file.fp = fp;
 
+#ifdef __clang_analyzer__
+  memset(line, 0, sizeof(line));
+#endif // __clang_analyzer__
+
   while ((lineptr = mmd_read_line(&file, line, sizeof(line))) != NULL)
   {
     DEBUG_printf("%03d	%-12s  %s", stackptr->indent, mmd_type_string(stackptr->parent->type) + 9, lineptr);
@@ -561,7 +557,14 @@ mmdLoadFile(FILE *fp)			/* I - File to load */
     DEBUG2_printf("	line indent=%d\n", (int)(lineptr - line));
     DEBUG2_printf("	stackptr=%d\n", (int)(stackptr - stack));
 
-    if (*lineptr == '>' && (lineptr - linestart) < 4)
+    if (!*lineptr && stackptr->parent->type == MMD_TYPE_TABLE)
+    {
+      DEBUG2_puts("END TABLE\n");
+      stackptr --;
+      block = NULL;
+      continue;
+    }
+    else if (*lineptr == '>' && (lineptr - linestart) < 4)
     {
      /*
       * Block quote.  See if there is an existing blockquote...
@@ -744,7 +747,7 @@ mmdLoadFile(FILE *fp)			/* I - File to load */
 	stackptr = stack;
 
       mmd_add(stackptr->parent, MMD_TYPE_THEMATIC_BREAK, 0, NULL, NULL);
-      type  = MMD_TYPE_PARAGRAPH;
+//      type  = MMD_TYPE_PARAGRAPH;
       block = NULL;
       continue;
     }
@@ -766,13 +769,13 @@ mmdLoadFile(FILE *fp)			/* I - File to load */
       while (stackptr > stack && stackptr->indent > newindent)
 	stackptr --;
 
-      if (stackptr->parent->type == MMD_TYPE_LIST_ITEM && stackptr->indent == newindent)
+      if (stackptr > stack && stackptr->parent->type == MMD_TYPE_LIST_ITEM && stackptr->indent == newindent)
 	stackptr --;
 
-      if (stackptr->parent->type == MMD_TYPE_ORDERED_LIST && stackptr->indent == newindent)
+      if (stackptr > stack && stackptr->parent->type == MMD_TYPE_ORDERED_LIST && stackptr->indent == newindent)
 	stackptr --;
 
-      if (stackptr->parent->type == MMD_TYPE_BLOCK_QUOTE && line[0] != '>')
+      if (stackptr > stack && stackptr->parent->type == MMD_TYPE_BLOCK_QUOTE && line[0] != '>')
 	stackptr --;
 
       if (stackptr->parent->type != MMD_TYPE_UNORDERED_LIST && stackptr < (stack + sizeof(stack) / sizeof(stack[0]) - 1))
@@ -1193,6 +1196,67 @@ mmdLoadFile(FILE *fp)			/* I - File to load */
 
 
 /*
+ * 'mmdLoadString()' - Load a markdown string into nodes.
+ */
+
+mmd_t *					/* O - Root node in markdown */
+mmdLoadString(mmd_t      *root,		/* I - Root node for document or `NULL` for a new document */
+              const char *s)		/* I - String to load */
+{
+  FILE		*fp;			/* File */
+
+
+#if _WIN32
+ /*
+  * Windows does not provide the POSIX fmemopen, so create a temporary file and
+  * have MMD read it...
+  */
+
+  char		tempfile[1024];		/* Temporary filename */
+
+  if (tempnam_s(tempfile, sizeof(tempfile))
+    return (root);
+
+  if ((fp = fopen(tempfile, "w+")) == NULL)
+    return (root);
+
+  fputs(fp, s);
+  frewind(fp);
+
+#else // POSIX
+ /*
+  * Open the string as a file...
+  */
+
+  if ((fp = fmemopen((void *)s, strlen(s), "r")) == NULL)
+    return (root);
+#endif // _WIN32
+
+ /*
+  * Load the string...
+  */
+
+  root = mmdLoadFile(root, fp);
+
+ /*
+  * Close the memory file...
+  */
+
+  fclose(fp);
+
+#if _WIN32
+ /*
+  * Remove the temporary file...
+  */
+
+  unlink(tempfile);
+#endif // _WIN32
+
+  return (root);
+}
+
+
+/*
  * 'mmdSetOptions()' - Set (enable/disable) support for various markdown options.
  */
 
@@ -1552,8 +1616,7 @@ mmd_parse_inline(_mmd_doc_t *doc,	/* I - Document */
 	*lineptr = '\0';
 	mmd_add(parent, type, whitespace, text, NULL);
 
-	text	   = NULL;
-	whitespace = 0;
+	text = NULL;
       }
 
       if (!strncmp(lineptr + 1, " \n", 2) && lineptr[3])
@@ -1602,7 +1665,7 @@ mmd_parse_inline(_mmd_doc_t *doc,	/* I - Document */
     else if (*lineptr == '[' && type != MMD_TYPE_CODE_TEXT)
     {
      /*
-      * Link...
+      * Link or checkbox...
       */
 
       if (text)
@@ -1615,38 +1678,48 @@ mmd_parse_inline(_mmd_doc_t *doc,	/* I - Document */
 	whitespace = 0;
       }
 
-      lineptr = mmd_parse_link(doc, lineptr, &text, &url, &title, &refname);
-
-      if (text && *text == '`')
+      if ((mmd_options & MMD_OPTION_TASKS) && (!strncmp(lineptr, "[ ]", 3) || !strncmp(lineptr, "[x]", 3) || !strncmp(lineptr, "[X]", 3)))
       {
-	char *end = text + strlen(text) - 1;
-
-	text ++;
-	if (end > text && *end == '`')
-	  *end = '\0';
-
-	node = mmd_add(parent, MMD_TYPE_CODE_TEXT, whitespace, text, url);
-      }
-      else if (text)
-      {
-	node = mmd_add(parent, MMD_TYPE_LINKED_TEXT, whitespace, text, url);
-	if (title)
-	  node->extra = strdup(title);
+        // Checkbox
+        mmd_add(parent, MMD_TYPE_CHECKBOX, 0, lineptr[1] == ' ' ? NULL : "x", NULL);
+        lineptr += 2;
       }
       else
-	node = NULL;
+      {
+        // Link
+	lineptr = mmd_parse_link(doc, lineptr, &text, &url, &title, &refname);
 
-      DEBUG2_printf("mmd_parse_inline: text=\"%s\", refname=\"%s\", node=%p\n", text, refname, node);
+	if (text && *text == '`')
+	{
+	  char *end = text + strlen(text) - 1;
 
-      if (refname && node)
-	mmd_ref_add(doc, node, refname, NULL, title);
+	  text ++;
+	  if (end > text && *end == '`')
+	    *end = '\0';
 
-      if (!*lineptr)
-	return;
+	  node = mmd_add(parent, MMD_TYPE_CODE_TEXT, whitespace, text, url);
+	}
+	else if (text)
+	{
+	  node = mmd_add(parent, MMD_TYPE_LINKED_TEXT, whitespace, text, url);
+	  if (title)
+	    node->extra = strdup(title);
+	}
+	else
+	  node = NULL;
 
-      text = url = NULL;
-      whitespace = 0;
-      lineptr --;
+	DEBUG2_printf("mmd_parse_inline: text=\"%s\", refname=\"%s\", node=%p\n", text, refname, node);
+
+	if (refname && node)
+	  mmd_ref_add(doc, node, refname, NULL, title);
+
+	if (!*lineptr)
+	  return;
+
+	text = url = NULL;
+	whitespace = 0;
+	lineptr --;
+      }
     }
     else if (*lineptr == '<' && type != MMD_TYPE_CODE_TEXT && strchr(lineptr + 1, '>'))
     {

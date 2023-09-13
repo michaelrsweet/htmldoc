@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/mmd
  *
- * Copyright © 2017-2019 by Michael R Sweet.
+ * Copyright © 2017-2022 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -28,7 +28,8 @@ enum mmd_option_e
   MMD_OPTION_NONE = 0x00,		/* No markdown extensions */
   MMD_OPTION_METADATA = 0x01,		/* Jekyll metadata extension */
   MMD_OPTION_TABLES = 0x02,		/* Github table extension */
-  MMD_OPTION_ALL = 0x03			/* All supported markdown extensions */
+  MMD_OPTION_TASKS = 0x04,		/* Github task item extension (check boxes) */
+  MMD_OPTION_ALL = 0x07			/* All supported markdown extensions */
 };
 typedef unsigned mmd_option_t;
 
@@ -67,7 +68,8 @@ typedef enum mmd_type_e
   MMD_TYPE_IMAGE,			/* <img src="link" /> */
   MMD_TYPE_HARD_BREAK,			/* <br /> */
   MMD_TYPE_SOFT_BREAK,			/* <wbr /> */
-  MMD_TYPE_METADATA_TEXT		/* name: value */
+  MMD_TYPE_METADATA_TEXT,		/* name: value */
+  MMD_TYPE_CHECKBOX			/* [ ] or [x] */
 } mmd_type_t;
 
 
@@ -101,8 +103,9 @@ extern mmd_type_t   mmdGetType(mmd_t *node);
 extern const char   *mmdGetURL(mmd_t *node);
 extern int          mmdGetWhitespace(mmd_t *node);
 extern int          mmdIsBlock(mmd_t *node);
-extern mmd_t        *mmdLoad(const char *filename);
-extern mmd_t        *mmdLoadFile(FILE *fp);
+extern mmd_t        *mmdLoad(mmd_t *root, const char *filename);
+extern mmd_t        *mmdLoadFile(mmd_t *root, FILE *fp);
+extern mmd_t        *mmdLoadString(mmd_t *root, const char *s);
 extern void         mmdSetOptions(mmd_option_t options);
 
 #  ifdef __cplusplus

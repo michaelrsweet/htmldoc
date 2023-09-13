@@ -36,7 +36,7 @@ mdReadFile(tree_t     *parent,		/* I - Parent node */
            FILE       *fp,		/* I - File to read from */
            const char *base)		/* I - Base path/URL */
 {
-  mmd_t       *doc = mmdLoadFile(fp);   /* Markdown document */
+  mmd_t       *doc;			/* Markdown document */
   tree_t      *html,                    /* HTML element */
               *head,                    /* HEAD element */
               *temp,                    /* META/TITLE element */
@@ -44,6 +44,7 @@ mdReadFile(tree_t     *parent,		/* I - Parent node */
   const char  *meta;                    /* Title, author, etc. */
 
 
+  doc = mmdLoadFile(NULL, fp);
   html = htmlAddTree(parent, MARKUP_HTML, NULL);
   if ((meta = mmdGetMetadata(doc, "lang")) != NULL)
     htmlSetVariable(html, (uchar *)"lang", get_text((uchar *)meta));
