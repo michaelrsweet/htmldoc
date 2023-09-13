@@ -1,7 +1,7 @@
 /*
- * Configuration file for HTMLDOC.
+ * Xcode configuration file for HTMLDOC.
  *
- * Copyright © 2011-2022 by Michael R Sweet.
+ * Copyright © 2011-2023 by Michael R Sweet.
  * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -12,7 +12,7 @@
  * What is the version number for this software?
  */
 
-#define SVERSION "1.9.16"
+#define SVERSION "1.9.17"
 
 
 /*
@@ -70,73 +70,6 @@
  */
 
 /* #undef HAVE_LIBXPM */
-
-
-/*
- * Which encryption libraries do we have?
- */
-
-#define HAVE_CDSASSL 1
-/* #undef HAVE_GNUTLS */
-/* #undef HAVE_SSPISSL */
-#define HAVE_SSL 1
-
-
-/*
- * Do we have the gnutls_transport_set_pull_timeout_function function?
- */
-
-/* #undef HAVE_GNUTLS_TRANSPORT_SET_PULL_TIMEOUT_FUNCTION */
-
-
-/*
- * Do we have the gnutls_priority_set_direct function?
- */
-
-/* #undef HAVE_GNUTLS_PRIORITY_SET_DIRECT */
-
-
-/*
- * What Security framework headers do we have?
- */
-
-/* #undef HAVE_AUTHORIZATION_H */
-/* #undef HAVE_SECBASEPRIV_H */
-#define HAVE_SECCERTIFICATE_H 1
-/* #undef HAVE_SECIDENTITYSEARCHPRIV_H */
-#define HAVE_SECITEM_H 1
-/* #undef HAVE_SECITEMPRIV_H */
-#define HAVE_SECPOLICY_H 1
-/* #undef HAVE_SECPOLICYPRIV_H */
-/* #undef HAVE_SECURETRANSPORTPRIV_H */
-
-
-/*
- * Do we have the cssmErrorString function?
- */
-
-#define HAVE_CSSMERRORSTRING 1
-
-
-/*
- * Do we have the SecGenerateSelfSignedCertificate function?
- */
-
-/* #undef HAVE_SECGENERATESELFSIGNEDCERTIFICATE */
-
-
-/*
- * Do we have the SecKeychainOpen function?
- */
-
-#define HAVE_SECKEYCHAINOPEN 1
-
-
-/*
- * Do we have (a working) SSLSetEnabledCiphers function?
- */
-
-#define HAVE_SSLSETENABLEDCIPHERS 1
 
 
 /*
@@ -200,42 +133,6 @@
 #  define HTMLDOC_RAND() rand()
 #  define HTMLDOC_SRAND(v) srand(v)
 #endif /* HAVE_ARC4RANDOM */
-
-
-/*
- * Do we have hstrerror()?
- */
-
-#define HAVE_HSTRERROR 1
-
-
-/*
- * Do we have getaddrinfo()?
- */
-
-#define HAVE_GETADDRINFO 1
-
-
-/*
- * Do we have getnameinfo()?
- */
-
-#define HAVE_GETNAMEINFO 1
-
-
-/*
- * Do we have the <resolv.h> header file and/or res_init()?
- */
-
-#define HAVE_RESOLV_H 1
-#define HAVE_RES_INIT 1
-
-
-/*
- * Do we have poll()?
- */
-
-#define HAVE_POLL 1
 
 
 /*

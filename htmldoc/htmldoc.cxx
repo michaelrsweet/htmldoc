@@ -1,7 +1,7 @@
 /*
  * Main entry for HTMLDOC, a HTML document processing program.
  *
- * Copyright 2011-2022 by Michael R Sweet.
+ * Copyright 2011-2023 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -15,7 +15,7 @@
 #define _HTMLDOC_CXX_
 #include "htmldoc.h"
 #include "markdown.h"
-#include "http.h"
+#include <cups/http.h>
 #include <ctype.h>
 #include <fcntl.h>
 

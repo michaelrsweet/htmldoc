@@ -1,7 +1,7 @@
 dnl
 dnl Configuration script for HTMLDOC, an HTML document processing program.
 dnl
-dnl Copyright © 2011-2022 by Michael R Sweet.
+dnl Copyright © 2011-2023 by Michael R Sweet.
 dnl Copyright © 1997-2010 by Easy Software Products.
 dnl
 dnl This program is free software.  Distribution and use rights are outlined in
@@ -55,6 +55,7 @@ AC_SUBST(INSTALL_STRIP)
 OPTIM="${OPTIM:=}"
 AC_SUBST(OPTIM)
 CFLAGS="${CFLAGS:=}"
+CPPFLAGS="${CPPFLAGS:=}"
 CXXFLAGS="${CXXFLAGS:=}"
 LDFLAGS="${LDFLAGS:=}"
 
@@ -74,14 +75,12 @@ AC_PROG_CXX(clang++ c++ g++)
 AC_PROG_CPP
 AC_PROG_RANLIB
 AC_PATH_PROG(AR,ar)
-AC_PATH_PROG(CHMOD,chmod)
 AC_PATH_PROG(CP,cp)
 AC_PATH_PROG(FLTKCONFIG,fltk-config)
 AC_MSG_CHECKING(for install-sh script)
 INSTALL="`pwd`/install-sh"
 AC_SUBST(INSTALL)
 AC_MSG_RESULT(using $INSTALL)
-AC_PATH_PROG(MV,mv)
 AC_PATH_PROG(MKDIR,mkdir)
 AC_PATH_PROG(RM,rm)
 AC_PATH_TOOL(PKGCONFIG, pkg-config)
@@ -128,18 +127,8 @@ dnl Check for libraries...
 LDFLAGS="${LDFLAGS:=}"
 AC_SUBST(LDFLAGS)
 
+dnl Math functions...
 AC_CHECK_LIB(m,pow)
-AC_CHECK_FUNC(poll, AC_DEFINE(HAVE_POLL))
-AC_SEARCH_LIBS(socket, socket)
-AC_SEARCH_LIBS(gethostbyaddr, nsl)
-AC_SEARCH_LIBS(getaddrinfo, nsl, AC_DEFINE(HAVE_GETADDRINFO))
-AC_SEARCH_LIBS(getnameinfo, nsl, AC_DEFINE(HAVE_GETNAMEINFO))
-AC_SEARCH_LIBS(hstrerror, nsl socket resolv, AC_DEFINE(HAVE_HSTRERROR))
-AC_SEARCH_LIBS(__res_init, resolv bind, AC_DEFINE(HAVE_RES_INIT), [
-    AC_SEARCH_LIBS(res_9_init, resolv bind, AC_DEFINE(HAVE_RES_INIT),
-    AC_SEARCH_LIBS(res_init, resolv bind, AC_DEFINE(HAVE_RES_INIT)))
-])
-AC_CHECK_HEADER(resolv.h, AC_DEFINE(HAVE_RESOLV_H))
 
 dnl Check for largefile support...
 AC_SYS_LARGEFILE
@@ -180,64 +169,16 @@ AS_IF([test $ac_cv_c_long_long = yes], [
 
 AC_CHECK_FUNC(strtoll, AC_DEFINE(HAVE_STRTOLL))
 
-dnl Check for TLS/SSL libraries...
-AC_ARG_ENABLE(ssl, AS_HELP_STRING([--disable-ssl], [turn off SSL/TLS support, default=enabled]))
-AC_ARG_ENABLE(gnutls, AS_HELP_STRING([--enable-gnutls], [use GNU TLS for SSL/TLS support, default=auto]))
-AC_ARG_ENABLE(cdsassl, AS_HELP_STRING([--enable-cdsassl], [use CDSA for SSL/TLS support, default=auto]))
-
-SSLFLAGS=""
-SSLLIBS=""
-have_ssl=0
-
-AS_IF([test x$enable_ssl], [
-    # Look for CDSA...
-    AS_IF([test $have_ssl = 0 -a "x$enable_cdsassl" != "xno"], [
-	AS_IF([test $host_os_name = darwin], [
-	    AC_CHECK_HEADER(Security/SecureTransport.h, [
-	    	have_ssl=1
-		AC_DEFINE(HAVE_SSL)
-		AC_DEFINE(HAVE_CDSASSL)
-		SSLLIBS="-framework Security -framework CoreFoundation"
-
-		AC_CHECK_HEADER(Security/SecCertificate.h, AC_DEFINE(HAVE_SECCERTIFICATE_H))
-		AC_CHECK_HEADER(Security/SecItem.h, AC_DEFINE(HAVE_SECITEM_H))
-		AC_CHECK_HEADER(Security/SecPolicy.h, AC_DEFINE(HAVE_SECPOLICY_H))
-	    ])
-	])
-    ])
-
-    # Then look for GNU TLS...
-    AS_IF([test $have_ssl = 0 -a "x$enable_gnutls" != "xno" -a "x$PKGCONFIG" != x], [
-    	AC_PATH_TOOL(LIBGNUTLSCONFIG,libgnutls-config)
-    	AC_PATH_TOOL(LIBGCRYPTCONFIG,libgcrypt-config)
-	AS_IF([$PKGCONFIG --exists gnutls], [
-	    have_ssl=1
-	    SSLLIBS=`$PKGCONFIG --libs gnutls`
-	    SSLFLAGS=`$PKGCONFIG --cflags gnutls`
-	    AC_DEFINE(HAVE_SSL)
-	    AC_DEFINE(HAVE_GNUTLS)
-	], [test "x$LIBGNUTLSCONFIG" != x], [
-	    have_ssl=1
-	    SSLLIBS=`$LIBGNUTLSCONFIG --libs`
-	    SSLFLAGS=`$LIBGNUTLSCONFIG --cflags`
-	    AC_DEFINE(HAVE_SSL)
-	    AC_DEFINE(HAVE_GNUTLS)
-	])
-
-	AS_IF([test $have_ssl = 1], [
-	    SAVELIBS="$LIBS"
-	    LIBS="$LIBS $SSLLIBS"
-	    AC_CHECK_FUNC(gnutls_transport_set_pull_timeout_function, AC_DEFINE(HAVE_GNUTLS_TRANSPORT_SET_PULL_TIMEOUT_FUNCTION))
-	    AC_CHECK_FUNC(gnutls_priority_set_direct, AC_DEFINE(HAVE_GNUTLS_PRIORITY_SET_DIRECT))
-	    LIBS="$SAVELIBS"
-	])
-    ])
+dnl Check for CUPS libraries...
+AC_MSG_CHECKING([for libcups])
+AS_IF([$PKGCONFIG --exists cups], [
+    AC_MSG_RESULT([yes]);
+    CPPFLAGS="$($PKGCONFIG --cflags cups) $CPPFLAGS"
+    LIBS="$($PKGCONFIG --libs cups) $LIBS"
+], [
+    AC_MSG_RESULT([no]);
+    AC_MSG_ERROR([HTMLDOC requires the CUPS libraries for HTTP/HTTPS support.])
 ])
-
-AC_MSG_NOTICE([Using SSLFLAGS="$SSLFLAGS", SSLLIBS="$SSLLIBS"])
-
-AC_SUBST(SSLFLAGS)
-AC_SUBST(SSLLIBS)
 
 dnl Check for GUI libraries...
 have_fltk=no
@@ -266,16 +207,14 @@ AS_IF([test "x$with_gui" != xno], [
 AC_SUBST(POST)
 
 dnl Check for image libraries...
-AS_IF([test "x$PKGCONFIG" != x], [
-    AC_MSG_CHECKING([for libjpeg])
-    AS_IF([$PKGCONFIG --exists libjpeg], [
-	AC_MSG_RESULT([yes]);
-	AC_DEFINE([HAVE_LIBJPEG], 1, [Have JPEG library?])
-	CPPFLAGS="$CPPFLAGS $($PKGCONFIG --cflags libjpeg)"
-	LIBS="$LIBS $($PKGCONFIG --libs libjpeg)"
-    ], [
-	AC_MSG_RESULT([no]);
-    ])
+AC_MSG_CHECKING([for libjpeg])
+AS_IF([$PKGCONFIG --exists libjpeg], [
+    AC_MSG_RESULT([yes]);
+    AC_DEFINE([HAVE_LIBJPEG], 1, [Have JPEG library?])
+    CPPFLAGS="$CPPFLAGS $($PKGCONFIG --cflags libjpeg)"
+    LIBS="$LIBS $($PKGCONFIG --libs libjpeg)"
+], [
+    AC_MSG_RESULT([no]);
 ])
 
 AC_SEARCH_LIBS([gzgets], [z], [
@@ -341,8 +280,8 @@ AS_IF([test -n "$GXX"], [
     ], [
 	# Otherwise use the Fortify enhancements to catch any unbounded
 	# string operations...
-	CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=2"
-	CXXFLAGS="$CXXFLAGS -D_FORTIFY_SOURCE=2"
+	CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=3"
+	CXXFLAGS="$CXXFLAGS -D_FORTIFY_SOURCE=3"
     ])
 
     dnl Set optimization flags...
@@ -399,8 +338,34 @@ AS_IF([test -n "$GXX"], [
     CFLAGS="$OLDCFLAGS"
 
     dnl OS-specific options...
-    AS_IF([test "$host_os_name" = darwin -a x$enable_debug != xyes], [
-        OPTIM="$OPTIM -mmacosx-version-min=10.14 -arch x86_64 -arch arm64"
+    AC_MSG_CHECKING([for OS-specific compiler options])
+    AS_CASE(["$host_os_name"], [linux*], [
+    	# Make sure we get the full set of 64-bit Linux APIs from the headers...
+	CPPFLAGS="$CPPFLAGS -D__USE_MISC -D_GNU_SOURCE"
+
+	# Mark read-only sections as relocatable to random addresses...
+	LDFLAGS="$LDFLAGS -Wl,-z,relro,-z,now"
+
+        AC_MSG_RESULT([-D__USE_MISC -D_GNU_SOURCE -Wl,-z,relro,-z,now])
+    ], [darwin*], [
+        # When not building for debug, target macOS 11 or later, "universal"
+        # binaries when possible...
+        AS_IF([echo "$CPPFLAGS $CFLAGS $LDFLAGS $OPTIM" | grep -q "\\-arch "], [
+            # Don't add architecture/min-version flags if they are already present
+            AC_MSG_RESULT([none])
+        ], [echo "$CPPFLAGS $CFLAGS $LDFLAGS $OPTIM" | grep -q "\\-mmacosx-version-"], [
+            # Don't add architecture/min-version flags if they are already present
+            AC_MSG_RESULT([none])
+        ], [test "$host_os_version" -ge 200 -a x$enable_debug != xyes], [
+	    # macOS 11.0 and higher support the Apple Silicon (arm64) CPUs
+	    OPTIM="$OPTIM -mmacosx-version-min=11.0 -arch x86_64 -arch arm64"
+            AC_MSG_RESULT([-mmacosx-version-min=11.0 -arch x86_64 -arch arm64])
+	], [
+	    # Don't add architecture/min-version flags if debug enabled
+            AC_MSG_RESULT([none])
+	])
+    ], [*], [
+        AC_MSG_RESULT([none])
     ])
 ])
 
@@ -414,6 +379,7 @@ dnl Generate the top-level Makefile and Makedefs file...
 AC_CONFIG_FILES([Makedefs Makefile desktop/htmldoc.plist])
 AC_OUTPUT
 
+AC_MSG_NOTICE([Using CFLAGS=$CFLAGS])
 AC_MSG_NOTICE([Using CPPFLAGS=$CPPFLAGS])
 AC_MSG_NOTICE([Using CXXFLAGS=$CXXFLAGS])
 AC_MSG_NOTICE([Using LDFLAGS=$LDFLAGS])

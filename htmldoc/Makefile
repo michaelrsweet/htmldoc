@@ -19,24 +19,19 @@ include ../Makedefs
 # Object files...
 #
 
-COMMONOBJS =	array.o \
+COMMONOBJS =	\
 		file.o \
 		htmllib.o \
-		http.o \
-		http-addr.o \
-		http-addrlist.o \
-		http-support.o \
 		image.o \
 		iso8859.o \
 		md5.o \
 		progress.o \
 		snprintf.o \
 		string.o \
-		tls.o \
 		toc.o \
 		util.o
-
-HTMLDOCOBJS =	gui.o \
+HTMLDOCOBJS =	\
+		gui.o \
 		epub.o \
 		html.o \
 		htmldoc.o \
@@ -47,8 +42,34 @@ HTMLDOCOBJS =	gui.o \
 		ps-pdf.o \
 		rc4.o \
 		zipc.o
-TESTOBJS =	testhtml.o
+TESTOBJS =	\
+		testhtml.o
 OBJS	=	$(COMMONOBJS) $(HTMLDOCOBJS) $(TESTOBJS)
+
+CSRCS	=	\
+		file.c \
+		md5.c \
+		mmd.c \
+		rc4.c \
+		snprintf.c \
+		string.c \
+		zipc.c
+CXXSRCS	=	\
+		epub.cxx \
+		gui.cxx \
+		html.cxx \
+		htmldoc.cxx \
+		htmllib.cxx \
+		htmlsep.cxx \
+		image.cxx \
+		iso8859.cxx \
+		license.cxx \
+		markdown.cxx \
+		progress.cxx \
+		ps-pdf.cxx \
+		testhtml.cxx \
+		toc.cxx \
+		util.cxx
 
 
 #
@@ -80,8 +101,8 @@ clean:
 #
 
 depend:
-	$(CC) -MM $(CFLAGS) $(OBJS:.o=.c) >Dependencies
-	$(CXX) -MM $(CXXFLAGS) $(OBJS:.o=.cxx) >>Dependencies
+	$(CC) -MM $(CFLAGS) $(CSRCS) | sed -e '1,$$s/ \/usr\/include\/[^ ]*//g' -e '1,$$s/ \/usr\/local\/include\/[^ ]*//g' >Dependencies
+	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) | sed -e '1,$$s/ \/usr\/include\/[^ ]*//g' -e '1,$$s/ \/usr\/local\/include\/[^ ]*//g' >>Dependencies
 
 
 #

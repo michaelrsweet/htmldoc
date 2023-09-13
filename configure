@@ -651,20 +651,14 @@ ac_subst_vars='LTLIBOBJS
 LIBOBJS
 WARNINGS
 POST
-SSLLIBS
-SSLFLAGS
-LIBGCRYPTCONFIG
-LIBGNUTLSCONFIG
 LARGEFILE
 ARFLAGS
 PKGCONFIG
 RM
 MKDIR
-MV
 INSTALL
 FLTKCONFIG
 CP
-CHMOD
 AR
 RANLIB
 CPP
@@ -735,9 +729,6 @@ enable_option_checking
 enable_debug
 with_gui
 enable_largefile
-enable_ssl
-enable_gnutls
-enable_cdsassl
 enable_maintainer
 enable_sanitizer
 '
@@ -1377,9 +1368,6 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-debug          turn on debugging, default=no
   --disable-largefile     omit support for large files
-  --disable-ssl           turn off SSL/TLS support, default=enabled
-  --enable-gnutls         use GNU TLS for SSL/TLS support, default=auto
-  --enable-cdsassl        use CDSA for SSL/TLS support, default=auto
   --enable-maintainer     turn on maintainer mode, default=no
   --enable-sanitizer      build with AddressSanitizer
 
@@ -2842,6 +2830,7 @@ INSTALL_STRIP="-s"
 OPTIM="${OPTIM:=}"
 
 CFLAGS="${CFLAGS:=}"
+CPPFLAGS="${CPPFLAGS:=}"
 CXXFLAGS="${CXXFLAGS:=}"
 LDFLAGS="${LDFLAGS:=}"
 
@@ -4248,51 +4237,6 @@ printf "%s\n" "no" >&6; }
 fi
 
 
-# Extract the first word of "chmod", so it can be a program name with args.
-set dummy chmod; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_CHMOD+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  case $CHMOD in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_CHMOD="$CHMOD" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_CHMOD="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-CHMOD=$ac_cv_path_CHMOD
-if test -n "$CHMOD"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $CHMOD" >&5
-printf "%s\n" "$CHMOD" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-
 # Extract the first word of "cp", so it can be a program name with args.
 set dummy cp; ac_word=$2
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -4389,51 +4333,6 @@ INSTALL="`pwd`/install-sh"
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: using $INSTALL" >&5
 printf "%s\n" "using $INSTALL" >&6; }
-# Extract the first word of "mv", so it can be a program name with args.
-set dummy mv; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_MV+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  case $MV in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_MV="$MV" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_MV="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-MV=$ac_cv_path_MV
-if test -n "$MV"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $MV" >&5
-printf "%s\n" "$MV" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-
 # Extract the first word of "mkdir", so it can be a program name with args.
 set dummy mkdir; ac_word=$2
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -4842,502 +4741,6 @@ then :
 
 fi
 
-ac_fn_c_check_func "$LINENO" "poll" "ac_cv_func_poll"
-if test "x$ac_cv_func_poll" = xyes
-then :
-  printf "%s\n" "#define HAVE_POLL 1" >>confdefs.h
-
-fi
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing socket" >&5
-printf %s "checking for library containing socket... " >&6; }
-if test ${ac_cv_search_socket+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  ac_func_search_save_LIBS=$LIBS
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-char socket ();
-int
-main (void)
-{
-return socket ();
-  ;
-  return 0;
-}
-_ACEOF
-for ac_lib in '' socket
-do
-  if test -z "$ac_lib"; then
-    ac_res="none required"
-  else
-    ac_res=-l$ac_lib
-    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
-  fi
-  if ac_fn_c_try_link "$LINENO"
-then :
-  ac_cv_search_socket=$ac_res
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext
-  if test ${ac_cv_search_socket+y}
-then :
-  break
-fi
-done
-if test ${ac_cv_search_socket+y}
-then :
-
-else $as_nop
-  ac_cv_search_socket=no
-fi
-rm conftest.$ac_ext
-LIBS=$ac_func_search_save_LIBS
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_socket" >&5
-printf "%s\n" "$ac_cv_search_socket" >&6; }
-ac_res=$ac_cv_search_socket
-if test "$ac_res" != no
-then :
-  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
-
-fi
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing gethostbyaddr" >&5
-printf %s "checking for library containing gethostbyaddr... " >&6; }
-if test ${ac_cv_search_gethostbyaddr+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  ac_func_search_save_LIBS=$LIBS
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-char gethostbyaddr ();
-int
-main (void)
-{
-return gethostbyaddr ();
-  ;
-  return 0;
-}
-_ACEOF
-for ac_lib in '' nsl
-do
-  if test -z "$ac_lib"; then
-    ac_res="none required"
-  else
-    ac_res=-l$ac_lib
-    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
-  fi
-  if ac_fn_c_try_link "$LINENO"
-then :
-  ac_cv_search_gethostbyaddr=$ac_res
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext
-  if test ${ac_cv_search_gethostbyaddr+y}
-then :
-  break
-fi
-done
-if test ${ac_cv_search_gethostbyaddr+y}
-then :
-
-else $as_nop
-  ac_cv_search_gethostbyaddr=no
-fi
-rm conftest.$ac_ext
-LIBS=$ac_func_search_save_LIBS
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_gethostbyaddr" >&5
-printf "%s\n" "$ac_cv_search_gethostbyaddr" >&6; }
-ac_res=$ac_cv_search_gethostbyaddr
-if test "$ac_res" != no
-then :
-  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
-
-fi
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing getaddrinfo" >&5
-printf %s "checking for library containing getaddrinfo... " >&6; }
-if test ${ac_cv_search_getaddrinfo+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  ac_func_search_save_LIBS=$LIBS
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-char getaddrinfo ();
-int
-main (void)
-{
-return getaddrinfo ();
-  ;
-  return 0;
-}
-_ACEOF
-for ac_lib in '' nsl
-do
-  if test -z "$ac_lib"; then
-    ac_res="none required"
-  else
-    ac_res=-l$ac_lib
-    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
-  fi
-  if ac_fn_c_try_link "$LINENO"
-then :
-  ac_cv_search_getaddrinfo=$ac_res
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext
-  if test ${ac_cv_search_getaddrinfo+y}
-then :
-  break
-fi
-done
-if test ${ac_cv_search_getaddrinfo+y}
-then :
-
-else $as_nop
-  ac_cv_search_getaddrinfo=no
-fi
-rm conftest.$ac_ext
-LIBS=$ac_func_search_save_LIBS
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_getaddrinfo" >&5
-printf "%s\n" "$ac_cv_search_getaddrinfo" >&6; }
-ac_res=$ac_cv_search_getaddrinfo
-if test "$ac_res" != no
-then :
-  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
-  printf "%s\n" "#define HAVE_GETADDRINFO 1" >>confdefs.h
-
-fi
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing getnameinfo" >&5
-printf %s "checking for library containing getnameinfo... " >&6; }
-if test ${ac_cv_search_getnameinfo+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  ac_func_search_save_LIBS=$LIBS
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-char getnameinfo ();
-int
-main (void)
-{
-return getnameinfo ();
-  ;
-  return 0;
-}
-_ACEOF
-for ac_lib in '' nsl
-do
-  if test -z "$ac_lib"; then
-    ac_res="none required"
-  else
-    ac_res=-l$ac_lib
-    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
-  fi
-  if ac_fn_c_try_link "$LINENO"
-then :
-  ac_cv_search_getnameinfo=$ac_res
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext
-  if test ${ac_cv_search_getnameinfo+y}
-then :
-  break
-fi
-done
-if test ${ac_cv_search_getnameinfo+y}
-then :
-
-else $as_nop
-  ac_cv_search_getnameinfo=no
-fi
-rm conftest.$ac_ext
-LIBS=$ac_func_search_save_LIBS
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_getnameinfo" >&5
-printf "%s\n" "$ac_cv_search_getnameinfo" >&6; }
-ac_res=$ac_cv_search_getnameinfo
-if test "$ac_res" != no
-then :
-  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
-  printf "%s\n" "#define HAVE_GETNAMEINFO 1" >>confdefs.h
-
-fi
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing hstrerror" >&5
-printf %s "checking for library containing hstrerror... " >&6; }
-if test ${ac_cv_search_hstrerror+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  ac_func_search_save_LIBS=$LIBS
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-char hstrerror ();
-int
-main (void)
-{
-return hstrerror ();
-  ;
-  return 0;
-}
-_ACEOF
-for ac_lib in '' nsl socket resolv
-do
-  if test -z "$ac_lib"; then
-    ac_res="none required"
-  else
-    ac_res=-l$ac_lib
-    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
-  fi
-  if ac_fn_c_try_link "$LINENO"
-then :
-  ac_cv_search_hstrerror=$ac_res
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext
-  if test ${ac_cv_search_hstrerror+y}
-then :
-  break
-fi
-done
-if test ${ac_cv_search_hstrerror+y}
-then :
-
-else $as_nop
-  ac_cv_search_hstrerror=no
-fi
-rm conftest.$ac_ext
-LIBS=$ac_func_search_save_LIBS
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_hstrerror" >&5
-printf "%s\n" "$ac_cv_search_hstrerror" >&6; }
-ac_res=$ac_cv_search_hstrerror
-if test "$ac_res" != no
-then :
-  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
-  printf "%s\n" "#define HAVE_HSTRERROR 1" >>confdefs.h
-
-fi
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing __res_init" >&5
-printf %s "checking for library containing __res_init... " >&6; }
-if test ${ac_cv_search___res_init+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  ac_func_search_save_LIBS=$LIBS
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-char __res_init ();
-int
-main (void)
-{
-return __res_init ();
-  ;
-  return 0;
-}
-_ACEOF
-for ac_lib in '' resolv bind
-do
-  if test -z "$ac_lib"; then
-    ac_res="none required"
-  else
-    ac_res=-l$ac_lib
-    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
-  fi
-  if ac_fn_c_try_link "$LINENO"
-then :
-  ac_cv_search___res_init=$ac_res
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext
-  if test ${ac_cv_search___res_init+y}
-then :
-  break
-fi
-done
-if test ${ac_cv_search___res_init+y}
-then :
-
-else $as_nop
-  ac_cv_search___res_init=no
-fi
-rm conftest.$ac_ext
-LIBS=$ac_func_search_save_LIBS
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search___res_init" >&5
-printf "%s\n" "$ac_cv_search___res_init" >&6; }
-ac_res=$ac_cv_search___res_init
-if test "$ac_res" != no
-then :
-  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
-  printf "%s\n" "#define HAVE_RES_INIT 1" >>confdefs.h
-
-else $as_nop
-
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing res_9_init" >&5
-printf %s "checking for library containing res_9_init... " >&6; }
-if test ${ac_cv_search_res_9_init+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  ac_func_search_save_LIBS=$LIBS
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-char res_9_init ();
-int
-main (void)
-{
-return res_9_init ();
-  ;
-  return 0;
-}
-_ACEOF
-for ac_lib in '' resolv bind
-do
-  if test -z "$ac_lib"; then
-    ac_res="none required"
-  else
-    ac_res=-l$ac_lib
-    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
-  fi
-  if ac_fn_c_try_link "$LINENO"
-then :
-  ac_cv_search_res_9_init=$ac_res
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext
-  if test ${ac_cv_search_res_9_init+y}
-then :
-  break
-fi
-done
-if test ${ac_cv_search_res_9_init+y}
-then :
-
-else $as_nop
-  ac_cv_search_res_9_init=no
-fi
-rm conftest.$ac_ext
-LIBS=$ac_func_search_save_LIBS
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_res_9_init" >&5
-printf "%s\n" "$ac_cv_search_res_9_init" >&6; }
-ac_res=$ac_cv_search_res_9_init
-if test "$ac_res" != no
-then :
-  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
-  printf "%s\n" "#define HAVE_RES_INIT 1" >>confdefs.h
-
-else $as_nop
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing res_init" >&5
-printf %s "checking for library containing res_init... " >&6; }
-if test ${ac_cv_search_res_init+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  ac_func_search_save_LIBS=$LIBS
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-char res_init ();
-int
-main (void)
-{
-return res_init ();
-  ;
-  return 0;
-}
-_ACEOF
-for ac_lib in '' resolv bind
-do
-  if test -z "$ac_lib"; then
-    ac_res="none required"
-  else
-    ac_res=-l$ac_lib
-    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
-  fi
-  if ac_fn_c_try_link "$LINENO"
-then :
-  ac_cv_search_res_init=$ac_res
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext
-  if test ${ac_cv_search_res_init+y}
-then :
-  break
-fi
-done
-if test ${ac_cv_search_res_init+y}
-then :
-
-else $as_nop
-  ac_cv_search_res_init=no
-fi
-rm conftest.$ac_ext
-LIBS=$ac_func_search_save_LIBS
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_res_init" >&5
-printf "%s\n" "$ac_cv_search_res_init" >&6; }
-ac_res=$ac_cv_search_res_init
-if test "$ac_res" != no
-then :
-  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
-  printf "%s\n" "#define HAVE_RES_INIT 1" >>confdefs.h
-
-fi
-
-fi
-
-
-fi
-
-ac_fn_c_check_header_compile "$LINENO" "resolv.h" "ac_cv_header_resolv_h" "$ac_includes_default"
-if test "x$ac_cv_header_resolv_h" = xyes
-then :
-  printf "%s\n" "#define HAVE_RESOLV_H 1" >>confdefs.h
-
-fi
-
 
 # Check whether --enable-largefile was given.
 if test ${enable_largefile+y}
@@ -5628,355 +5031,23 @@ then :
 fi
 
 
-# Check whether --enable-ssl was given.
-if test ${enable_ssl+y}
-then :
-  enableval=$enable_ssl;
-fi
-
-# Check whether --enable-gnutls was given.
-if test ${enable_gnutls+y}
-then :
-  enableval=$enable_gnutls;
-fi
-
-# Check whether --enable-cdsassl was given.
-if test ${enable_cdsassl+y}
-then :
-  enableval=$enable_cdsassl;
-fi
-
-
-SSLFLAGS=""
-SSLLIBS=""
-have_ssl=0
-
-if test x$enable_ssl
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libcups" >&5
+printf %s "checking for libcups... " >&6; }
+if $PKGCONFIG --exists cups
 then :
 
-    # Look for CDSA...
-    if test $have_ssl = 0 -a "x$enable_cdsassl" != "xno"
-then :
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; };
+    CPPFLAGS="$($PKGCONFIG --cflags cups) $CPPFLAGS"
+    LIBS="$($PKGCONFIG --libs cups) $LIBS"
 
-	if test $host_os_name = darwin
-then :
-
-	    ac_fn_c_check_header_compile "$LINENO" "Security/SecureTransport.h" "ac_cv_header_Security_SecureTransport_h" "$ac_includes_default"
-if test "x$ac_cv_header_Security_SecureTransport_h" = xyes
-then :
-
-	    	have_ssl=1
-		printf "%s\n" "#define HAVE_SSL 1" >>confdefs.h
-
-		printf "%s\n" "#define HAVE_CDSASSL 1" >>confdefs.h
-
-		SSLLIBS="-framework Security -framework CoreFoundation"
-
-		ac_fn_c_check_header_compile "$LINENO" "Security/SecCertificate.h" "ac_cv_header_Security_SecCertificate_h" "$ac_includes_default"
-if test "x$ac_cv_header_Security_SecCertificate_h" = xyes
-then :
-  printf "%s\n" "#define HAVE_SECCERTIFICATE_H 1" >>confdefs.h
-
-fi
-
-		ac_fn_c_check_header_compile "$LINENO" "Security/SecItem.h" "ac_cv_header_Security_SecItem_h" "$ac_includes_default"
-if test "x$ac_cv_header_Security_SecItem_h" = xyes
-then :
-  printf "%s\n" "#define HAVE_SECITEM_H 1" >>confdefs.h
-
-fi
-
-		ac_fn_c_check_header_compile "$LINENO" "Security/SecPolicy.h" "ac_cv_header_Security_SecPolicy_h" "$ac_includes_default"
-if test "x$ac_cv_header_Security_SecPolicy_h" = xyes
-then :
-  printf "%s\n" "#define HAVE_SECPOLICY_H 1" >>confdefs.h
-
-fi
-
-
-fi
-
-
-fi
-
-fi
-
-    # Then look for GNU TLS...
-    if test $have_ssl = 0 -a "x$enable_gnutls" != "xno" -a "x$PKGCONFIG" != x
-then :
-
-    	if test -n "$ac_tool_prefix"; then
-  # Extract the first word of "${ac_tool_prefix}libgnutls-config", so it can be a program name with args.
-set dummy ${ac_tool_prefix}libgnutls-config; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_LIBGNUTLSCONFIG+y}
-then :
-  printf %s "(cached) " >&6
 else $as_nop
-  case $LIBGNUTLSCONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_LIBGNUTLSCONFIG="$LIBGNUTLSCONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_LIBGNUTLSCONFIG="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
 
-  ;;
-esac
-fi
-LIBGNUTLSCONFIG=$ac_cv_path_LIBGNUTLSCONFIG
-if test -n "$LIBGNUTLSCONFIG"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $LIBGNUTLSCONFIG" >&5
-printf "%s\n" "$LIBGNUTLSCONFIG" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; };
+    as_fn_error $? "HTMLDOC requires the CUPS libraries for HTTP/HTTPS support." "$LINENO" 5
 
 fi
-if test -z "$ac_cv_path_LIBGNUTLSCONFIG"; then
-  ac_pt_LIBGNUTLSCONFIG=$LIBGNUTLSCONFIG
-  # Extract the first word of "libgnutls-config", so it can be a program name with args.
-set dummy libgnutls-config; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_ac_pt_LIBGNUTLSCONFIG+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  case $ac_pt_LIBGNUTLSCONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_ac_pt_LIBGNUTLSCONFIG="$ac_pt_LIBGNUTLSCONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_ac_pt_LIBGNUTLSCONFIG="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-ac_pt_LIBGNUTLSCONFIG=$ac_cv_path_ac_pt_LIBGNUTLSCONFIG
-if test -n "$ac_pt_LIBGNUTLSCONFIG"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_pt_LIBGNUTLSCONFIG" >&5
-printf "%s\n" "$ac_pt_LIBGNUTLSCONFIG" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-  if test "x$ac_pt_LIBGNUTLSCONFIG" = x; then
-    LIBGNUTLSCONFIG=""
-  else
-    case $cross_compiling:$ac_tool_warned in
-yes:)
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
-printf "%s\n" "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
-ac_tool_warned=yes ;;
-esac
-    LIBGNUTLSCONFIG=$ac_pt_LIBGNUTLSCONFIG
-  fi
-else
-  LIBGNUTLSCONFIG="$ac_cv_path_LIBGNUTLSCONFIG"
-fi
-
-    	if test -n "$ac_tool_prefix"; then
-  # Extract the first word of "${ac_tool_prefix}libgcrypt-config", so it can be a program name with args.
-set dummy ${ac_tool_prefix}libgcrypt-config; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_LIBGCRYPTCONFIG+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  case $LIBGCRYPTCONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_LIBGCRYPTCONFIG="$LIBGCRYPTCONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_LIBGCRYPTCONFIG="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-LIBGCRYPTCONFIG=$ac_cv_path_LIBGCRYPTCONFIG
-if test -n "$LIBGCRYPTCONFIG"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $LIBGCRYPTCONFIG" >&5
-printf "%s\n" "$LIBGCRYPTCONFIG" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-
-fi
-if test -z "$ac_cv_path_LIBGCRYPTCONFIG"; then
-  ac_pt_LIBGCRYPTCONFIG=$LIBGCRYPTCONFIG
-  # Extract the first word of "libgcrypt-config", so it can be a program name with args.
-set dummy libgcrypt-config; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_path_ac_pt_LIBGCRYPTCONFIG+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  case $ac_pt_LIBGCRYPTCONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_ac_pt_LIBGCRYPTCONFIG="$ac_pt_LIBGCRYPTCONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_path_ac_pt_LIBGCRYPTCONFIG="$as_dir$ac_word$ac_exec_ext"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-ac_pt_LIBGCRYPTCONFIG=$ac_cv_path_ac_pt_LIBGCRYPTCONFIG
-if test -n "$ac_pt_LIBGCRYPTCONFIG"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_pt_LIBGCRYPTCONFIG" >&5
-printf "%s\n" "$ac_pt_LIBGCRYPTCONFIG" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-  if test "x$ac_pt_LIBGCRYPTCONFIG" = x; then
-    LIBGCRYPTCONFIG=""
-  else
-    case $cross_compiling:$ac_tool_warned in
-yes:)
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
-printf "%s\n" "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
-ac_tool_warned=yes ;;
-esac
-    LIBGCRYPTCONFIG=$ac_pt_LIBGCRYPTCONFIG
-  fi
-else
-  LIBGCRYPTCONFIG="$ac_cv_path_LIBGCRYPTCONFIG"
-fi
-
-	if $PKGCONFIG --exists gnutls
-then :
-
-	    have_ssl=1
-	    SSLLIBS=`$PKGCONFIG --libs gnutls`
-	    SSLFLAGS=`$PKGCONFIG --cflags gnutls`
-	    printf "%s\n" "#define HAVE_SSL 1" >>confdefs.h
-
-	    printf "%s\n" "#define HAVE_GNUTLS 1" >>confdefs.h
-
-
-elif test "x$LIBGNUTLSCONFIG" != x
-then :
-
-	    have_ssl=1
-	    SSLLIBS=`$LIBGNUTLSCONFIG --libs`
-	    SSLFLAGS=`$LIBGNUTLSCONFIG --cflags`
-	    printf "%s\n" "#define HAVE_SSL 1" >>confdefs.h
-
-	    printf "%s\n" "#define HAVE_GNUTLS 1" >>confdefs.h
-
-
-fi
-
-	if test $have_ssl = 1
-then :
-
-	    SAVELIBS="$LIBS"
-	    LIBS="$LIBS $SSLLIBS"
-	    ac_fn_c_check_func "$LINENO" "gnutls_transport_set_pull_timeout_function" "ac_cv_func_gnutls_transport_set_pull_timeout_function"
-if test "x$ac_cv_func_gnutls_transport_set_pull_timeout_function" = xyes
-then :
-  printf "%s\n" "#define HAVE_GNUTLS_TRANSPORT_SET_PULL_TIMEOUT_FUNCTION 1" >>confdefs.h
-
-fi
-
-	    ac_fn_c_check_func "$LINENO" "gnutls_priority_set_direct" "ac_cv_func_gnutls_priority_set_direct"
-if test "x$ac_cv_func_gnutls_priority_set_direct" = xyes
-then :
-  printf "%s\n" "#define HAVE_GNUTLS_PRIORITY_SET_DIRECT 1" >>confdefs.h
-
-fi
-
-	    LIBS="$SAVELIBS"
-
-fi
-
-fi
-
-fi
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: Using SSLFLAGS=\"$SSLFLAGS\", SSLLIBS=\"$SSLLIBS\"" >&5
-printf "%s\n" "$as_me: Using SSLFLAGS=\"$SSLFLAGS\", SSLLIBS=\"$SSLLIBS\"" >&6;}
-
-
-
 
 have_fltk=no
 POST=:
@@ -6107,28 +5178,23 @@ fi
 
 
 
-if test "x$PKGCONFIG" != x
-then :
-
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libjpeg" >&5
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libjpeg" >&5
 printf %s "checking for libjpeg... " >&6; }
-    if $PKGCONFIG --exists libjpeg
+if $PKGCONFIG --exists libjpeg
 then :
 
-	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; };
 
 printf "%s\n" "#define HAVE_LIBJPEG 1" >>confdefs.h
 
-	CPPFLAGS="$CPPFLAGS $($PKGCONFIG --cflags libjpeg)"
-	LIBS="$LIBS $($PKGCONFIG --libs libjpeg)"
+    CPPFLAGS="$CPPFLAGS $($PKGCONFIG --cflags libjpeg)"
+    LIBS="$LIBS $($PKGCONFIG --libs libjpeg)"
 
 else $as_nop
 
-	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; };
-
-fi
 
 fi
 
@@ -6310,8 +5376,8 @@ else $as_nop
 
 	# Otherwise use the Fortify enhancements to catch any unbounded
 	# string operations...
-	CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=2"
-	CXXFLAGS="$CXXFLAGS -D_FORTIFY_SOURCE=2"
+	CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=3"
+	CXXFLAGS="$CXXFLAGS -D_FORTIFY_SOURCE=3"
 
 fi
 
@@ -6438,12 +5504,62 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
     CFLAGS="$OLDCFLAGS"
 
-        if test "$host_os_name" = darwin -a x$enable_debug != xyes
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for OS-specific compiler options" >&5
+printf %s "checking for OS-specific compiler options... " >&6; }
+    case "$host_os_name" in #(
+  linux*) :
+
+    	# Make sure we get the full set of 64-bit Linux APIs from the headers...
+	CPPFLAGS="$CPPFLAGS -D__USE_MISC -D_GNU_SOURCE"
+
+	# Mark read-only sections as relocatable to random addresses...
+	LDFLAGS="$LDFLAGS -Wl,-z,relro,-z,now"
+
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: -D__USE_MISC -D_GNU_SOURCE -Wl,-z,relro,-z,now" >&5
+printf "%s\n" "-D__USE_MISC -D_GNU_SOURCE -Wl,-z,relro,-z,now" >&6; }
+     ;; #(
+  darwin*) :
+
+        # When not building for debug, target macOS 11 or later, "universal"
+        # binaries when possible...
+        if echo "$CPPFLAGS $CFLAGS $LDFLAGS $OPTIM" | grep -q "\\-arch "
 then :
 
-        OPTIM="$OPTIM -mmacosx-version-min=10.14 -arch x86_64 -arch arm64"
+            # Don't add architecture/min-version flags if they are already present
+            { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: none" >&5
+printf "%s\n" "none" >&6; }
+
+elif echo "$CPPFLAGS $CFLAGS $LDFLAGS $OPTIM" | grep -q "\\-mmacosx-version-"
+then :
+
+            # Don't add architecture/min-version flags if they are already present
+            { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: none" >&5
+printf "%s\n" "none" >&6; }
+
+elif test "$host_os_version" -ge 200 -a x$enable_debug != xyes
+then :
+
+	    # macOS 11.0 and higher support the Apple Silicon (arm64) CPUs
+	    OPTIM="$OPTIM -mmacosx-version-min=11.0 -arch x86_64 -arch arm64"
+            { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: -mmacosx-version-min=11.0 -arch x86_64 -arch arm64" >&5
+printf "%s\n" "-mmacosx-version-min=11.0 -arch x86_64 -arch arm64" >&6; }
+
+else $as_nop
+
+	    # Don't add architecture/min-version flags if debug enabled
+            { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: none" >&5
+printf "%s\n" "none" >&6; }
 
 fi
+     ;; #(
+  *) :
+
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: none" >&5
+printf "%s\n" "none" >&6; }
+     ;; #(
+  *) :
+     ;;
+esac
 
 fi
 
@@ -7733,6 +6849,8 @@ printf "%s\n" "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2
 fi
 
 
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: Using CFLAGS=$CFLAGS" >&5
+printf "%s\n" "$as_me: Using CFLAGS=$CFLAGS" >&6;}
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Using CPPFLAGS=$CPPFLAGS" >&5
 printf "%s\n" "$as_me: Using CPPFLAGS=$CPPFLAGS" >&6;}
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Using CXXFLAGS=$CXXFLAGS" >&5

@@ -1,41 +1,522 @@
-# DO NOT DELETE
-
-array.o: hdstring.h ../config.h array-private.h
-file.o: file.h hdstring.h ../config.h http.h array.h progress.h debug.h
-http.o: http-private.h hdstring.h ../config.h http.h array.h md5-private.h
-http-addr.o: http-private.h hdstring.h ../config.h http.h array.h
-http-addr.o: md5-private.h
-http-addrlist.o: http-private.h hdstring.h ../config.h http.h array.h
-http-addrlist.o: md5-private.h
-http-support.o: http-private.h hdstring.h ../config.h http.h array.h
-http-support.o: md5-private.h
-md5.o: md5-private.h
-rc4.o: rc4.h
-snprintf.o: hdstring.h ../config.h
-string.o: hdstring.h ../config.h
-tls.o: http-private.h hdstring.h ../config.h http.h array.h md5-private.h
-tls.o: tls-darwin.c
-gui.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
-gui.o: image.h debug.h progress.h gui.h ../desktop/htmldoc.xpm
-gui.o: ../desktop/htmldoc.xbm
-html.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
-html.o: image.h debug.h progress.h gui.h
-htmldoc.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
-htmldoc.o: image.h debug.h progress.h gui.h http.h array.h
-htmllib.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
-htmllib.o: image.h debug.h progress.h gui.h
-htmlsep.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
-htmlsep.o: image.h debug.h progress.h gui.h
-image.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
-image.o: image.h debug.h progress.h gui.h
-iso8859.o: html.h file.h hdstring.h ../config.h iso8859.h types.h
-license.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
-license.o: image.h debug.h progress.h gui.h
-progress.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
-progress.o: image.h debug.h progress.h gui.h
-ps-pdf.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
-ps-pdf.o: image.h debug.h progress.h gui.h md5-private.h rc4.h
-toc.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
-toc.o: image.h debug.h progress.h gui.h
-util.o: htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h types.h
-util.o: image.h debug.h progress.h gui.h
+file.o: file.c file.h hdstring.h ../config.h progress.h debug.h
+md5.o: md5.c md5-private.h
+mmd.o: mmd.c mmd.h
+rc4.o: rc4.c rc4.h
+snprintf.o: snprintf.c hdstring.h ../config.h
+string.o: string.c hdstring.h ../config.h
+zipc.o: zipc.c zipc.h
+epub.o: epub.cxx htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h \
+  types.h image.h debug.h progress.h gui.h \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  markdown.h mmd.h zipc.h
+gui.o: gui.cxx htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h \
+  types.h image.h debug.h progress.h gui.h \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  markdown.h mmd.h \
+  \
+  \
+  \
+  ../desktop/htmldoc.xpm
+html.o: html.cxx htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h \
+  types.h image.h debug.h progress.h gui.h \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  markdown.h mmd.h
+htmldoc.o: htmldoc.cxx htmldoc.h html.h file.h hdstring.h ../config.h \
+  iso8859.h types.h image.h debug.h progress.h gui.h \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  markdown.h mmd.h
+htmllib.o: htmllib.cxx htmldoc.h html.h file.h hdstring.h ../config.h \
+  iso8859.h types.h image.h debug.h progress.h gui.h \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+ 
+htmlsep.o: htmlsep.cxx htmldoc.h html.h file.h hdstring.h ../config.h \
+  iso8859.h types.h image.h debug.h progress.h gui.h \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  markdown.h mmd.h
+image.o: image.cxx htmldoc.h html.h file.h hdstring.h ../config.h \
+  iso8859.h types.h image.h debug.h progress.h gui.h \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+ 
+iso8859.o: iso8859.cxx html.h file.h hdstring.h ../config.h iso8859.h \
+  types.h
+license.o: license.cxx htmldoc.h html.h file.h hdstring.h ../config.h \
+  iso8859.h types.h image.h debug.h progress.h gui.h \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+ 
+markdown.o: markdown.cxx markdown.h html.h file.h hdstring.h ../config.h \
+  iso8859.h types.h mmd.h progress.h
+progress.o: progress.cxx htmldoc.h html.h file.h hdstring.h ../config.h \
+  iso8859.h types.h image.h debug.h progress.h gui.h \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+ 
+ps-pdf.o: ps-pdf.cxx htmldoc.h html.h file.h hdstring.h ../config.h \
+  iso8859.h types.h image.h debug.h progress.h gui.h \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  markdown.h mmd.h md5-private.h \
+  rc4.h \
+ 
+testhtml.o: testhtml.cxx htmldoc.h html.h file.h hdstring.h ../config.h \
+  iso8859.h types.h image.h debug.h progress.h gui.h \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+ 
+toc.o: toc.cxx htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h \
+  types.h image.h debug.h progress.h gui.h \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+ 
+util.o: util.cxx htmldoc.h html.h file.h hdstring.h ../config.h iso8859.h \
+  types.h image.h debug.h progress.h gui.h \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+  \
+ 
