@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 53;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -38,29 +38,18 @@
 		2788A4D21EAEF234007ED0E1 /* zipc.c in Sources */ = {isa = PBXBuildFile; fileRef = 2788A4CD1EAEF234007ED0E1 /* zipc.c */; };
 		27A9F6E818D527AC00804DE9 /* file.c in Sources */ = {isa = PBXBuildFile; fileRef = 27A9F6DB18D527AC00804DE9 /* file.c */; };
 		27A9F6E918D527AC00804DE9 /* htmlsep.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27A9F6DC18D527AC00804DE9 /* htmlsep.cxx */; };
-		27A9F6EA18D527AC00804DE9 /* http-addr.c in Sources */ = {isa = PBXBuildFile; fileRef = 27A9F6DD18D527AC00804DE9 /* http-addr.c */; };
-		27A9F6EB18D527AC00804DE9 /* http-addrlist.c in Sources */ = {isa = PBXBuildFile; fileRef = 27A9F6DE18D527AC00804DE9 /* http-addrlist.c */; };
-		27A9F6EC18D527AC00804DE9 /* http-support.c in Sources */ = {isa = PBXBuildFile; fileRef = 27A9F6E018D527AC00804DE9 /* http-support.c */; };
-		27A9F6ED18D527AC00804DE9 /* http.c in Sources */ = {isa = PBXBuildFile; fileRef = 27A9F6E118D527AC00804DE9 /* http.c */; };
 		27A9F6EE18D527AC00804DE9 /* iso8859.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27A9F6E218D527AC00804DE9 /* iso8859.cxx */; };
 		27A9F6EF18D527AC00804DE9 /* license.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27A9F6E418D527AC00804DE9 /* license.cxx */; };
 		27A9F6F018D527AC00804DE9 /* md5.c in Sources */ = {isa = PBXBuildFile; fileRef = 27A9F6E618D527AC00804DE9 /* md5.c */; };
 		27A9F6F118D527AC00804DE9 /* rc4.c in Sources */ = {isa = PBXBuildFile; fileRef = 27A9F6E718D527AC00804DE9 /* rc4.c */; };
-		27A9F6F318D527D300804DE9 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27A9F6F218D527D300804DE9 /* Security.framework */; };
-		27A9F6F518D527D900804DE9 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27A9F6F418D527D900804DE9 /* CoreFoundation.framework */; };
 		27A9F6FE18D5450C00804DE9 /* htmldoc.man in CopyFiles */ = {isa = PBXBuildFile; fileRef = 27A9F6FD18D5294000804DE9 /* htmldoc.man */; };
 		27CACC3E2794ED5A00BC4A11 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 27CACC3D2794ED5A00BC4A11 /* libz.tbd */; };
 		27CACC402794ED6200BC4A11 /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 27CACC3F2794ED6200BC4A11 /* libresolv.tbd */; };
 		27CACC412794EDA200BC4A11 /* libpng16.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D3E1822794DC0D0034494A /* libpng16.a */; };
 		27CACC442794F22500BC4A11 /* libfltk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 27CACC422794F22500BC4A11 /* libfltk.a */; };
 		27CACC452794F22500BC4A11 /* libfltk_images.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 27CACC432794F22500BC4A11 /* libfltk_images.a */; };
-		27CACC472794F23000BC4A11 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27CACC462794F23000BC4A11 /* CoreGraphics.framework */; };
-		27CACC492794F23C00BC4A11 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27CACC482794F23C00BC4A11 /* CoreText.framework */; };
-		27CACC4D2794F25500BC4A11 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27CACC4C2794F25500BC4A11 /* Cocoa.framework */; };
 		27CACC502794F2CF00BC4A11 /* gui.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27CACC4E2794F2CF00BC4A11 /* gui.cxx */; };
 		27D3E1852794DC0D0034494A /* libjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D3E1832794DC0D0034494A /* libjpeg.a */; };
-		27D5714A1C3863E200D93F41 /* tls.c in Sources */ = {isa = PBXBuildFile; fileRef = 27D571461C3863E200D93F41 /* tls.c */; };
-		27D5714E1C386EFF00D93F41 /* array.c in Sources */ = {isa = PBXBuildFile; fileRef = 27D5714C1C386EFF00D93F41 /* array.c */; };
 		27DD25520EC01A3300B76D4E /* html.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD252F0EC01A3300B76D4E /* html.cxx */; };
 		27DD25530EC01A3300B76D4E /* htmldoc.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25310EC01A3300B76D4E /* htmldoc.cxx */; };
 		27DD25540EC01A3300B76D4E /* htmllib.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27DD25330EC01A3300B76D4E /* htmllib.cxx */; };
@@ -146,6 +135,8 @@
 		27DD27010EC0297800B76D4E /* koi8-r in CopyFiles */ = {isa = PBXBuildFile; fileRef = 27DD26E80EC0297800B76D4E /* koi8-r */; };
 		27DD27020EC0297800B76D4E /* prolog.ps in CopyFiles */ = {isa = PBXBuildFile; fileRef = 27DD26E90EC0297800B76D4E /* prolog.ps */; };
 		27DD27030EC0297800B76D4E /* psglyphs in CopyFiles */ = {isa = PBXBuildFile; fileRef = 27DD26EA0EC0297800B76D4E /* psglyphs */; };
+		27E8217D2AB245B200A1F519 /* libcups.2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 27E8217C2AB245B200A1F519 /* libcups.2.tbd */; };
+		27E8217E2AB245DA00A1F519 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27CACC4C2794F25500BC4A11 /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -283,11 +274,6 @@
 		2788A4CE1EAEF234007ED0E1 /* zipc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zipc.h; path = ../htmldoc/zipc.h; sourceTree = "<group>"; };
 		27A9F6DB18D527AC00804DE9 /* file.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = file.c; path = ../htmldoc/file.c; sourceTree = "<group>"; };
 		27A9F6DC18D527AC00804DE9 /* htmlsep.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = htmlsep.cxx; path = ../htmldoc/htmlsep.cxx; sourceTree = "<group>"; };
-		27A9F6DD18D527AC00804DE9 /* http-addr.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "http-addr.c"; path = "../htmldoc/http-addr.c"; sourceTree = "<group>"; };
-		27A9F6DE18D527AC00804DE9 /* http-addrlist.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "http-addrlist.c"; path = "../htmldoc/http-addrlist.c"; sourceTree = "<group>"; };
-		27A9F6DF18D527AC00804DE9 /* http-private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "http-private.h"; path = "../htmldoc/http-private.h"; sourceTree = "<group>"; };
-		27A9F6E018D527AC00804DE9 /* http-support.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "http-support.c"; path = "../htmldoc/http-support.c"; sourceTree = "<group>"; };
-		27A9F6E118D527AC00804DE9 /* http.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = http.c; path = ../htmldoc/http.c; sourceTree = "<group>"; };
 		27A9F6E218D527AC00804DE9 /* iso8859.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = iso8859.cxx; path = ../htmldoc/iso8859.cxx; sourceTree = "<group>"; };
 		27A9F6E318D527AC00804DE9 /* iso8859.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iso8859.h; path = ../htmldoc/iso8859.h; sourceTree = "<group>"; };
 		27A9F6E418D527AC00804DE9 /* license.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = license.cxx; path = ../htmldoc/license.cxx; sourceTree = "<group>"; };
@@ -309,13 +295,6 @@
 		27CACC4F2794F2CF00BC4A11 /* gui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gui.h; path = ../htmldoc/gui.h; sourceTree = "<group>"; };
 		27D3E1822794DC0D0034494A /* libpng16.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpng16.a; path = ../../../../../usr/local/lib/libpng16.a; sourceTree = "<group>"; };
 		27D3E1832794DC0D0034494A /* libjpeg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjpeg.a; path = ../../../../../usr/local/lib/libjpeg.a; sourceTree = "<group>"; };
-		27D571431C3863E200D93F41 /* tls-darwin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "tls-darwin.c"; path = "../htmldoc/tls-darwin.c"; sourceTree = "<group>"; };
-		27D571441C3863E200D93F41 /* tls-gnutls.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "tls-gnutls.c"; path = "../htmldoc/tls-gnutls.c"; sourceTree = "<group>"; };
-		27D571451C3863E200D93F41 /* tls-sspi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "tls-sspi.c"; path = "../htmldoc/tls-sspi.c"; sourceTree = "<group>"; };
-		27D571461C3863E200D93F41 /* tls.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = tls.c; path = ../htmldoc/tls.c; sourceTree = "<group>"; };
-		27D5714B1C386EFF00D93F41 /* array-private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "array-private.h"; path = "../htmldoc/array-private.h"; sourceTree = "<group>"; };
-		27D5714C1C386EFF00D93F41 /* array.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = array.c; path = ../htmldoc/array.c; sourceTree = "<group>"; };
-		27D5714D1C386EFF00D93F41 /* array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = array.h; path = ../htmldoc/array.h; sourceTree = "<group>"; };
 		27DD25290EC019F500B76D4E /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		27DD252A0EC01A3300B76D4E /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = debug.h; path = ../htmldoc/debug.h; sourceTree = SOURCE_ROOT; };
 		27DD252D0EC01A3300B76D4E /* file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = file.h; path = ../htmldoc/file.h; sourceTree = SOURCE_ROOT; };
@@ -325,7 +304,6 @@
 		27DD25310EC01A3300B76D4E /* htmldoc.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = htmldoc.cxx; path = ../htmldoc/htmldoc.cxx; sourceTree = SOURCE_ROOT; };
 		27DD25320EC01A3300B76D4E /* htmldoc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = htmldoc.h; path = ../htmldoc/htmldoc.h; sourceTree = SOURCE_ROOT; };
 		27DD25330EC01A3300B76D4E /* htmllib.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = htmllib.cxx; path = ../htmldoc/htmllib.cxx; sourceTree = SOURCE_ROOT; };
-		27DD253A0EC01A3300B76D4E /* http.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = http.h; path = ../htmldoc/http.h; sourceTree = SOURCE_ROOT; };
 		27DD253B0EC01A3300B76D4E /* image.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = image.cxx; path = ../htmldoc/image.cxx; sourceTree = SOURCE_ROOT; };
 		27DD253C0EC01A3300B76D4E /* image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = image.h; path = ../htmldoc/image.h; sourceTree = SOURCE_ROOT; };
 		27DD25420EC01A3300B76D4E /* progress.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = progress.cxx; path = ../htmldoc/progress.cxx; sourceTree = SOURCE_ROOT; };
@@ -412,6 +390,7 @@
 		27DD26E80EC0297800B76D4E /* koi8-r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "koi8-r"; path = "../data/koi8-r"; sourceTree = SOURCE_ROOT; };
 		27DD26E90EC0297800B76D4E /* prolog.ps */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = prolog.ps; path = ../data/prolog.ps; sourceTree = SOURCE_ROOT; };
 		27DD26EA0EC0297800B76D4E /* psglyphs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = psglyphs; path = ../data/psglyphs; sourceTree = SOURCE_ROOT; };
+		27E8217C2AB245B200A1F519 /* libcups.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libcups.2.tbd; path = usr/lib/libcups.2.tbd; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -419,17 +398,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				27CACC4D2794F25500BC4A11 /* Cocoa.framework in Frameworks */,
-				27CACC492794F23C00BC4A11 /* CoreText.framework in Frameworks */,
-				27CACC472794F23000BC4A11 /* CoreGraphics.framework in Frameworks */,
+				27E8217E2AB245DA00A1F519 /* Cocoa.framework in Frameworks */,
+				27E8217D2AB245B200A1F519 /* libcups.2.tbd in Frameworks */,
 				27CACC442794F22500BC4A11 /* libfltk.a in Frameworks */,
 				27CACC452794F22500BC4A11 /* libfltk_images.a in Frameworks */,
 				27CACC412794EDA200BC4A11 /* libpng16.a in Frameworks */,
 				27CACC402794ED6200BC4A11 /* libresolv.tbd in Frameworks */,
 				27CACC3E2794ED5A00BC4A11 /* libz.tbd in Frameworks */,
 				27D3E1852794DC0D0034494A /* libjpeg.a in Frameworks */,
-				27A9F6F518D527D900804DE9 /* CoreFoundation.framework in Frameworks */,
-				27A9F6F318D527D300804DE9 /* Security.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -451,9 +427,6 @@
 		08FB7795FE84155DC02AAC07 /* htmldoc */ = {
 			isa = PBXGroup;
 			children = (
-				27D5714B1C386EFF00D93F41 /* array-private.h */,
-				27D5714C1C386EFF00D93F41 /* array.c */,
-				27D5714D1C386EFF00D93F41 /* array.h */,
 				27DD25290EC019F500B76D4E /* config.h */,
 				27DD252A0EC01A3300B76D4E /* debug.h */,
 				2788A4C81EAEF234007ED0E1 /* epub.cxx */,
@@ -469,12 +442,6 @@
 				27A9F6FD18D5294000804DE9 /* htmldoc.man */,
 				27DD25330EC01A3300B76D4E /* htmllib.cxx */,
 				27A9F6DC18D527AC00804DE9 /* htmlsep.cxx */,
-				27A9F6DD18D527AC00804DE9 /* http-addr.c */,
-				27A9F6DE18D527AC00804DE9 /* http-addrlist.c */,
-				27A9F6DF18D527AC00804DE9 /* http-private.h */,
-				27A9F6E018D527AC00804DE9 /* http-support.c */,
-				27A9F6E118D527AC00804DE9 /* http.c */,
-				27DD253A0EC01A3300B76D4E /* http.h */,
 				27DD253B0EC01A3300B76D4E /* image.cxx */,
 				27DD253C0EC01A3300B76D4E /* image.h */,
 				27A9F6E218D527AC00804DE9 /* iso8859.cxx */,
@@ -492,10 +459,6 @@
 				27A9F6E718D527AC00804DE9 /* rc4.c */,
 				27DD25460EC01A3300B76D4E /* rc4.h */,
 				27DD26450EC024FA00B76D4E /* string.c */,
-				27D571431C3863E200D93F41 /* tls-darwin.c */,
-				27D571441C3863E200D93F41 /* tls-gnutls.c */,
-				27D571451C3863E200D93F41 /* tls-sspi.c */,
-				27D571461C3863E200D93F41 /* tls.c */,
 				27DD254D0EC01A3300B76D4E /* toc.cxx */,
 				27DD254E0EC01A3300B76D4E /* types.h */,
 				27DD254F0EC01A3300B76D4E /* util.cxx */,
@@ -515,6 +478,7 @@
 		27A9F6FC18D528CB00804DE9 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				27E8217C2AB245B200A1F519 /* libcups.2.tbd */,
 				27CACC4C2794F25500BC4A11 /* Cocoa.framework */,
 				27CACC4A2794F24700BC4A11 /* ApplicationServices.framework */,
 				27CACC482794F23C00BC4A11 /* CoreText.framework */,
@@ -651,7 +615,8 @@
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1320;
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					8DD76F620486A84900D96B5E = {
 						DevelopmentTeam = RU58A2256H;
@@ -692,23 +657,17 @@
 				27DD255E0EC01A3300B76D4E /* progress.cxx in Sources */,
 				2788A4D21EAEF234007ED0E1 /* zipc.c in Sources */,
 				27A9F6EE18D527AC00804DE9 /* iso8859.cxx in Sources */,
-				27D5714A1C3863E200D93F41 /* tls.c in Sources */,
 				27A9F6F018D527AC00804DE9 /* md5.c in Sources */,
-				27A9F6ED18D527AC00804DE9 /* http.c in Sources */,
 				27A9F6E818D527AC00804DE9 /* file.c in Sources */,
 				27DD255F0EC01A3300B76D4E /* ps-pdf.cxx in Sources */,
 				2788A4D01EAEF234007ED0E1 /* markdown.cxx in Sources */,
 				2788A4D11EAEF234007ED0E1 /* mmd.c in Sources */,
 				27DD25660EC01A3300B76D4E /* toc.cxx in Sources */,
-				27D5714E1C386EFF00D93F41 /* array.c in Sources */,
-				27A9F6EA18D527AC00804DE9 /* http-addr.c in Sources */,
 				27DD25670EC01A3300B76D4E /* util.cxx in Sources */,
 				27A9F6E918D527AC00804DE9 /* htmlsep.cxx in Sources */,
 				27A9F6EF18D527AC00804DE9 /* license.cxx in Sources */,
-				27A9F6EC18D527AC00804DE9 /* http-support.c in Sources */,
 				27A9F6F118D527AC00804DE9 /* rc4.c in Sources */,
 				2788A4CF1EAEF234007ED0E1 /* epub.cxx in Sources */,
-				27A9F6EB18D527AC00804DE9 /* http-addrlist.c in Sources */,
 				27DD26460EC024FA00B76D4E /* string.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -736,6 +695,7 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = RU58A2256H;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -743,6 +703,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
 				INSTALL_PATH = /usr/local/bin;
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				PRODUCT_NAME = htmldoc;
 				ZERO_LINK = YES;
 			};
@@ -754,11 +715,13 @@
 				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "Mac Developer";
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = RU58A2256H;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_MODEL_TUNING = G5;
 				INSTALL_PATH = /usr/local/bin;
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				PRODUCT_NAME = htmldoc;
 			};
 			name = Release;
@@ -788,6 +751,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DEAD_CODE_STRIPPING = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -817,7 +781,7 @@
 					/usr/local/include,
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = YES;
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = macosx;
@@ -851,6 +815,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DEAD_CODE_STRIPPING = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
@@ -879,7 +844,7 @@
 					/usr/local/include,
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = macosx;
 				USE_HEADERMAP = NO;
@@ -892,9 +857,11 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INSTALL_PATH = /usr/local/share/htmldoc/fonts;
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				PRODUCT_NAME = fonts;
 				SKIP_INSTALL = NO;
 			};
@@ -905,8 +872,10 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				COPY_PHASE_STRIP = YES;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				INSTALL_PATH = /usr/local/share/htmldoc/fonts;
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				PRODUCT_NAME = fonts;
 				SKIP_INSTALL = NO;
 				ZERO_LINK = NO;
@@ -918,9 +887,11 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INSTALL_PATH = /usr/local/share/htmldoc/data;
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				PRODUCT_NAME = "data files";
 				SKIP_INSTALL = NO;
 			};
@@ -931,8 +902,10 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				COPY_PHASE_STRIP = YES;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				INSTALL_PATH = /usr/local/share/htmldoc/data;
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				PRODUCT_NAME = "data files";
 				SKIP_INSTALL = NO;
 				ZERO_LINK = NO;
