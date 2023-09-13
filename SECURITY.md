@@ -53,9 +53,12 @@ example:
 Reporting a Vulnerability
 -------------------------
 
-Report all security issues to "security AT msweet.org".  Expect a response
-within 5 business days.  Any proposed embargo date should be at least 30 days
-and no more than 90 days in the future.
+Report all security issues to the Github security advisory page at:
+
+    https://github.com/michaelrsweet/htmldoc/security
+
+Expect a response within 5 business days.  Any proposed embargo date should be
+at least 30 days and no more than 90 days in the future.
 
 
 PGP Public Key
