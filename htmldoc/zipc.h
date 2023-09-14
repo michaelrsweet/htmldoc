@@ -43,7 +43,7 @@
  */
 
 #  ifdef _WIN32
-typedef long ssize_t;
+typedef off_t ssize_t;
 #  endif /* _WIN32 */
 
 typedef struct _zipc_s zipc_t;		/* ZIP container */
