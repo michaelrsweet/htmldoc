@@ -18,6 +18,7 @@
 #include <stdarg.h>
 #include <io.h>
 #include <direct.h>
+#include <sys/types.h>
 
 
 /*
@@ -82,7 +83,10 @@ typedef unsigned long useconds_t;
 #undef const
 #undef __CHAR_UNSIGNED__
 #define __attribute__(x)
-typedef off_t ssize_t;
+#  if defined(_WIN32) && !defined(__CUPS_SSIZE_T_DEFINED)
+#    define __CUPS_SSIZE_T_DEFINED
+typedef __int64 ssize_t;
+#  endif /* _WIN32 && !__CUPS_SSIZE_T_DEFINED */
 
 
 /*

@@ -42,9 +42,10 @@
  * Types...
  */
 
-#  ifdef _WIN32
-typedef off_t ssize_t;
-#  endif /* _WIN32 */
+#  if defined(_WIN32) && !defined(__CUPS_SSIZE_T_DEFINED)
+#    define __CUPS_SSIZE_T_DEFINED
+typedef __int64 ssize_t;
+#  endif /* _WIN32 && !__CUPS_SSIZE_T_DEFINED */
 
 typedef struct _zipc_s zipc_t;		/* ZIP container */
 typedef struct _zipc_file_s zipc_file_t;/* File/directory in ZIP container */
