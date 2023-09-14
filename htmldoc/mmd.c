@@ -1214,7 +1214,7 @@ mmdLoadString(mmd_t      *root,		/* I - Root node for document or `NULL` for a n
 
   char		tempfile[1024];		/* Temporary filename */
 
-  if (tempnam_s(tempfile, sizeof(tempfile))
+  if (tempnam_s(tempfile, sizeof(tempfile)))
     return (root);
 
   if ((fp = fopen(tempfile, "w+")) == NULL)
