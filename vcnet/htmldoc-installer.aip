@@ -17,7 +17,7 @@
     <ROW Property="ProductCode" Value="1033:{20C49885-ABD0-4F20-B13A-3ED4D0888BF8} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="HTMLDOC"/>
-    <ROW Property="ProductVersion" Value="1.9.16.0" Type="32"/>
+    <ROW Property="ProductVersion" Value="1.9.17.0" Type="32"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:ReallySuppress"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{4016A37E-404B-4785-B768-D4FF161DE6E9}"/>
@@ -50,6 +50,7 @@
     <ROW Component="htmldoc_PrimaryOutput" ComponentId="{B82BB384-4AC5-4703-8DBB-5C2DDBD44646}" Directory_="APPDIR" Attributes="256" KeyPath="htmldoc.exe"/>
     <ROW Component="intro.html" ComponentId="{4E719658-FD98-431E-B0C9-B002A78CE6EC}" Directory_="doc_Dir" Attributes="0" KeyPath="help.html" Type="0"/>
     <ROW Component="jpeg62.dll" ComponentId="{B6284C77-74FA-4D58-A912-384FF575F2C0}" Directory_="APPDIR" Attributes="256" KeyPath="jpeg62.dll"/>
+    <ROW Component="libcups2.dll" ComponentId="{EA15F57A-7744-4BC4-AEFE-4222E74F1440}" Directory_="APPDIR" Attributes="256" KeyPath="libcups2.dll"/>
     <ROW Component="libpng16.dll" ComponentId="{168E9D26-1768-42BB-B9D3-94E502DB6C4F}" Directory_="APPDIR" Attributes="256" KeyPath="libpng16.dll"/>
     <ROW Component="turbojpeg.dll" ComponentId="{E74800CC-32E5-4BDD-ACE7-5F95D0923C46}" Directory_="APPDIR" Attributes="256" KeyPath="turbojpeg.dll"/>
     <ROW Component="zlib.dll" ComponentId="{A0FE788E-6DB7-4D10-BD95-B42358C5AAC7}" Directory_="APPDIR" Attributes="256" KeyPath="zlib.dll"/>
@@ -141,6 +142,7 @@
     <ROW File="htmldoc.pdf" Component_="htmldoc.pdf" FileName="htmldoc.pdf" Attributes="0" SourcePath="..\doc\htmldoc.pdf" SelfReg="false"/>
     <ROW File="jpeg62.dll" Component_="jpeg62.dll" FileName="jpeg62.dll" Attributes="0" SourcePath="packages\libjpeg-turbo-v142.2.0.4.3\build\native\bin\x64\v142\Release\jpeg62.dll" SelfReg="false"/>
     <ROW File="turbojpeg.dll" Component_="turbojpeg.dll" FileName="TURBOJ~1.DLL|turbojpeg.dll" Attributes="0" SourcePath="packages\libjpeg-turbo-v142.2.0.4.3\build\native\bin\x64\v142\Release\turbojpeg.dll" SelfReg="false"/>
+    <ROW File="libcups2.dll" Component_="libcups2.dll" FileName="libcups2.dll" Attributes="0" SourcePath="packages\libcups2_native.redist.2.4.3.4\build\native\bin\x64\Release\libcups2.dll" SelfReg="false"/>
     <ROW File="libpng16.dll" Component_="libpng16.dll" FileName="libpng16.dll" Attributes="0" SourcePath="packages\libpng_native.redist.1.6.30\build\native\bin\x64\Release\libpng16.dll" SelfReg="false"/>
     <ROW File="zlib.dll" Component_="zlib.dll" FileName="zlib.dll" Attributes="0" SourcePath="packages\zlib_native.redist.1.2.11\build\native\bin\x64\Release\zlib.dll" SelfReg="false"/>
   </COMPONENT>
@@ -234,6 +236,7 @@
     <ROW Feature_="MainFeature" Component_="htmldoc.pdf"/>
     <ROW Feature_="MainFeature" Component_="jpeg62.dll"/>
     <ROW Feature_="MainFeature" Component_="turbojpeg.dll"/>
+    <ROW Feature_="MainFeature" Component_="libcups2.dll"/>
     <ROW Feature_="MainFeature" Component_="libpng16.dll"/>
     <ROW Feature_="MainFeature" Component_="zlib.dll"/>
   </COMPONENT>

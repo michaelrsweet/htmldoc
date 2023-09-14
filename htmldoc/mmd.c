@@ -43,6 +43,9 @@
 
 #define _CRT_SECURE_NO_DEPRECATE
 #define _CRT_SECURE_NO_WARNINGS
+#if _WIN32
+#  define strcasecmp stricmp
+#endif /* _WIN32 */
 
 
 /*
@@ -1214,14 +1217,14 @@ mmdLoadString(mmd_t      *root,		/* I - Root node for document or `NULL` for a n
 
   char		tempfile[1024];		/* Temporary filename */
 
-  if (tempnam_s(tempfile, sizeof(tempfile)))
+  if (tmpnam_s(tempfile, sizeof(tempfile)))
     return (root);
 
   if ((fp = fopen(tempfile, "w+")) == NULL)
     return (root);
 
   fputs(fp, s);
-  frewind(fp);
+  rewind(fp);
 
 #else // POSIX
  /*
