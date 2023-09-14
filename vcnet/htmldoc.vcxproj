@@ -112,7 +112,7 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>packages\libpng_native.1.6.30\build\native\lib\x64\Release\libpng16.lib;packages\libjpeg-turbo-v142.2.0.4.3\build\native\lib\x64\v142\Release\jpeg.lib;packages\zlib_native.1.2.11\build\native\lib\x64\Release\zlib.lib;comctl32.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>packages\libcups2_native.2.4.3.4\build\native\lib\x64\Release\libcups2.lib;packages\libpng_native.1.6.30\build\native\lib\x64\Release\libpng16.lib;packages\libjpeg-turbo-v142.2.0.4.3\build\native\lib\x64\v142\Release\jpeg.lib;packages\zlib_native.1.2.11\build\native\lib\x64\Release\zlib.lib;comctl32.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)htmldocd.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <IgnoreSpecificDefaultLibraries>libcmtd.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
