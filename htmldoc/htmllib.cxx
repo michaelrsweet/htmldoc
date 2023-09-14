@@ -3460,7 +3460,7 @@ fix_filename(char *filename,		/* I - Original filename */
   static char	newfilename[1024];	/* New filename */
 
 
-  printf("fix_filename(filename=\"%s\", base=\"%s\")\n", filename, base);
+//  printf("fix_filename(filename=\"%s\", base=\"%s\")\n", filename, base);
 
   if (filename == NULL)
     return (NULL);
