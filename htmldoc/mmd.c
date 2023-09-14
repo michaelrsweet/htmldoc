@@ -1223,7 +1223,7 @@ mmdLoadString(mmd_t      *root,		/* I - Root node for document or `NULL` for a n
   if ((fp = fopen(tempfile, "w+")) == NULL)
     return (root);
 
-  fputs(fp, s);
+  fputs(s, fp);
   rewind(fp);
 
 #else // POSIX
