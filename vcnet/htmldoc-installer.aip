@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="15.3" version="19.1" Modules="simple" RootPath="." Language="en" Id="{8101414C-E32A-4865-B7D9-ABB4FFFB336F}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="15.3" version="20.3" Modules="simple" RootPath="." Language="en" Id="{8101414C-E32A-4865-B7D9-ABB4FFFB336F}">
+  <COMPONENT cid="caphyon.advinst.msicomp.ProjectOptionsComponent">
+    <ROW Name="HiddenItems" Value="AppXAppDetailsComponent;FixupComponent;AppXCapabilitiesComponent;AppXDependenciesComponent;AppXProductDetailsComponent;AppXVisualAssetsComponent;AppXAppDeclarationsComponent;AppXUriRulesComponent;MsiXDiffComponent;MsixManifestEditorComponent"/>
+  </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
-    <ROW Property="AI_CURRENT_YEAR" Value="2022" ValueLocId="-"/>
+    <ROW Property="AI_CURRENT_YEAR" Value="2023" ValueLocId="-"/>
+    <ROW Property="AI_PACKAGING_TOOL" Value="Advanced Installer 20.3 build f51955ff" ValueLocId="-"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_ghtmldoc.exe" Value="x64\Release\ghtmldoc"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_htmldoc.exe" Value="x64\Release"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_ghtmldoc.exe" Value="ghtmldoc.exe"/>
@@ -17,18 +21,22 @@
     <ROW Property="ProductCode" Value="1033:{20C49885-ABD0-4F20-B13A-3ED4D0888BF8} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="HTMLDOC"/>
-    <ROW Property="ProductVersion" Value="1.9.17.0" Type="32"/>
+    <ROW Property="ProductVersion" Value="1.9.17.0"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:ReallySuppress"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{4016A37E-404B-4785-B768-D4FF161DE6E9}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
     <ROW Property="WindowsType9XDisplay" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT" MultiBuildValue="DefaultBuild:Windows 9x/ME/NT/2000/XP/Vista/Windows 7/Windows 8 x86/Windows 8.1 x86/Windows 10 x86" ValueLocId="-"/>
     <ROW Property="WindowsTypeNT40" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
     <ROW Property="WindowsTypeNT40Display" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
     <ROW Property="WindowsTypeNT50" MultiBuildValue="DefaultBuild:Windows 2000" ValueLocId="-"/>
     <ROW Property="WindowsTypeNT50Display" MultiBuildValue="DefaultBuild:Windows 2000" ValueLocId="-"/>
     <ROW Property="WindowsTypeNT5X" MultiBuildValue="DefaultBuild:Windows XP/2003" ValueLocId="-"/>
     <ROW Property="WindowsTypeNT5XDisplay" MultiBuildValue="DefaultBuild:Windows XP/2003" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT64" MultiBuildValue="DefaultBuild:Windows Vista x64, Windows Server 2008 x64, Windows 7 x64, Windows Server 2008 R2 x64, Windows 8 x64, Windows 8.1 x64" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT64Display" MultiBuildValue="DefaultBuild:Windows Vista x64, Windows Server 2008 x64, Windows 7 x64, Windows Server 2008 R2 x64, Windows 8 x64, Windows 8.1 x64" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNTDisplay" MultiBuildValue="DefaultBuild:32-bit Windows versions" ValueLocId="-"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
     <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
@@ -44,6 +52,7 @@
     <ROW Component="ProductInformation" ComponentId="{6F4AE7EA-A32B-4072-A65C-0047BBFDF5EA}" Directory_="APPDIR" Attributes="260" KeyPath="Version"/>
     <ROW Component="SHORTCUTDIR" ComponentId="{481B0954-66D5-49F5-94B6-6907B318F6E0}" Directory_="SHORTCUTDIR" Attributes="0"/>
     <ROW Component="cp1250" ComponentId="{6FD3DB1C-C13B-4E65-8497-A4A9EBF11338}" Directory_="data_Dir" Attributes="0" KeyPath="cp1250" Type="0"/>
+    <ROW Component="crypto.dll" ComponentId="{732F41C6-0713-4845-A65A-9A2CF3526175}" Directory_="APPDIR" Attributes="256" KeyPath="crypto.dll"/>
     <ROW Component="doc" ComponentId="{DF98BC9F-3357-4DD7-91FC-774A6218B252}" Directory_="APPDIR" Attributes="260" KeyPath="doc"/>
     <ROW Component="ghtmldoc_PrimaryOutput" ComponentId="{7E9BB6EF-0ABB-4FF7-BD43-333BBCF9A7B2}" Directory_="APPDIR" Attributes="256" KeyPath="ghtmldoc.exe"/>
     <ROW Component="htmldoc.pdf" ComponentId="{727C2B17-2068-4706-B4D9-CB895039A183}" Directory_="doc_Dir" Attributes="0" KeyPath="htmldoc.pdf"/>
@@ -52,6 +61,9 @@
     <ROW Component="jpeg62.dll" ComponentId="{B6284C77-74FA-4D58-A912-384FF575F2C0}" Directory_="APPDIR" Attributes="256" KeyPath="jpeg62.dll"/>
     <ROW Component="libcups2.dll" ComponentId="{EA15F57A-7744-4BC4-AEFE-4222E74F1440}" Directory_="APPDIR" Attributes="256" KeyPath="libcups2.dll"/>
     <ROW Component="libpng16.dll" ComponentId="{168E9D26-1768-42BB-B9D3-94E502DB6C4F}" Directory_="APPDIR" Attributes="256" KeyPath="libpng16.dll"/>
+    <ROW Component="regex.dll" ComponentId="{4A3B8ADE-66DE-4224-B03B-4F177A1EF1D6}" Directory_="APPDIR" Attributes="256" KeyPath="regex.dll"/>
+    <ROW Component="ssl.dll" ComponentId="{FABE16A2-7D26-45D9-9D78-F2759B2F0500}" Directory_="APPDIR" Attributes="256" KeyPath="ssl.dll"/>
+    <ROW Component="tls.dll" ComponentId="{4AE61FDE-E82C-420D-8FD7-5FF89B0B1951}" Directory_="APPDIR" Attributes="256" KeyPath="tls.dll"/>
     <ROW Component="turbojpeg.dll" ComponentId="{E74800CC-32E5-4BDD-ACE7-5F95D0923C46}" Directory_="APPDIR" Attributes="256" KeyPath="turbojpeg.dll"/>
     <ROW Component="zlib.dll" ComponentId="{A0FE788E-6DB7-4D10-BD95-B42358C5AAC7}" Directory_="APPDIR" Attributes="256" KeyPath="zlib.dll"/>
   </COMPONENT>
@@ -145,6 +157,10 @@
     <ROW File="libcups2.dll" Component_="libcups2.dll" FileName="libcups2.dll" Attributes="0" SourcePath="packages\libcups2_native.redist.2.4.3.4\build\native\bin\x64\Release\libcups2.dll" SelfReg="false"/>
     <ROW File="libpng16.dll" Component_="libpng16.dll" FileName="libpng16.dll" Attributes="0" SourcePath="packages\libpng_native.redist.1.6.30\build\native\bin\x64\Release\libpng16.dll" SelfReg="false"/>
     <ROW File="zlib.dll" Component_="zlib.dll" FileName="zlib.dll" Attributes="0" SourcePath="packages\zlib_native.redist.1.2.11\build\native\bin\x64\Release\zlib.dll" SelfReg="false"/>
+    <ROW File="regex.dll" Component_="regex.dll" FileName="regex.dll" Attributes="0" SourcePath="packages\libcups2_native.redist.2.4.3.4\build\native\bin\x64\Release\regex.dll" SelfReg="false"/>
+    <ROW File="crypto.dll" Component_="crypto.dll" FileName="crypto.dll" Attributes="0" SourcePath="packages\libressl_native.redist.3.7.3\build\native\bin\x64\Release\crypto.dll" SelfReg="false"/>
+    <ROW File="ssl.dll" Component_="ssl.dll" FileName="ssl.dll" Attributes="0" SourcePath="packages\libressl_native.redist.3.7.3\build\native\bin\x64\Release\ssl.dll" SelfReg="false"/>
+    <ROW File="tls.dll" Component_="tls.dll" FileName="tls.dll" Attributes="0" SourcePath="packages\libressl_native.redist.3.7.3\build\native\bin\x64\Release\tls.dll" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.AppPathsComponent">
     <ROW Name="AI_APPPATH_PERBUILD_ghtmldoc.exe" Path="[|AI_PROPPATH_DIR_PERBUILD_ghtmldoc.exe]\[|AI_PROPPATH_FILENAME_PERBUILD_ghtmldoc.exe]" Type="2" Content="0"/>
@@ -212,6 +228,7 @@
     <ROW Action="AI_EnableDebugLog" Type="321" Source="aicustact.dll" Target="EnableDebugLog"/>
     <ROW Action="AI_InstallModeCheck" Type="1" Source="aicustact.dll" Target="UpdateInstallMode" WithoutSeq="true"/>
     <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
+    <ROW Action="AI_PRESERVE_INSTALL_TYPE" Type="65" Source="aicustact.dll" Target="PreserveInstallType"/>
     <ROW Action="AI_RESTORE_LOCATION" Type="65" Source="aicustact.dll" Target="RestoreLocation"/>
     <ROW Action="AI_ResolveKnownFolders" Type="1" Source="aicustact.dll" Target="AI_ResolveKnownFolders"/>
     <ROW Action="AI_SHOW_LOG" Type="65" Source="aicustact.dll" Target="LaunchLogFile" WithoutSeq="true"/>
@@ -239,6 +256,10 @@
     <ROW Feature_="MainFeature" Component_="libcups2.dll"/>
     <ROW Feature_="MainFeature" Component_="libpng16.dll"/>
     <ROW Feature_="MainFeature" Component_="zlib.dll"/>
+    <ROW Feature_="MainFeature" Component_="regex.dll"/>
+    <ROW Feature_="MainFeature" Component_="crypto.dll"/>
+    <ROW Feature_="MainFeature" Component_="ssl.dll"/>
+    <ROW Feature_="MainFeature" Component_="tls.dll"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
     <ROW Name="htmldoc.exe" SourcePath="..\desktop\htmldoc.ico" Index="0"/>
@@ -256,8 +277,11 @@
     <ROW Action="AI_ResolveKnownFolders" Sequence="53"/>
     <ROW Action="AI_DpiContentScale" Sequence="52"/>
     <ROW Action="AI_EnableDebugLog" Sequence="51"/>
+    <ROW Action="AI_PRESERVE_INSTALL_TYPE" Sequence="199"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
+    <ROW Condition="( Version9X OR ( NOT VersionNT64 ) OR ( VersionNT64 AND ((VersionNT64 &lt;&gt; 600) OR (MsiNTProductType &lt;&gt; 1)) AND ((VersionNT64 &lt;&gt; 600) OR (MsiNTProductType = 1)) AND ((VersionNT64 &lt;&gt; 601) OR (MsiNTProductType &lt;&gt; 1)) AND ((VersionNT64 &lt;&gt; 601) OR (MsiNTProductType = 1)) AND ((VersionNT64 &lt;&gt; 602) OR (MsiNTProductType &lt;&gt; 1)) AND ((VersionNT64 &lt;&gt; 603) OR (MsiNTProductType &lt;&gt; 1)) ) )" Description="[ProductName] cannot be installed on the following Windows versions: [WindowsTypeNT64Display]." DescriptionLocId="AI.LaunchCondition.NoSpecificNT64" IsPredefined="true" Builds="DefaultBuild"/>
+    <ROW Condition="( Version9X OR VersionNT64 )" Description="[ProductName] cannot be installed on [WindowsTypeNTDisplay]." DescriptionLocId="AI.LaunchCondition.NoNT" IsPredefined="true" Builds="DefaultBuild"/>
     <ROW Condition="((VersionNT &lt;&gt; 501) AND (VersionNT &lt;&gt; 502))" Description="[ProductName] cannot be installed on [WindowsTypeNT5XDisplay]." DescriptionLocId="AI.LaunchCondition.NoNT5X" IsPredefined="true" Builds="DefaultBuild"/>
     <ROW Condition="(VersionNT &lt;&gt; 400)" Description="[ProductName] cannot be installed on [WindowsTypeNT40Display]." DescriptionLocId="AI.LaunchCondition.NoNT40" IsPredefined="true" Builds="DefaultBuild"/>
     <ROW Condition="(VersionNT &lt;&gt; 500)" Description="[ProductName] cannot be installed on [WindowsTypeNT50Display]." DescriptionLocId="AI.LaunchCondition.NoNT50" IsPredefined="true" Builds="DefaultBuild"/>
@@ -268,13 +292,29 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
     <ROW Registry="Path" Root="-1" Key="Software\[ProductName]" Name="data" Value="[APPDIR]" Component_="ProductInformation"/>
+    <ROW Registry="ProductName" Root="-1" Key="Software\[ProductName]" Name="\"/>
+    <ROW Registry="Software" Root="-1" Key="Software" Name="\"/>
     <ROW Registry="Version" Root="-1" Key="Software\[ProductName]" Name="version" Value="[ProductVersion]" Component_="ProductInformation"/>
     <ROW Registry="doc" Root="-1" Key="Software\[ProductName]" Name="doc" Value="[APPDIR]\doc" Component_="doc"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiShortsComponent">
     <ROW Shortcut="HTMLDOCUsersManual" Directory_="SHORTCUTDIR" Name="HTMLDO~1|HTMLDOC Users Manual" Component_="htmldoc.pdf" Target="[#htmldoc.pdf]" Hotkey="0" IconIndex="0" ShowCmd="1" WkDir="doc_Dir"/>
     <ROW Shortcut="ghtmldoc" Directory_="SHORTCUTDIR" Name="HTMLDOC" Component_="ghtmldoc_PrimaryOutput" Target="[#ghtmldoc.exe]" Hotkey="0" IconIndex="0" ShowCmd="1"/>
+    <ROW Shortcut="ghtmldoc_1" Directory_="SHORTCUTDIR" Name="ghtmldoc" Component_="ghtmldoc_PrimaryOutput" Target="[#ghtmldoc.exe]" Hotkey="0" IconIndex="0" ShowCmd="1"/>
+    <ROW Shortcut="ghtmldoc_2" Directory_="SHORTCUTDIR" Name="ghtmldoc" Component_="ghtmldoc_PrimaryOutput" Target="[#ghtmldoc.exe]" Hotkey="0" IconIndex="0" ShowCmd="1"/>
+    <ROW Shortcut="ghtmldoc_3" Directory_="SHORTCUTDIR" Name="ghtmldoc" Component_="ghtmldoc_PrimaryOutput" Target="[#ghtmldoc.exe]" Hotkey="0" IconIndex="0" ShowCmd="1"/>
+    <ROW Shortcut="ghtmldoc_4" Directory_="SHORTCUTDIR" Name="ghtmldoc" Component_="ghtmldoc_PrimaryOutput" Target="[#ghtmldoc.exe]" Hotkey="0" IconIndex="0" ShowCmd="1"/>
+    <ROW Shortcut="ghtmldoc_5" Directory_="SHORTCUTDIR" Name="ghtmldoc" Component_="ghtmldoc_PrimaryOutput" Target="[#ghtmldoc.exe]" Hotkey="0" IconIndex="0" ShowCmd="1"/>
+    <ROW Shortcut="ghtmldoc_6" Directory_="SHORTCUTDIR" Name="ghtmldoc" Component_="ghtmldoc_PrimaryOutput" Target="[#ghtmldoc.exe]" Hotkey="0" IconIndex="0" ShowCmd="1"/>
+    <ROW Shortcut="ghtmldoc_7" Directory_="SHORTCUTDIR" Name="ghtmldoc" Component_="ghtmldoc_PrimaryOutput" Target="[#ghtmldoc.exe]" Hotkey="0" IconIndex="0" ShowCmd="1"/>
     <ROW Shortcut="htmldoc" Directory_="SHORTCUTDIR" Name="htmldoc" Component_="htmldoc_PrimaryOutput" Target="[#htmldoc.exe]" Hotkey="0" IconIndex="0" ShowCmd="1"/>
+    <ROW Shortcut="htmldoc_1" Directory_="SHORTCUTDIR" Name="htmldoc" Component_="htmldoc_PrimaryOutput" Target="[#htmldoc.exe]" Hotkey="0" IconIndex="0" ShowCmd="1"/>
+    <ROW Shortcut="htmldoc_2" Directory_="SHORTCUTDIR" Name="htmldoc" Component_="htmldoc_PrimaryOutput" Target="[#htmldoc.exe]" Hotkey="0" IconIndex="0" ShowCmd="1"/>
+    <ROW Shortcut="htmldoc_3" Directory_="SHORTCUTDIR" Name="htmldoc" Component_="htmldoc_PrimaryOutput" Target="[#htmldoc.exe]" Hotkey="0" IconIndex="0" ShowCmd="1"/>
+    <ROW Shortcut="htmldoc_4" Directory_="SHORTCUTDIR" Name="htmldoc" Component_="htmldoc_PrimaryOutput" Target="[#htmldoc.exe]" Hotkey="0" IconIndex="0" ShowCmd="1"/>
+    <ROW Shortcut="htmldoc_5" Directory_="SHORTCUTDIR" Name="htmldoc" Component_="htmldoc_PrimaryOutput" Target="[#htmldoc.exe]" Hotkey="0" IconIndex="0" ShowCmd="1"/>
+    <ROW Shortcut="htmldoc_6" Directory_="SHORTCUTDIR" Name="htmldoc" Component_="htmldoc_PrimaryOutput" Target="[#htmldoc.exe]" Hotkey="0" IconIndex="0" ShowCmd="1"/>
+    <ROW Shortcut="htmldoc_7" Directory_="SHORTCUTDIR" Name="htmldoc" Component_="htmldoc_PrimaryOutput" Target="[#htmldoc.exe]" Hotkey="0" IconIndex="0" ShowCmd="1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
     <ATTRIBUTE name="UsedTheme" value="classic"/>
@@ -284,7 +324,7 @@
     <ROW UpgradeCode="[|UpgradeCode]" VersionMin="[|ProductVersion]" Attributes="2" ActionProperty="AI_NEWERPRODUCTFOUND"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.VsProjectComponent">
-    <ROW ProjectId="{a45127a6-7a50-48ae-820a-e0d821516ad4}" ProjectName="ghtmldoc" OutputGroup="PrimaryOutput" OutputFile="ghtmldoc.exe" OutputFileShortcut="ghtmldoc"/>
-    <ROW ProjectId="{287d2fb4-9941-4b64-b973-55a6ec04eafc}" ProjectName="htmldoc" OutputGroup="PrimaryOutput" OutputFile="htmldoc.exe" OutputFileShortcut="htmldoc"/>
+    <ROW ProjectId="{a45127a6-7a50-48ae-820a-e0d821516ad4}" ProjectName="ghtmldoc" OutputGroup="PrimaryOutput" OutputFile="ghtmldoc.exe" OutputFileShortcut="ghtmldoc_7"/>
+    <ROW ProjectId="{287d2fb4-9941-4b64-b973-55a6ec04eafc}" ProjectName="htmldoc" OutputGroup="PrimaryOutput" OutputFile="htmldoc.exe" OutputFileShortcut="htmldoc_7"/>
   </COMPONENT>
 </DOCUMENT>

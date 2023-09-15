@@ -32,18 +32,6 @@
     <ClCompile Include="..\htmldoc\htmlsep.cxx">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\htmldoc\http-addr.c">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\htmldoc\http-addrlist.c">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\htmldoc\http-support.c">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\htmldoc\http.c">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\htmldoc\image.cxx">
       <Filter>Source</Filter>
     </ClCompile>
@@ -69,12 +57,6 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\htmldoc\util.cxx">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\htmldoc\tls.c">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\htmldoc\array.c">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\htmldoc\zipc.c">
@@ -106,9 +88,6 @@
     <ClInclude Include="..\htmldoc\htmldoc.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\htmldoc\http-private.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\htmldoc\image.h">
       <Filter>Headers</Filter>
     </ClInclude>
@@ -116,9 +95,6 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\htmldoc\md5-private.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\htmldoc\sspi-private.h">
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\htmldoc\string.h">

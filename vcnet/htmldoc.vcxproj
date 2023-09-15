@@ -83,7 +83,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Generate HTMLDOC Users Manual</Message>
-      <Command>.\make-manual.bat $(OutDir) htmldoc.exe</Command>
+      <Command>.\make-manual.bat Release htmldoc.exe</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -126,7 +126,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Generate HTMLDOC Users Manual</Message>
-      <Command>.\make-manual.bat $(OutDir) htmldocd.exe</Command>
+      <Command>.\make-manual.bat Debug htmldocd.exe</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
