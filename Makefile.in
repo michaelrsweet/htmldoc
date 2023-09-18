@@ -87,11 +87,12 @@ dmg:
 	rm -f htmldoc/htmldoc.zip
 	ditto -c -k --keepParent htmldoc/htmldoc.app htmldoc/htmldoc.zip
 	echo Notarizing application
-	xcrun altool --notarize-app -f htmldoc/htmldoc.zip \
-		--primary-bundle-id org.msweet.htmldoc \
-		--username "$(APPLEID)" \
-		--password "@keychain:AC_$(TEAMID)" \
-		--asc-provider "$(TEAMID)"
+	xcrun notarytool submit htmldoc/htmldoc.zip \
+		--apple-id "$${APPLEID}" \
+		--keychain-profile "AC_$${TEAMID}" \
+		--team-id "$${TEAMID}" \
+		--wait
+	xcrun stapler staple htmldoc/htmldoc.app
 	echo Making disk image
 	rm -f ~/Desktop/htmldoc-$(VERSION)-macos.dmg
 	dmgbuild -s dmgbuild.py "HTMLDOC $(VERSION)" ~/Desktop/htmldoc-$(VERSION)-macos.dmg
