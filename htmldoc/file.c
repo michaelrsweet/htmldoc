@@ -934,6 +934,8 @@ file_method(const char *s)	/* I - Filename or URL */
     return ("ftp");
   else if (strncmp(s, "mailto:", 7) == 0)
     return ("mailto");
+  else if (strncmp(s, "file:", 5) == 0)
+    return ("file");
   else
     return (NULL);
 }
