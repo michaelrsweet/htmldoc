@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="15.3" version="20.3" Modules="simple" RootPath="." Language="en" Id="{8101414C-E32A-4865-B7D9-ABB4FFFB336F}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="15.3" version="21.0.1" Modules="simple" RootPath="." Language="en" Id="{8101414C-E32A-4865-B7D9-ABB4FFFB336F}">
   <COMPONENT cid="caphyon.advinst.msicomp.ProjectOptionsComponent">
     <ROW Name="HiddenItems" Value="AppXAppDetailsComponent;FixupComponent;AppXCapabilitiesComponent;AppXDependenciesComponent;AppXProductDetailsComponent;AppXVisualAssetsComponent;AppXAppDeclarationsComponent;AppXUriRulesComponent;MsiXDiffComponent;MsixManifestEditorComponent"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
-    <ROW Property="AI_CURRENT_YEAR" Value="2023" ValueLocId="-"/>
-    <ROW Property="AI_PACKAGING_TOOL" Value="Advanced Installer 20.3 build f51955ff" ValueLocId="-"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_ghtmldoc.exe" Value="x64\Release\ghtmldoc"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_htmldoc.exe" Value="x64\Release"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_ghtmldoc.exe" Value="ghtmldoc.exe"/>
@@ -21,7 +19,7 @@
     <ROW Property="ProductCode" Value="1033:{20C49885-ABD0-4F20-B13A-3ED4D0888BF8} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="HTMLDOC"/>
-    <ROW Property="ProductVersion" Value="1.9.17.0"/>
+    <ROW Property="ProductVersion" Value="1.9.17.0" Options="32"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:ReallySuppress"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{4016A37E-404B-4785-B768-D4FF161DE6E9}"/>
@@ -288,7 +286,7 @@
     <ROW Condition="VersionNT" Description="[ProductName] cannot be installed on [WindowsType9XDisplay]." DescriptionLocId="AI.LaunchCondition.No9X" IsPredefined="true" Builds="DefaultBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiMergeModsComponent">
-    <ROW Module="Microsoft_VC142_CRT_x64.msm" Path="..\..\..\..\..\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Redist\MSVC\v142\MergeModules\Microsoft_VC142_CRT_x64.msm" Feature="MainFeature" Directory="APPDIR" Order="1"/>
+    <ROW Module="Microsoft_VC142_CRT_x64.msm" Path="..\..\..\..\..\..\..\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Redist\MSVC\v142\MergeModules\Microsoft_VC142_CRT_x64.msm" Feature="MainFeature" Directory="APPDIR" Order="1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
     <ROW Registry="Path" Root="-1" Key="Software\[ProductName]" Name="data" Value="[APPDIR]" Component_="ProductInformation"/>
