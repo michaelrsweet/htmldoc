@@ -1,7 +1,7 @@
 /*
  * HTML parsing routines for HTMLDOC, a HTML document processing program.
  *
- * Copyright 2011-2023 by Michael R Sweet.
+ * Copyright 2011-2024 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -571,9 +571,23 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
               break;
 	    }
 	}
+	else if (t->markup == MARKUP_TR)
+	{
+          for (temp = parent; temp != NULL; temp = temp->parent)
+          {
+            if (temp->markup == MARKUP_TR)
+              break;
+            else if (temp->markup == MARKUP_TABLE || t->markup == MARKUP_THEAD || t->markup == MARKUP_TBODY || t->markup == MARKUP_TFOOT || temp->markup == MARKUP_EMBED)
+	    {
+	      temp = NULL;
+              break;
+	    }
+	  }
+	}
 	else if (istentry(t->markup))
 	{
           for (temp = parent; temp != NULL; temp = temp->parent)
+          {
             if (istentry(temp->markup))
               break;
 	    else if (temp->markup == MARKUP_TABLE || istable(temp->markup) ||
@@ -598,6 +612,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	      temp = NULL;
               break;
 	    }
+	  }
 	}
 	else
           temp = NULL;

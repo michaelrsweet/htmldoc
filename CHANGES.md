@@ -1,5 +1,6 @@
 # Changes in HTMLDOC v1.9.18
 
+- Fixed table rendering when there are missing `</tr>` (Issue #494)
 - Fixed support for links of the form "filename.html#anchor" in PDF output
   (Issue #514)
 - Fixed `--header1` support for web page output (Issue #515)
