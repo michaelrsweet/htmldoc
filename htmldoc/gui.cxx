@@ -1,7 +1,7 @@
 //
 // GUI routines for HTMLDOC, an HTML document processing program.
 //
-// Copyright © 2011-2023 by Michael R Sweet.
+// Copyright © 2011-2024 by Michael R Sweet.
 // Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
 //
 // This program is free software.  Distribution and use rights are outlined in
@@ -4284,7 +4284,7 @@ GUI::showAboutCB(void)
   label->image(&logo);
 
   label = new Fl_Box(60, 45, 530, 35,
-          "HTMLDOC " SVERSION "\nCopyright © 2011-2023 by Michael R Sweet."
+          "HTMLDOC " SVERSION "\nCopyright © 2011-2024 by Michael R Sweet."
 	  );
   label->align(FL_ALIGN_TOP_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP);
 

@@ -2,7 +2,7 @@
 // GUI license dialog routines for HTMLDOC, an HTML document processing
 // program.
 //
-// Copyright 2011-2020 by Michael R Sweet.
+// Copyright 2011-2024 by Michael R Sweet.
 // Copyright 1997-2010 by Easy Software Products.  All rights reserved.
 //
 // This program is free software.  Distribution and use rights are outlined in
@@ -59,7 +59,7 @@ GUI::showLicenseCB(void)
   group->labelsize(18);
 
   box = new Fl_Box(20, 45, 600, 110,
-    "Copyright © 2011-2022 by Michael R Sweet.\n\n"
+    "Copyright © 2011-2024 by Michael R Sweet.\n\n"
     "HTMLDOC is provided under the terms of the GNU General Public License and "
     "comes with absolutely no warranty.  Please report problems on the Github "
     "issues page at:\n\n"
