@@ -7,11 +7,12 @@ jobs:
     runs-on: ubuntu-latest
     environment: Coverity
     steps:
-      - uses: actions/checkout@v2
-      - name: update build environment
+      - name: Checkout htmldoc sources
+        uses: actions/checkout@v3
+      - name: Update build environment
         run: sudo apt-get update --fix-missing -y
-      - name: install prerequisites
-        run: sudo apt-get install -y libfltk1.3-dev libcups2-dev libgnutls28-dev libjpeg-dev libpng-dev zlib1g-dev
+      - name: Install prerequisites
+        run: sudo apt-get install -y libfltk1.3-dev libcups2-dev libjpeg-dev libpng-dev zlib1g-dev
       - name: Download Coverity Build Tool
         run: |
           wget -q https://scan.coverity.com/download/linux64 --post-data token="$TOKEN&project=$GITHUB_REPOSITORY" -O cov-analysis-linux64.tar.gz
@@ -20,10 +21,10 @@ jobs:
         env:
           TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
 
-      - name: configure
+      - name: Configure htmldoc
         run: ./configure --enable-debug --enable-maintainer
 
-      - name: Build with cov-build
+      - name: Build htmldoc with cov-build
         run: |
           export PATH=`pwd`/cov-analysis-linux64/bin:$PATH
           cov-build --dir cov-int make

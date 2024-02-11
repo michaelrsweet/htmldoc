@@ -12,16 +12,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: update build environment
+    - name: Checkout htmldoc sources
+      uses: actions/checkout@v4
+    - name: Update build environment
       run: sudo apt-get update --fix-missing -y
-    - name: install prerequisites
-      run: sudo apt-get install -y cppcheck libfltk1.3-dev libcups2-dev libgnutls28-dev libjpeg-dev libpng-dev zlib1g-dev
-    - name: configure
+    - name: Install prerequisites
+      run: sudo apt-get install -y cppcheck libfltk1.3-dev libcups2-dev libjpeg-dev libpng-dev zlib1g-dev
+    - name: Configure htmldoc
       env:
         CC: /usr/bin/gcc
       run: ./configure --enable-debug
-    - name: make
+    - name: Build htmldoc
       run: make
 
   build-macos:
@@ -29,12 +30,13 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: install prerequisites
+    - name: Checkout htmldoc sources
+      uses: actions/checkout@v4
+    - name: Install prerequisites
       run: brew install cppcheck fltk libjpeg libpng
-    - name: configure
+    - name: Configure htmldoc
       run: ./configure --enable-debug --enable-maintainer --enable-sanitizer
-    - name: make
+    - name: Build htmldoc
       run: make
 
   build-windows:
@@ -42,10 +44,11 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: setup-msbuild
-      uses: microsoft/setup-msbuild@v1.0.2
-    - name: nuget restore
+    - name: Checkout htmldoc sources
+      uses: actions/checkout@v4
+    - name: Setup msbuild
+      uses: microsoft/setup-msbuild@v2
+    - name: Install prerequisites
       run: cd vcnet; nuget restore htmldoc.sln
-    - name: msbuild
+    - name: Build htmldoc
       run: cd vcnet; msbuild htmldoc.sln -t:htmldoc -t:ghtmldoc
