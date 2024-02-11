@@ -1,5 +1,7 @@
 # Changes in HTMLDOC v1.9.18
 
+- Fixed support for links of the form "filename.html#anchor" in PDF output
+  (Issue #514)
 - Fixed `--header1` support for web page output (Issue #515)
 - Fixed markdown emphasized, strong, and struck-through text (Issue 517)
 
