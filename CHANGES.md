@@ -1,3 +1,8 @@
+# Changes in HTMLDOC v1.9.18
+
+- Fixed markdown emphasized, strong, and struck-through text (Issue 517)
+
+
 # Changes in HTMLDOC v1.9.17
 
 - Added new `--pre-indent` option to control indentation of pre-formatted text

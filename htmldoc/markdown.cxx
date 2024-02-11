@@ -1,7 +1,7 @@
 /*
  * Markdown parsing definitions for HTMLDOC, a HTML document processing program.
  *
- * Copyright © 2017-2020 by Michael R Sweet.
+ * Copyright © 2017-2024 by Michael R Sweet.
  *
  * This program is free software.  Distribution and use rights are outlined in
  * the file "COPYING".
@@ -271,24 +271,33 @@ add_leaf(tree_t *html,                  /* I - Parent HTML node */
                 *text,                  /* Text to write */
                 *url;                   /* URL to write */
   int		whitespace;		/* Whitespace before text? */
+  unsigned	style;			/* Style for node */
+  unsigned	typeface;		/* Typeface for node */
+  unsigned	strikethrough;		/* Struck-through text? */
 
 
-  text       = get_text((uchar *)mmdGetText(node));
-  url        = (uchar *)mmdGetURL(node);
-  whitespace = mmdGetWhitespace(node);
+  style         = html->style;
+  strikethrough = html->strikethrough;
+  typeface      = html->typeface;
+  text          = get_text((uchar *)mmdGetText(node));
+  url           = (uchar *)mmdGetURL(node);
+  whitespace    = mmdGetWhitespace(node);
 
   switch (mmdGetType(node))
   {
     case MMD_TYPE_EMPHASIZED_TEXT :
         element = MARKUP_EM;
+        style   = STYLE_ITALIC;
         break;
 
     case MMD_TYPE_STRONG_TEXT :
         element = MARKUP_STRONG;
+        style   = STYLE_BOLD;
         break;
 
     case MMD_TYPE_STRUCK_TEXT :
-        element = MARKUP_DEL;
+        element       = MARKUP_DEL;
+        strikethrough = 1;
         break;
 
     case MMD_TYPE_LINKED_TEXT :
@@ -296,7 +305,8 @@ add_leaf(tree_t *html,                  /* I - Parent HTML node */
         break;
 
     case MMD_TYPE_CODE_TEXT :
-        element = MARKUP_CODE;
+        element  = MARKUP_CODE;
+        typeface = _htmlBodyFont >= TYPE_MONOSPACE ? TYPE_MONOSPACE : TYPE_COURIER;
         break;
 
     case MMD_TYPE_IMAGE :
@@ -326,7 +336,9 @@ add_leaf(tree_t *html,                  /* I - Parent HTML node */
   }
 
   if (element == MARKUP_NONE)
+  {
     parent = html;
+  }
   else if ((parent = html->last_child) == NULL || parent->markup != element)
   {
     if (whitespace)
@@ -335,7 +347,10 @@ add_leaf(tree_t *html,                  /* I - Parent HTML node */
       whitespace = 0;
     }
 
-    parent = htmlAddTree(html, element, NULL);
+    parent                = htmlAddTree(html, element, NULL);
+    parent->style         = style;
+    parent->strikethrough = strikethrough;
+    parent->typeface      = typeface;
 
     if (element == MARKUP_A && url)
     {
