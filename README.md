@@ -20,7 +20,7 @@ servers.  However, it does not support many things in "the modern web", such as:
   output (which is not well supported by CSS)
 
 - Encryption: HTMLDOC currently supports the older (and very insecure) PDF 1.4
-  (128-bit RC4) encryption.  I have looked at supporting AES (256-bit)
+  (128-bit RC4) encryption.  I have looked at supporting AES (128/256-bit)
   encryption, however it is not widely supported and there are incompatible
   changes in PDF 2.0, so it is unlikely to be added to HTMLDOC.
 
@@ -118,7 +118,7 @@ of Ghostscript, among other things).
 Legal Stuff
 -----------
 
-HTMLDOC is copyright © 1997-2023 by Michael R Sweet.  This program is free
+HTMLDOC is copyright © 1997-2024 by Michael R Sweet.  This program is free
 software.  Distribution and use rights are outlined in the file "COPYING".
 
 HTMLDOC includes code to encrypt PDF document files using the RC4 algorithm

@@ -5,7 +5,7 @@ To compile HTMLDOC you'll need C and C++ compilers (clang and gcc are fine)
 along with the following libraries:
 
 - FLTK 1.1.x or higher for GUI support
-- GNU TLS for HTTPS support (except on macOS and Windows)
+- CUPS 2.2 or higher for HTTP/HTTPS support
 - libjpeg (7 or higher) or libjpeg-turbo for JPEG support
 - libpng 1.6 or higher for PNG support
 - zlib 1.1 or higher
@@ -63,7 +63,7 @@ Ubuntu and Debian Notes
 You should install the following packages:
 
     sudo apt-get install build-essential autoconf libfltk1.3-dev \
-        libgnutls28-dev libjpeg-dev libpng-dev pkg-config zlib1g-dev
+        libcups2-dev libjpeg-dev libpng-dev pkg-config zlib1g-dev
 
 
 CentOS, Fedora, and RHEL Notes
@@ -71,5 +71,5 @@ CentOS, Fedora, and RHEL Notes
 
 Install the following packages to get full functionality:
 
-    sudo yum install autoconf fltk-devel gnutls-devel libjpeg-devel \
+    sudo dnf install autoconf fltk-devel cups-devel libjpeg-devel \
     	libpng-devel pkgconfig zlib-devel

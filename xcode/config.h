@@ -1,7 +1,7 @@
 /*
  * Xcode configuration file for HTMLDOC.
  *
- * Copyright © 2011-2023 by Michael R Sweet.
+ * Copyright © 2011-2024 by Michael R Sweet.
  * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -12,7 +12,7 @@
  * What is the version number for this software?
  */
 
-#define SVERSION "1.9.17"
+#define SVERSION "1.9.18"
 
 
 /*
