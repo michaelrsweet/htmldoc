@@ -6,7 +6,7 @@
  * broken into more manageable pieces once we make all of the output
  * "drivers" into classes...
  *
- * Copyright © 2011-2023 by Michael R Sweet.
+ * Copyright © 2011-2024 by Michael R Sweet.
  * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -68,7 +68,7 @@ extern "C" {		/* Workaround for JPEG header problems... */
 
 #define HTMLDOC_ASCII85
 //#define HTMLDOC_INTERPOLATION
-#define HTMLDOC_PRODUCER "htmldoc " SVERSION " Copyright 2011-2022 by Michael R Sweet"
+#define HTMLDOC_PRODUCER "htmldoc " SVERSION " Copyright 2011-2024 by Michael R Sweet"
 
 
 /*
@@ -1471,14 +1471,12 @@ pspdf_prepare_page(int page)		/* I - Page number */
     * Add chapter header & footer...
     */
 
-    if (page > chapter_starts[chapter] || OutputType != OUTPUT_BOOK)
-      pspdf_prepare_heading(page, print_page, pages[page].header, top,
-                            page_text, sizeof(page_text));
+    if (page == chapter_starts[chapter])
+      pspdf_prepare_heading(page, print_page, pages[page].header1, top, page_text, sizeof(page_text));
     else
-      pspdf_prepare_heading(page, print_page, pages[page].header1, top,
-                            page_text, sizeof(page_text));
-    pspdf_prepare_heading(page, print_page, pages[page].footer, 0,
-                          page_text, sizeof(page_text));
+      pspdf_prepare_heading(page, print_page, pages[page].header, top, page_text, sizeof(page_text));
+
+    pspdf_prepare_heading(page, print_page, pages[page].footer, 0, page_text, sizeof(page_text));
   }
 
  /*

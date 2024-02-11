@@ -1,5 +1,6 @@
 # Changes in HTMLDOC v1.9.18
 
+- Fixed `--header1` support for web page output (Issue #515)
 - Fixed markdown emphasized, strong, and struck-through text (Issue 517)
 
 
