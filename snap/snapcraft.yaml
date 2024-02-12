@@ -22,7 +22,7 @@ architectures:
 
 apps:
     htmldoc:
-        extensions: [gnome-3-38]
+        extensions: [gnome]
         command: usr/bin/htmldoc
         desktop: usr/share/applications/htmldoc.desktop
         plugs: [desktop, home, network, x11]
