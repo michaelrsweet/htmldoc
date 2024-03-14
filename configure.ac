@@ -68,6 +68,7 @@ AC_ARG_ENABLE(debug, AS_HELP_STRING([--enable-debug], [turn on debugging, defaul
 
 AC_ARG_WITH(gui, AS_HELP_STRING([--without-gui], [do not compile the GUI version of HTMLDOC, default=yes]))
 
+
 dnl Checks for programs...
 AC_PROG_AWK
 AC_PROG_CC(clang cc gcc)
@@ -89,8 +90,10 @@ AS_IF([test x$PKGCONFIG = x], [
     AC_MSG_ERROR([pkg-config is required for library checks.])
 ])
 
+
 dnl See whether we need a .exe extension on executables...
 AC_EXEEXT
+
 
 dnl Figure out the correct "ar" command flags...
 AS_IF([test "$ac_cv_prog_ranlib" = ":"], [
@@ -101,15 +104,15 @@ AS_IF([test "$ac_cv_prog_ranlib" = ":"], [
 
 AC_SUBST(ARFLAGS)
 
+
 dnl Checks for header files.
 AC_CHECK_HEADER(strings.h, AC_DEFINE(HAVE_STRINGS_H))
 AC_CHECK_HEADER(locale.h, AC_DEFINE(HAVE_LOCALE_H))
 
+
 dnl Checks for string functions.
 AC_CHECK_FUNCS(strdup strcasecmp strncasecmp strlcat strlcpy snprintf vsnprintf)
 
-dnl Check for random number functions...
-AC_CHECK_FUNCS(random lrand48 arc4random)
 
 dnl See whether the tm structure has the tm_gmtoff member...
 AC_MSG_CHECKING([for tm_gmtoff member in tm structure])
@@ -123,17 +126,19 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <time.h>]], [[
     AC_MSG_RESULT([no])
 ])
 
+
 dnl Check for libraries...
 LDFLAGS="${LDFLAGS:=}"
 AC_SUBST(LDFLAGS)
 
+
 dnl Math functions...
-AC_CHECK_LIB(m,pow)
+AC_CHECK_LIB([m], [pow])
+
 
 dnl Check for largefile support...
 AC_SYS_LARGEFILE
 
-dnl Define largefile options as needed...
 LARGEFILE=""
 AS_IF([test x$enable_largefile != xno], [
     LARGEFILE="-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE"
@@ -148,26 +153,6 @@ AS_IF([test x$enable_largefile != xno], [
 ])
 AC_SUBST(LARGEFILE)
 
-dnl Check for "long long" support...
-AC_CACHE_CHECK([for long long int], ac_cv_c_long_long, [
-    AS_IF([test "$GCC" = yes], [
-	ac_cv_c_long_long=yes
-    ], [
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[
-	    long long int i;
-	]])], [
-	    ac_cv_c_long_long=yes
-	], [
-	    ac_cv_c_long_long=no
-	])
-    ])
-])
-
-AS_IF([test $ac_cv_c_long_long = yes], [
-    AC_DEFINE(HAVE_LONG_LONG)
-])
-
-AC_CHECK_FUNC(strtoll, AC_DEFINE(HAVE_STRTOLL))
 
 dnl Check for CUPS libraries...
 AC_PATH_TOOL([CUPSCONFIG], [cups-config])
@@ -196,6 +181,7 @@ AS_IF([$PKGCONFIG --exists cups], [
     LIBS="$LIBS $($CUPSCONFIG --libs)"
 ])
 
+
 dnl Check for GUI libraries...
 have_fltk=no
 POST=:
@@ -222,6 +208,7 @@ AS_IF([test "x$with_gui" != xno], [
 
 AC_SUBST(POST)
 
+
 dnl Check for image libraries...
 AC_MSG_CHECKING([for libjpeg])
 AS_IF([$PKGCONFIG --exists libjpeg], [
@@ -233,11 +220,22 @@ AS_IF([$PKGCONFIG --exists libjpeg], [
     AC_MSG_RESULT([no]);
 ])
 
-AC_SEARCH_LIBS([gzgets], [z], [
-    LIBS="$LIBS -lz"
+
+AC_MSG_CHECKING([for zlib])
+AS_IF([$PKGCONFIG --exists zlib], [
+    AC_MSG_RESULT([yes]);
+    CPPFLAGS="$CPPFLAGS $($PKGCONFIG --cflags zlib)"
+    LIBS="$($PKGCONFIG --libs zlib) $LIBS"
 ], [
-    AC_MSG_ERROR([HTMLDOC requires zlib.])
+    AC_MSG_RESULT([no pkg-config definition]);
+    AC_CHECK_HEADER([zlib.h])
+    AC_CHECK_LIB([z], [gzgets], [
+	LIBS="$LIBS -lz"
+    ], [
+	AC_MSG_ERROR([HTMLDOC requires zlib.])
+    ])
 ])
+
 
 AC_MSG_CHECKING([for libpng-1.6.x])
 AS_IF([$PKGCONFIG --exists libpng16], [
@@ -248,6 +246,7 @@ AS_IF([$PKGCONFIG --exists libpng16], [
 ], [
     AC_MSG_RESULT([no]);
 ])
+
 
 dnl Directories for config.h...
 AS_IF([test "$prefix" = "NONE"], [
@@ -282,6 +281,7 @@ AS_IF([test "$datadir" = "\${prefix}/share"], [
 
 AC_DEFINE_UNQUOTED(DOCUMENTATION, "$datadir/doc/htmldoc")
 AC_DEFINE_UNQUOTED(HTML_DATA, "$datadir/htmldoc")
+
 
 dnl Update compiler options...
 AC_ARG_ENABLE(maintainer, AS_HELP_STRING([--enable-maintainer], [turn on maintainer mode, default=no]))
@@ -390,6 +390,7 @@ AS_IF([test "x$with_gui" != xno], [
 	    OPTIM="`$FLTKCONFIG --cflags` $OPTIM"
     ])
 ])
+
 
 dnl Generate the top-level Makefile and Makedefs file...
 AC_CONFIG_FILES([Makedefs Makefile desktop/htmldoc.plist])

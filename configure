@@ -2858,6 +2858,7 @@ then :
 fi
 
 
+
 for ac_prog in gawk mawk nawk awk
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
@@ -4542,6 +4543,8 @@ fi
 
 
 
+
+
 if test "$ac_cv_prog_ranlib" = ":"
 then :
 
@@ -4552,6 +4555,7 @@ else $as_nop
     ARFLAGS="cr"
 
 fi
+
 
 
 
@@ -4600,6 +4604,7 @@ then :
 fi
 
 
+
 ac_fn_c_check_func "$LINENO" "strdup" "ac_cv_func_strdup"
 if test "x$ac_cv_func_strdup" = xyes
 then :
@@ -4644,25 +4649,6 @@ then :
 fi
 
 
-ac_fn_c_check_func "$LINENO" "random" "ac_cv_func_random"
-if test "x$ac_cv_func_random" = xyes
-then :
-  printf "%s\n" "#define HAVE_RANDOM 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "lrand48" "ac_cv_func_lrand48"
-if test "x$ac_cv_func_lrand48" = xyes
-then :
-  printf "%s\n" "#define HAVE_LRAND48 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "arc4random" "ac_cv_func_arc4random"
-if test "x$ac_cv_func_arc4random" = xyes
-then :
-  printf "%s\n" "#define HAVE_ARC4RANDOM 1" >>confdefs.h
-
-fi
-
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for tm_gmtoff member in tm structure" >&5
 printf %s "checking for tm_gmtoff member in tm structure... " >&6; }
@@ -4696,7 +4682,9 @@ printf "%s\n" "no" >&6; }
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 
+
 LDFLAGS="${LDFLAGS:=}"
+
 
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for pow in -lm" >&5
@@ -4741,6 +4729,7 @@ then :
   LIBS="-lm $LIBS"
 
 fi
+
 
 
 # Check whether --enable-largefile was given.
@@ -4971,66 +4960,6 @@ fi
 fi
 
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for long long int" >&5
-printf %s "checking for long long int... " >&6; }
-if test ${ac_cv_c_long_long+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-
-    if test "$GCC" = yes
-then :
-
-	ac_cv_c_long_long=yes
-
-else $as_nop
-
-	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main (void)
-{
-
-	    long long int i;
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"
-then :
-
-	    ac_cv_c_long_long=yes
-
-else $as_nop
-
-	    ac_cv_c_long_long=no
-
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-
-fi
-
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_c_long_long" >&5
-printf "%s\n" "$ac_cv_c_long_long" >&6; }
-
-if test $ac_cv_c_long_long = yes
-then :
-
-    printf "%s\n" "#define HAVE_LONG_LONG 1" >>confdefs.h
-
-
-fi
-
-ac_fn_c_check_func "$LINENO" "strtoll" "ac_cv_func_strtoll"
-if test "x$ac_cv_func_strtoll" = xyes
-then :
-  printf "%s\n" "#define HAVE_STRTOLL 1" >>confdefs.h
-
-fi
-
 
 if test -n "$ac_tool_prefix"; then
   # Extract the first word of "${ac_tool_prefix}cups-config", so it can be a program name with args.
@@ -5182,6 +5111,7 @@ printf "%s\n" "yes, v$CUPS_VERSION" >&6; }
 
 fi
 
+
 have_fltk=no
 POST=:
 if test "x$with_gui" != xno
@@ -5311,6 +5241,7 @@ fi
 
 
 
+
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libjpeg" >&5
 printf %s "checking for libjpeg... " >&6; }
 if $PKGCONFIG --exists libjpeg
@@ -5331,13 +5262,35 @@ printf "%s\n" "no" >&6; };
 
 fi
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing gzgets" >&5
-printf %s "checking for library containing gzgets... " >&6; }
-if test ${ac_cv_search_gzgets+y}
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for zlib" >&5
+printf %s "checking for zlib... " >&6; }
+if $PKGCONFIG --exists zlib
+then :
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; };
+    CPPFLAGS="$CPPFLAGS $($PKGCONFIG --cflags zlib)"
+    LIBS="$($PKGCONFIG --libs zlib) $LIBS"
+
+else $as_nop
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no pkg-config definition" >&5
+printf "%s\n" "no pkg-config definition" >&6; };
+    ac_fn_c_check_header_compile "$LINENO" "zlib.h" "ac_cv_header_zlib_h" "$ac_includes_default"
+if test "x$ac_cv_header_zlib_h" = xyes
+then :
+
+fi
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for gzgets in -lz" >&5
+printf %s "checking for gzgets in -lz... " >&6; }
+if test ${ac_cv_lib_z_gzgets+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_func_search_save_LIBS=$LIBS
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lz  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -5353,46 +5306,29 @@ return gzgets ();
   return 0;
 }
 _ACEOF
-for ac_lib in '' z
-do
-  if test -z "$ac_lib"; then
-    ac_res="none required"
-  else
-    ac_res=-l$ac_lib
-    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
-  fi
-  if ac_fn_c_try_link "$LINENO"
+if ac_fn_c_try_link "$LINENO"
 then :
-  ac_cv_search_gzgets=$ac_res
+  ac_cv_lib_z_gzgets=yes
+else $as_nop
+  ac_cv_lib_z_gzgets=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext
-  if test ${ac_cv_search_gzgets+y}
-then :
-  break
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
 fi
-done
-if test ${ac_cv_search_gzgets+y}
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_z_gzgets" >&5
+printf "%s\n" "$ac_cv_lib_z_gzgets" >&6; }
+if test "x$ac_cv_lib_z_gzgets" = xyes
 then :
 
-else $as_nop
-  ac_cv_search_gzgets=no
-fi
-rm conftest.$ac_ext
-LIBS=$ac_func_search_save_LIBS
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_gzgets" >&5
-printf "%s\n" "$ac_cv_search_gzgets" >&6; }
-ac_res=$ac_cv_search_gzgets
-if test "$ac_res" != no
-then :
-  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
-
-    LIBS="$LIBS -lz"
+	LIBS="$LIBS -lz"
 
 else $as_nop
 
-    as_fn_error $? "HTMLDOC requires zlib." "$LINENO" 5
+	as_fn_error $? "HTMLDOC requires zlib." "$LINENO" 5
+
+fi
+
 
 fi
 
@@ -5416,6 +5352,7 @@ else $as_nop
 printf "%s\n" "no" >&6; };
 
 fi
+
 
 if test "$prefix" = "NONE"
 then :
@@ -5478,6 +5415,7 @@ fi
 printf "%s\n" "#define DOCUMENTATION \"$datadir/doc/htmldoc\"" >>confdefs.h
 
 printf "%s\n" "#define HTML_DATA \"$datadir/htmldoc\"" >>confdefs.h
+
 
 
 # Check whether --enable-maintainer was given.
@@ -5707,6 +5645,7 @@ then :
 fi
 
 fi
+
 
 ac_config_files="$ac_config_files Makedefs Makefile desktop/htmldoc.plist"
 

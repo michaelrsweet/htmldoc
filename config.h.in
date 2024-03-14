@@ -1,7 +1,7 @@
 /*
  * Configuration file for HTMLDOC.
  *
- * Copyright © 2011-2023 by Michael R Sweet.
+ * Copyright © 2011-2024 by Michael R Sweet.
  * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -110,52 +110,3 @@
  */
 
 #undef HAVE_TM_GMTOFF
-
-
-/*
- * Which random number generator function to use...
- */
-
-#undef HAVE_ARC4RANDOM
-#undef HAVE_RANDOM
-#undef HAVE_LRAND48
-
-#ifdef HAVE_ARC4RANDOM
-#  define HTMLDOC_RAND() arc4random()
-#  define HTMLDOC_SRAND(v)
-#elif defined(HAVE_RANDOM)
-#  define HTMLDOC_RAND() random()
-#  define HTMLDOC_SRAND(v) srandom(v)
-#elif defined(HAVE_LRAND48)
-#  define HTMLDOC_RAND() lrand48()
-#  define HTMLDOC_SRAND(v) srand48(v)
-#else
-#  define HTMLDOC_RAND() rand()
-#  define HTMLDOC_SRAND(v) srand(v)
-#endif /* HAVE_ARC4RANDOM */
-
-
-/*
- * Do we have the long long type?
- */
-
-#undef HAVE_LONG_LONG
-
-#ifdef HAVE_LONG_LONG
-#  define HTMLDOC_LLFMT		"%lld"
-#  define HTMLDOC_LLCAST	(long long)
-#else
-#  define HTMLDOC_LLFMT		"%ld"
-#  define HTMLDOC_LLCAST	(long)
-#endif /* HAVE_LONG_LONG */
-
-
-/*
- * Do we have the strtoll() function?
- */
-
-#undef HAVE_STRTOLL
-
-#ifndef HAVE_STRTOLL
-#  define strtoll(nptr,endptr,base) strtol((nptr), (endptr), (base))
-#endif /* !HAVE_STRTOLL */

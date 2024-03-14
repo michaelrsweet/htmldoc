@@ -1,3 +1,8 @@
+# Changes in HTMLDOC v1.9.19
+
+- Updated configure script to look for zlib with pkg-config (Issue #519)
+
+
 # Changes in HTMLDOC v1.9.18
 
 - Fixed table rendering when there are missing `</tr>` (Issue #494)
