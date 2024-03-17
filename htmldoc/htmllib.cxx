@@ -15,7 +15,7 @@
 #include "htmldoc.h"
 #include <cups/http.h>
 #include <ctype.h>
-
+#include <string>
 
 /*
  * Markup strings...
@@ -279,8 +279,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	     const char *base)		// I - Base directory for file
 {
   int		ch;			// Character from file
-  uchar		*ptr,			// Pointer in string
-		entity[16],		// Character entity name (&#nnn; or &name;)
+  uchar		entity[16],		// Character entity name (&#nnn; or &name;)
 		*eptr;			// Pointer in entity string
   tree_t	*tree,			// "top" of this tree
 		*t,			// New tree entry
@@ -297,12 +296,14 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 		*span;			// Value for SPAN tag
   int		sizeval;		// Size value from FONT tag
   int		linenum;		// Line number in file
-  static uchar	s[10240];		// String from file
+  std::string   s;			// String from file
   static int	have_whitespace = 0;	// Non-zero if there was leading whitespace
 
 
   DEBUG_printf(("htmlReadFile(parent=%p, fp=%p, base=\"%s\")\n",
                 (void *)parent, (void *)fp, base ? base : "(null)"));
+
+  s.reserve(10240);
 
 #ifdef DEBUG
   indent[0] = '\0';
@@ -414,25 +415,23 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	if (ch == '\n')
 	  linenum ++;
 
-	ptr = s;
+	s.clear();
 	if (have_whitespace)
 	{
-          *ptr++ = ' ';
+          s += ' ';
 	  have_whitespace = 0;
 	}
 
-        *ptr++ = '<';
+        s += '<';
 	if (ch == '=')
-	  *ptr++ = '=';
+	  s += '=';
 	else if (ch == '<')
 	  ungetc(ch, fp);
 	else
 	  have_whitespace = 1;
 
-	*ptr++ = '\0';
-
 	t->markup = MARKUP_NONE;
-	t->data   = (uchar *)strdup((char *)s);
+	t->data   = (uchar *)strdup(s.c_str());
       }
       else
       {
@@ -733,8 +732,8 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
       * Read a pre-formatted string into the current tree entry...
       */
 
-      ptr = s;
-      while (ch != '<' && ch != EOF && ptr < (s + sizeof(s) - 1))
+      s.clear();
+      while (ch != '<' && ch != EOF)
       {
         if (ch == '&')
         {
@@ -759,10 +758,8 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	    progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d of %s.",
 	                   linenum, _htmlCurrentFile);
 
-            if (ptr < (s + sizeof(s) - 1))
-	      *ptr++ = '&';
-            strlcpy((char *)ptr, (char *)entity, sizeof(s) - (size_t)(ptr - s));
-	    ptr += strlen((char *)ptr);
+	    s += '&';
+            s += (const char *) entity;
 	  }
 	  else if ((ch = iso8859(entity)) == 0)
 	  {
@@ -770,15 +767,12 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	                   "Unknown character entity \"&%s;\" on line %d of %s.",
 	                   entity, linenum, _htmlCurrentFile);
 
-            if (ptr < (s + sizeof(s) - 1))
-	      *ptr++ = '&';
-            strlcpy((char *)ptr, (char *)entity, sizeof(s) - (size_t)(ptr - s));
-	    ptr += strlen((char *)ptr);
-            if (ptr < (s + sizeof(s) - 1))
-	      *ptr++ = ';';
+	    s += '&';
+            s += (const char *) entity;
+            s += ';';
 	  }
 	  else
-	    *ptr++ = (uchar)ch;
+	    s += (uchar) ch;
         }
         else if ((ch & 0x80) && _htmlUTF8)
         {
@@ -786,11 +780,11 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
           ch = utf8_getc(ch, fp);
 
           if (ch)
-            *ptr++ = (uchar)ch;
+            s += (uchar)ch;
         }
 	else if (ch != 0 && ch != '\r')
 	{
-          *ptr++ = (uchar)ch;
+          s += (uchar)ch;
 
           if (ch == '\n')
 	  {
@@ -802,13 +796,11 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
         ch = getc(fp);
       }
 
-      *ptr = '\0';
-
       if (ch == '<')
         ungetc(ch, fp);
 
       t->markup = MARKUP_NONE;
-      t->data   = (uchar *)strdup((char *)s);
+      t->data   = (uchar *)strdup(s.c_str());
 
       DEBUG_printf(("%sfragment \"%s\", line %d\n", indent, s, linenum));
     }
@@ -818,14 +810,14 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
       * Read the next string fragment...
       */
 
-      ptr = s;
+      s.clear();
       if (have_whitespace)
       {
-        *ptr++ = ' ';
+        s += ' ';
 	have_whitespace = 0;
       }
 
-      while (!isspace(ch) && ch != '<' && ch != EOF && ptr < (s + sizeof(s) - 1))
+      while (!isspace(ch) && ch != '<' && ch != EOF)
       {
         if (ch == '&')
         {
@@ -851,10 +843,8 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	    progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d of %s.",
 	                   linenum, _htmlCurrentFile);
 
-            if (ptr < (s + sizeof(s) - 1))
-	      *ptr++ = '&';
-            strlcpy((char *)ptr, (char *)entity, sizeof(s) - (size_t)(ptr - s));
-	    ptr += strlen((char *)ptr);
+	    s += '&';
+            s += (const char *)entity;
 	  }
 	  else if ((ch = iso8859(entity)) == 0)
 	  {
@@ -862,15 +852,12 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	                   "Unknown character entity \"&%s;\" on line %d of %s.",
 	                   entity, linenum, _htmlCurrentFile);
 
-            if (ptr < (s + sizeof(s) - 1))
-	      *ptr++ = '&';
-            strlcpy((char *)ptr, (char *)entity, sizeof(s) - (size_t)(ptr - s));
-	    ptr += strlen((char *)ptr);
-            if (ptr < (s + sizeof(s) - 1))
-	      *ptr++ = ';';
+	    s += '&';
+            s += (const char *)entity;
+	    s += ';';
 	  }
 	  else
-	    *ptr++ = (uchar)ch;
+	    s += (uchar)ch;
         }
         else
         {
@@ -881,7 +868,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
           }
 
           if (ch)
-            *ptr++ = (uchar)ch;
+            s += (uchar)ch;
         }
 
 	if ((_htmlUTF8 && ch == _htmlCharacters[173]) || (!_htmlUTF8 && ch == 173))
@@ -896,13 +883,11 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
       if (isspace(ch))
         have_whitespace = 1;
 
-      *ptr = '\0';
-
       if (ch == '<')
         ungetc(ch, fp);
 
       t->markup = MARKUP_NONE;
-      t->data   = (uchar *)strdup((char *)s);
+      t->data   = (uchar *)strdup(s.c_str());
 
       DEBUG_printf(("%sfragment \"%s\" (len=%d), line %d\n", indent, s,
                     (int)(ptr - s), linenum));
@@ -1179,7 +1164,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	    char	font[255],	// Font name
 			*fontptr;	// Pointer into font name
 
-            for (ptr = face; *ptr;)
+            for (uchar *ptr = face; *ptr;)
 	    {
 	      while (isspace(*ptr) || *ptr == ',')
 	        ptr ++;
@@ -1305,7 +1290,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 			*fontptr;	// Pointer into font name
 
 
-            for (ptr = face; *ptr;)
+            for (uchar *ptr = face; *ptr;)
 	    {
 	      while (isspace(*ptr) || *ptr == ',')
 	        ptr ++;
@@ -2947,21 +2932,22 @@ parse_variable(tree_t *t,		// I - Current tree entry
                FILE   *fp,		// I - Input file
 	       int    *linenum)		// I - Current line number
 {
-  uchar	name[1024],			// Name of variable
-	value[10240],			// Value of variable
-	*ptr,				// Temporary pointer
-	entity[16],			// Character entity name
+  std::string value;			// Value of variable
+  std::string name;			// Name of variable
+  uchar	entity[16],			// Character entity name
 	*eptr;				// Pointer into name
   int	ch;				// Character from file
 
+  name.reserve(1024);
+  value.reserve(10240);
 
-  ptr = name;
+  name.clear();
   while ((ch = getc(fp)) != EOF)
     if (isspace(ch) || ch == '=' || ch == '>' || ch == '\r')
       break;
-    else if (ch == '/' && ptr == name)
+    else if (ch == '/' && name.length() == 0)
       break;
-    else if (ptr < (name + sizeof(name) - 1))
+    else
     {
       if ((ch & 0x80) && _htmlUTF8)
       {
@@ -2970,10 +2956,8 @@ parse_variable(tree_t *t,		// I - Current tree entry
       }
 
       if (ch)
-        *ptr++ = (uchar)ch;
+         name += (uchar)ch;
     }
-
-  *ptr = '\0';
 
   if (ch == '\n')
     (*linenum) ++;
@@ -2990,11 +2974,11 @@ parse_variable(tree_t *t,		// I - Current tree entry
   {
     default :
         ungetc(ch, fp);
-        return (htmlSetVariable(t, name, NULL));
+        return (htmlSetVariable(t, (uchar *) name.c_str(), NULL));
     case EOF :
         return (-1);
     case '=' :
-        ptr = value;
+        value.clear();
         ch  = getc(fp);
 
         while (isspace(ch) || ch == '\r')
@@ -3033,10 +3017,8 @@ parse_variable(tree_t *t,		// I - Current tree entry
 		               "Unquoted & on line %d of %s.",
 	                       *linenum, _htmlCurrentFile);
 
-        	if (ptr < (value + sizeof(value) - 1))
-		  *ptr++ = '&';
-                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (size_t)(ptr - value));
-		ptr += strlen((char *)ptr);
+		value += '&';
+		value += (char *)entity;
 	      }
 	      else if ((ch = iso8859(entity)) == 0)
 	      {
@@ -3044,18 +3026,14 @@ parse_variable(tree_t *t,		// I - Current tree entry
 		               "Unknown character entity \"&%s;\" on line %d of %s.",
 	                       entity, *linenum, _htmlCurrentFile);
 
-        	if (ptr < (value + sizeof(value) - 1))
-		  *ptr++ = '&';
-                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (size_t)(ptr - value));
-		ptr += strlen((char *)ptr);
-        	if (ptr < (value + sizeof(value) - 1))
-		  *ptr++ = ';';
+		value += '&';
+		value += (char *)entity;
+		value += ';';
 	      }
-	      else if (ptr < (value + sizeof(value) - 1))
-	        *ptr++ = (uchar)ch;
+	      else
+	        value += (uchar)ch;
 	    }
-            else if (ptr < (value + sizeof(value) - 1) &&
-	             ch != '\n' && ch != '\r')
+            else if (ch != '\n' && ch != '\r')
             {
               if ((ch & 0x80) && _htmlUTF8)
               {
@@ -3064,18 +3042,15 @@ parse_variable(tree_t *t,		// I - Current tree entry
               }
 
               if (ch)
-                *ptr++ = (uchar)ch;
+                value += (uchar)ch;
             }
 	    else if (ch == '\n')
 	    {
-	      if (ptr < (value + sizeof(value) - 1))
-	        *ptr++ = ' ';
+	      value += ' ';
 
 	      (*linenum) ++;
 	    }
 	  }
-
-          *ptr = '\0';
         }
         else if (ch == '\"')
         {
@@ -3106,10 +3081,8 @@ parse_variable(tree_t *t,		// I - Current tree entry
 		progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d of %s.",
 	                       *linenum, _htmlCurrentFile);
 
-        	if (ptr < (value + sizeof(value) - 1))
-		  *ptr++ = '&';
-                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (size_t)(ptr - value));
-		ptr += strlen((char *)ptr);
+		value += '&';
+		value += (char *)entity;
 	      }
 	      else if ((ch = iso8859(entity)) == 0)
 	      {
@@ -3117,18 +3090,14 @@ parse_variable(tree_t *t,		// I - Current tree entry
 		               "Unknown character entity \"&%s;\" on line %d of %s.",
 	                       entity, *linenum, _htmlCurrentFile);
 
-        	if (ptr < (value + sizeof(value) - 1))
-		  *ptr++ = '&';
-                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (size_t)(ptr - value));
-		ptr += strlen((char *)ptr);
-        	if (ptr < (value + sizeof(value) - 1))
-		  *ptr++ = ';';
+		value += '&';
+		value += (char *)entity;
+		value += ';';
 	      }
-	      else if (ptr < (value + sizeof(value) - 1))
-	        *ptr++ = (uchar)ch;
+	      else
+	        value += (uchar)ch;
 	    }
-            else if (ptr < (value + sizeof(value) - 1) &&
-	             ch != '\n' && ch != '\r')
+            else if (ch != '\n' && ch != '\r')
             {
               if ((ch & 0x80) && _htmlUTF8)
               {
@@ -3137,22 +3106,19 @@ parse_variable(tree_t *t,		// I - Current tree entry
               }
 
               if (ch)
-                *ptr++ = (uchar)ch;
+                value += (uchar)ch;
             }
 	    else if (ch == '\n')
 	    {
-	      if (ptr < (value + sizeof(value) - 1))
-	        *ptr++ = ' ';
+	      value += ' ';
 
 	      (*linenum) ++;
 	    }
 	  }
-
-          *ptr = '\0';
         }
         else
         {
-          *ptr++ = (uchar)ch;
+          value += (uchar)ch;
           while ((ch = getc(fp)) != EOF)
 	  {
             if (isspace(ch) || ch == '>' || ch == '\r')
@@ -3180,10 +3146,8 @@ parse_variable(tree_t *t,		// I - Current tree entry
 		progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %d of %s.",
 	                       *linenum, _htmlCurrentFile);
 
-        	if (ptr < (value + sizeof(value) - 1))
-		  *ptr++ = '&';
-                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (size_t)(ptr - value));
-		ptr += strlen((char *)ptr);
+		value += '&';
+		value += (char *)entity;
 	      }
 	      else if ((ch = iso8859(entity)) == 0)
 	      {
@@ -3191,17 +3155,14 @@ parse_variable(tree_t *t,		// I - Current tree entry
 		               "Unknown character entity \"&%s;\" on line %d of %s.",
 	                       entity, *linenum, _htmlCurrentFile);
 
-        	if (ptr < (value + sizeof(value) - 1))
-		  *ptr++ = '&';
-                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (size_t)(ptr - value));
-		ptr += strlen((char *)ptr);
-        	if (ptr < (value + sizeof(value) - 1))
-		  *ptr++ = ';';
+		value += '&';
+		value += (char *)entity;
+		value += ';';
 	      }
-	      else if (ptr < (value + sizeof(value) - 1))
-	        *ptr++ = (uchar)ch;
+	      else
+	        value += (uchar)ch;
 	    }
-            else if (ptr < (value + sizeof(value) - 1))
+            else
             {
               if ((ch & 0x80) && _htmlUTF8)
               {
@@ -3210,19 +3171,18 @@ parse_variable(tree_t *t,		// I - Current tree entry
               }
 
               if (ch)
-                *ptr++ = (uchar)ch;
+                value += (uchar)ch;
             }
 	  }
 
 	  if (ch == '\n')
 	    (*linenum) ++;
 
-          *ptr = '\0';
           if (ch == '>')
             ungetc(ch, fp);
         }
 
-        return (htmlSetVariable(t, name, value));
+        return (htmlSetVariable(t, (uchar*) name.c_str(), (uchar*) value.c_str()));
   }
 }
 
