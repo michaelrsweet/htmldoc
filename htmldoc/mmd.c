@@ -1,17 +1,17 @@
-/*
- * Implementation of miniature markdown library.
- *
- *     https://github.com/michaelrsweet/mmd
- *
- * Copyright © 2017-2023 by Michael R Sweet.
- *
- * Licensed under Apache License v2.0.	See the file "LICENSE" for more
- * information.
- */
+//
+// Implementation of miniature markdown library.
+//
+//     https://www.msweet.org/mmd
+//
+// Copyright © 2017-2024 by Michael R Sweet.
+//
+// Licensed under Apache License v2.0.	See the file "LICENSE" for more
+// information.
+//
 
-/*
- * Define DEBUG to get debug printf messages to stderr.
- */
+//
+// Define DEBUG to get debug printf messages to stderr.
+//
 
 #define DEBUG 0
 #if DEBUG > 0
@@ -20,37 +20,33 @@
 #else
 #  define DEBUG_printf(...)
 #  define DEBUG_puts(s)
-#endif /* DEBUG > 0 */
+#endif // DEBUG > 0
 #if DEBUG > 1
 #  define DEBUG2_printf(...)	fprintf(stderr, __VA_ARGS__)
 #  define DEBUG2_puts(s)	fputs(s, stderr);
 #else
 #  define DEBUG2_printf(...)
 #  define DEBUG2_puts(s)
-#endif /* DEBUG > 1 */
+#endif // DEBUG > 1
 
 
-/*
- * Beginning with VC2005, Microsoft breaks ISO C and POSIX conformance
- * by deprecating a number of functions in the name of security, even
- * when many of the affected functions are otherwise completely secure.
- * The _CRT_SECURE_NO_DEPRECATE definition ensures that we won't get
- * warnings from their use...
- *
- * Then Microsoft decided that they should ignore this in VC2008 and use
- * yet another define (_CRT_SECURE_NO_WARNINGS) instead...
- */
+//
+// Beginning with VC2005, Microsoft breaks ISO C and POSIX conformance
+// by deprecating a number of functions in the name of security, even
+// when many of the affected functions are otherwise completely secure.
+// The _CRT_SECURE_NO_DEPRECATE definition ensures that we won't get
+// warnings from their use...
+//
+// Then Microsoft decided that they should ignore this in VC2008 and use
+// yet another define (_CRT_SECURE_NO_WARNINGS) instead...
+//
 
 #define _CRT_SECURE_NO_DEPRECATE
 #define _CRT_SECURE_NO_WARNINGS
 #if _WIN32
 #  define strcasecmp stricmp
-#endif /* _WIN32 */
+#endif // _WIN32
 
-
-/*
- * Include necessary headers...
- */
 
 #include "mmd.h"
 #include <stdlib.h>
@@ -58,91 +54,94 @@
 #include <string.h>
 
 
-/*
- * Microsoft renames the POSIX functions to _name, and introduces a broken
- * compatibility layer using the original names.  As a result, random crashes
- * can occur when, for example, strdup() allocates memory from a different heap
- * than used by malloc() and free().
- *
- * To avoid moronic problems like this, we #define the POSIX function names to
- * the corresponding non-standard Microsoft names.
- */
+//
+// Microsoft renames the POSIX functions to _name, and introduces a broken
+// compatibility layer using the original names.  As a result, random crashes
+// can occur when, for example, strdup() allocates memory from a different heap
+// than used by malloc() and free().
+//
+// To avoid moronic problems like this, we #define the POSIX function names to
+// the corresponding non-standard Microsoft names.
+//
 
 #ifdef _WIN32
 #  define snprintf	_snprintf
 #  define strdup	_strdup
-#endif /* _WIN32 */
+#endif // _WIN32
 
 
-/*
- * Structures...
- */
+//
+// Private structures...
+//
 
 struct _mmd_s
 {
-  mmd_type_t	type;			/* Node type */
-  int		whitespace;		/* Leading whitespace? */
-  char		*text,			/* Text */
-		*url,			/* Reference URL (image/link/etc.) */
-		*extra;			/* Title, language name, etc. */
-  mmd_t		*parent,		/* Parent node */
-		*first_child,		/* First child node */
-		*last_child,		/* Last child node */
-		*prev_sibling,		/* Previous sibling node */
-		*next_sibling;		/* Next sibling node */
+  mmd_type_t	type;			// Node type
+  bool		whitespace;		// Leading whitespace?
+  char		*text,			// Text
+		*url,			// Reference URL (image/link/etc.)
+		*extra;			// Title, language name, etc.
+  mmd_t		*parent,		// Parent node
+		*first_child,		// First child node
+		*last_child,		// Last child node
+		*prev_sibling,		// Previous sibling node
+		*next_sibling;		// Next sibling node
 };
 
-typedef struct _mmd_filebuf_s		/**** Buffered file ****/
+typedef struct _mmd_filebuf_s		// Buffered file
 {
-  FILE		*fp;			/* File pointer */
-  char		buffer[65536],		/* Buffer */
-		*bufptr,		/* Pointer into buffer */
-		*bufend;		/* End of buffer */
+  mmd_iocb_t	cb;			// Read callback function
+  void		*cbdata;		// Read callback data
+  char		buffer[65536],		// Buffer
+		*bufptr,		// Pointer into buffer
+		*bufend;		// End of buffer
 } _mmd_filebuf_t;
 
-typedef struct _mmd_ref_s		/**** Reference link ****/
+typedef struct _mmd_ref_s		// Reference link
 {
-  char		*name,			/* Name of reference */
-		*url,			/* Reference URL */
-		*title;			/* Title, if any */
-  size_t	num_pending;		/* Number of pending nodes */
-  mmd_t		**pending;		/* Pending nodes */
+  char		*name,			// Name of reference
+		*url,			// Reference URL
+		*title;			// Title, if any
+  size_t	num_pending;		// Number of pending nodes
+  mmd_t		**pending;		// Pending nodes
 } _mmd_ref_t;
 
-typedef struct _mmd_doc_s		/**** Markdown document ****/
+typedef struct _mmd_doc_s		// Markdown document
 {
-  mmd_t		*root;			/* Root node */
-  size_t	num_references;		/* Number of references */
-  _mmd_ref_t	*references;		/* References */
+  mmd_t		*root;			// Root node
+  size_t	num_references;		// Number of references
+  _mmd_ref_t	*references;		// References
 } _mmd_doc_t;
 
-typedef struct _mmd_stack_s		/**** Markdown block stack ****/
+typedef struct _mmd_stack_s		// Markdown block stack
 {
-  mmd_t		*parent;		/* Parent node */
-  int		indent;			/* Indentation */
-  char		fence;			/* Code fence character */
-  size_t	fencelen;		/* Length of code fence */
+  mmd_t		*parent;		// Parent node
+  int		indent;			// Indentation
+  char		fence;			// Code fence character
+  size_t	fencelen;		// Length of code fence
 } _mmd_stack_t;
 
 
-/*
- * Local globals...
- */
+//
+// Local globals...
+//
 
 static mmd_option_t	mmd_options = MMD_OPTION_ALL;
-					/* Markdown extensions to support */
+					// Markdown extensions to support
 
 
-/*
- * Local functions...
- */
+//
+// Local functions...
+//
 
 static mmd_t	*mmd_add(mmd_t *parent, mmd_type_t type, int whitespace, char *text, char *url);
 static void	mmd_free(mmd_t *node);
 static int	mmd_has_continuation(const char *line, _mmd_filebuf_t *file, int indent);
+static size_t	mmd_iocb_file(FILE *fp, char *buffer, size_t bytes);
+static size_t	mmd_iocb_string(const char **s, char *buffer, size_t bytes);
 static size_t	mmd_is_chars(const char *lineptr, const char *chars, size_t minchars);
 static size_t	mmd_is_codefence(char *lineptr, char fence, size_t fencelen, char **language);
-static int	mmd_is_table(_mmd_filebuf_t *file, int indent);
+static bool	mmd_is_table(_mmd_filebuf_t *file, int indent);
 static void	mmd_parse_inline(_mmd_doc_t *doc, mmd_t *parent, char *lineptr);
 static char	*mmd_parse_link(_mmd_doc_t *doc, char *lineptr, char **text, char **url, char **title, char **refname);
 static void	mmd_read_buffer(_mmd_filebuf_t *file);
@@ -152,25 +151,25 @@ static _mmd_ref_t *mmd_ref_find(_mmd_doc_t *doc, const char *name);
 static void	mmd_remove(mmd_t *node);
 #if DEBUG
 static const char *mmd_type_string(mmd_type_t type);
-#endif /* DEBUG */
+#endif // DEBUG
 
 
-/*
- * 'mmdCopyAllText()' - Make a copy of all the text under a given node.
- *
- * The returned string must be freed using free().
- */
+//
+// 'mmdCopyAllText()' - Make a copy of all the text under a given node.
+//
+// The returned string must be freed using free().
+//
 
-char *					/* O - Copied string */
-mmdCopyAllText(mmd_t *node)		/* I - Parent node */
+char *					// O - Copied string
+mmdCopyAllText(mmd_t *node)		// I - Parent node
 {
-  char		*all = NULL,		/* String buffer */
-		*allptr = NULL,		/* Pointer into string buffer */
-		*temp;			/* Temporary pointer */
-  size_t	allsize = 0,		/* Size of "all" buffer */
-		textlen;		/* Length of "text" string */
-  mmd_t		*current,		/* Current node */
-		*next;			/* Next node */
+  char		*all = NULL,		// String buffer
+		*allptr = NULL,		// Pointer into string buffer
+		*temp;			// Temporary pointer
+  size_t	allsize = 0,		// Size of "all" buffer
+		textlen;		// Length of "text" string
+  mmd_t		*current,		// Current node
+		*next;			// Next node
 
 
   current = mmdGetFirstChild(node);
@@ -179,10 +178,7 @@ mmdCopyAllText(mmd_t *node)		/* I - Parent node */
   {
     if (current->text)
     {
-     /*
-      * Append this node's text to the string...
-      */
-
+      // Append this node's text to the string...
       textlen = strlen(current->text);
       allsize += textlen + (size_t)current->whitespace;
       temp    = realloc(all, allsize);
@@ -203,10 +199,7 @@ mmdCopyAllText(mmd_t *node)		/* I - Parent node */
       allptr += textlen;
     }
 
-   /*
-    * Find the next logical node...
-    */
-
+    // Find the next logical node...
     if ((next = mmdGetNextSibling(current)) == NULL)
     {
       next = mmdGetParent(current);
@@ -228,107 +221,92 @@ mmdCopyAllText(mmd_t *node)		/* I - Parent node */
 }
 
 
-/*
- * 'mmdFree()' - Free a markdown tree.
- */
+//
+// 'mmdFree()' - Free a markdown tree.
+//
 
 void
-mmdFree(mmd_t *node)			/* I - First node */
+mmdFree(mmd_t *node)			// I - First node
 {
-  mmd_t *current,			/* Current node */
-	*next;				/* Next node */
+  mmd_t *current,			// Current node
+	*next;				// Next node
 
 
   mmd_remove(node);
 
   for (current = node->first_child; current; current = next)
   {
-   /*
-    * Get the next node...
-    */
-
+    // Get the next node...
     if ((next = current->first_child) != NULL)
     {
-     /*
-      * Free parent nodes after child nodes have been freed...
-      */
-
+      // Free parent nodes after child nodes have been freed...
       current->first_child = NULL;
       continue;
     }
 
     if ((next = current->next_sibling) == NULL)
     {
-     /*
-      * Next node is the parent, which we'll free as needed...
-      */
-
+      // Next node is the parent, which we'll free as needed...
       if ((next = current->parent) == node)
 	next = NULL;
     }
 
-   /*
-    * Free child...
-    */
-
+    // Free child...
     mmd_free(current);
   }
 
- /*
-  * Then free the memory used by the parent node...
-  */
-
+  // Then free the memory used by the parent node...
   mmd_free(node);
 }
 
 
-/*
- * 'mmdGetExtra()' - Get extra text (title, language, etc.) associated with a
- *		     node.
- */
+//
+// 'mmdGetExtra()' - Get extra text (title, language, etc.) associated with a
+//		     node.
+//
 
-const char *				/* O - Extra text or NULL if none */
-mmdGetExtra(mmd_t *node)		/* I - Node */
+const char *				// O - Extra text or NULL if none
+mmdGetExtra(mmd_t *node)		// I - Node
 {
   return (node ? node->extra : NULL);
 }
 
 
-/*
- * 'mmdGetFirstChild()' - Return the first child of a node, if any.
- */
+//
+// 'mmdGetFirstChild()' - Return the first child of a node, if any.
+//
 
-mmd_t *					/* O - First child or @code NULL@ if none */
-mmdGetFirstChild(mmd_t *node)		/* I - Node */
+mmd_t *					// O - First child or @code NULL@ if none
+mmdGetFirstChild(mmd_t *node)		// I - Node
 {
   return (node ? node->first_child : NULL);
 }
 
 
-/*
- * 'mmdGetLastChild()' - Return the last child of a node, if any.
- */
+//
+// 'mmdGetLastChild()' - Return the last child of a node, if any.
+//
 
-mmd_t *					/* O - Last child or @code NULL@ if none */
-mmdGetLastChild(mmd_t *node)		/* I - Node */
+mmd_t *					// O - Last child or @code NULL@ if none
+mmdGetLastChild(mmd_t *node)		// I - Node
 {
   return (node ? node->last_child : NULL);
 }
 
 
-/*
- * 'mmdGetMetadata()' - Return the metadata for the given keyword.
- */
+//
+// 'mmdGetMetadata()' - Return the metadata for the given keyword.
+//
 
-const char *				/* O - Value or @code NULL@ if none */
-mmdGetMetadata(mmd_t	  *doc,		/* I - Document */
-	       const char *keyword)	/* I - Keyword */
+const char *				// O - Value or @code NULL@ if none
+mmdGetMetadata(mmd_t	  *doc,		// I - Document
+	       const char *keyword)	// I - Keyword
 {
-  mmd_t		*metadata,		/* Metadata node */
-		*current;		/* Current node */
-  char		prefix[256];		/* Prefix string */
-  size_t	prefix_len;		/* Length of prefix string */
-  const char	*value;			/* Pointer to value */
+  mmd_t		*metadata,		// Metadata node
+		*current;		// Current node
+  char		prefix[256];		// Prefix string
+  size_t	prefix_len;		// Length of prefix string
+  const char	*value;			// Pointer to value
 
 
   if (!doc || (metadata = doc->first_child) == NULL || metadata->type != MMD_TYPE_METADATA)
@@ -353,168 +331,172 @@ mmdGetMetadata(mmd_t	  *doc,		/* I - Document */
 }
 
 
-/*
- * 'mmdGetNextSibling()' - Return the next sibling of a node, if any.
- */
+//
+// 'mmdGetNextSibling()' - Return the next sibling of a node, if any.
+//
 
-mmd_t *					/* O - Next sibling or @code NULL@ if none */
-mmdGetNextSibling(mmd_t *node)		/* I - Node */
+mmd_t *					// O - Next sibling or @code NULL@ if none
+mmdGetNextSibling(mmd_t *node)		// I - Node
 {
   return (node ? node->next_sibling : NULL);
 }
 
 
-/*
- * 'mmdGetOptions()' - Get the enabled markdown processing options/extensions.
- */
+//
+// 'mmdGetOptions()' - Get the enabled markdown processing options/extensions.
+//
 
-mmd_option_t				/* O - Enabled options */
+mmd_option_t				// O - Enabled options
 mmdGetOptions(void)
 {
   return (mmd_options);
 }
 
 
-/*
- * 'mmdGetParent()' - Return the parent of a node, if any.
- */
+//
+// 'mmdGetParent()' - Return the parent of a node, if any.
+//
 
-mmd_t *					/* O - Parent node or @code NULL@ if none */
-mmdGetParent(mmd_t *node)		/* I - Node */
+mmd_t *					// O - Parent node or @code NULL@ if none
+mmdGetParent(mmd_t *node)		// I - Node
 {
   return (node ? node->parent : NULL);
 }
 
 
-/*
- * 'mmdGetPrevSibling()' - Return the previous sibling of a node, if any.
- */
+//
+// 'mmdGetPrevSibling()' - Return the previous sibling of a node, if any.
+//
 
-mmd_t *					/* O - Previous sibling or @code NULL@ if none */
-mmdGetPrevSibling(mmd_t *node)		/* I - Node */
+mmd_t *					// O - Previous sibling or @code NULL@ if none
+mmdGetPrevSibling(mmd_t *node)		// I - Node
 {
   return (node ? node->prev_sibling : NULL);
 }
 
 
-/*
- * 'mmdGetText()' - Return the text associated with a node, if any.
- */
+//
+// 'mmdGetText()' - Return the text associated with a node, if any.
+//
 
-const char *				/* O - Text or @code NULL@ if none */
-mmdGetText(mmd_t *node)			/* I - Node */
+const char *				// O - Text or @code NULL@ if none
+mmdGetText(mmd_t *node)			// I - Node
 {
   return (node ? node->text : NULL);
 }
 
 
-/*
- * 'mmdGetType()' - Return the type of a node, if any.
- */
+//
+// 'mmdGetType()' - Return the type of a node, if any.
+//
 
-mmd_type_t				/* O - Type or @code MMD_TYPE_NONE@ if none */
-mmdGetType(mmd_t *node)			/* I - Node */
+mmd_type_t				// O - Type or @code MMD_TYPE_NONE@ if none
+mmdGetType(mmd_t *node)			// I - Node
 {
   return (node ? node->type : MMD_TYPE_NONE);
 }
 
 
-/*
- * 'mmdGetURL()' - Return the URL associated with a node, if any.
- */
+//
+// 'mmdGetURL()' - Return the URL associated with a node, if any.
+//
 
-const char *				/* O - URL or @code NULL@ if none */
-mmdGetURL(mmd_t *node)			/* I - Node */
+const char *				// O - URL or @code NULL@ if none
+mmdGetURL(mmd_t *node)			// I - Node
 {
   return (node ? node->url : NULL);
 }
 
 
-/*
- * 'mmdGetWhitespace()' - Return whether whitespace preceded a node.
- */
+//
+// 'mmdGetWhitespace()' - Return whether whitespace preceded a node.
+//
 
-int					/* O - 1 for whitespace, 0 for none */
-mmdGetWhitespace(mmd_t *node)		/* I - Node */
+bool					// O - `true` for leading whitespace, `false` for none
+mmdGetWhitespace(mmd_t *node)		// I - Node
 {
-  return (node ? node->whitespace : 0);
+  return (node ? node->whitespace : false);
 }
 
 
-/*
- * 'mmdIsBlock()' - Return whether the node is a block.
- */
+//
+// 'mmdIsBlock()' - Return whether the node is a block.
+//
 
-int					/* O - 1 for block nodes, 0 otherwise */
-mmdIsBlock(mmd_t *node)			/* I - Node */
+bool					// O - `true` for block nodes, `false` otherwise
+mmdIsBlock(mmd_t *node)			// I - Node
 {
-  return (node ? node->type < MMD_TYPE_NORMAL_TEXT : 0);
+  return (node ? node->type < MMD_TYPE_NORMAL_TEXT : false);
 }
 
 
-/*
- * 'mmdLoad()' - Load a markdown file into nodes.
- */
+//
+// 'mmdLoad()' - Load a markdown file into nodes.
+//
 
-mmd_t *					/* O - Root node in markdown */
-mmdLoad(mmd_t      *root,		/* I - Root node for document or `NULL` for a new document */
-        const char *filename)		/* I - File to load */
+mmd_t *					// O - Root node in markdown
+mmdLoad(mmd_t      *root,		// I - Root node for document or `NULL` for a new document
+        const char *filename)		// I - File to load
 {
-  FILE		*fp;			/* File */
+  FILE		*fp;			// File
 
 
- /*
-  * Open the file and load the document...
-  */
-
+  // Open the file and load the document...
   if ((fp = fopen(filename, "r")) == NULL)
     return (NULL);
 
-  root = mmdLoadFile(root, fp);
+  root = mmdLoadIO(root, (mmd_iocb_t)mmd_iocb_file, fp);
 
- /*
-  * Close and return...
-  */
-
+  // Close and return...
   fclose(fp);
 
   return (root);
 }
 
 
-/*
- * 'mmdLoadFile()' - Load a markdown file into nodes from a stdio file.
- */
+//
+// 'mmdLoadFile()' - Load a markdown file into nodes from a stdio file.
+//
 
-mmd_t *					/* O - First node in markdown */
-mmdLoadFile(mmd_t *root,
-            FILE  *fp)			/* I - File to load */
+mmd_t *					// O - First node in markdown
+mmdLoadFile(mmd_t *root,		// I - Root node for document or `NULL` for a new document
+            FILE  *fp)			// I - File to load
 {
-  size_t	i;			/* Looping var */
-  _mmd_doc_t	doc;			/* Document */
-  _mmd_ref_t	*reference;		/* Current reference */
-  mmd_t		*block = NULL;		/* Current block */
-  mmd_type_t	type;			/* Type for line */
-  _mmd_filebuf_t file;			/* File buffer */
-  char		line[8192],		/* Read line */
-		*linestart,		/* Start of line */
-		*lineptr,		/* Pointer into line */
-		*lineend,		/* End of line */
-		*temp;			/* Temporary pointer */
-  int		newindent;		/* New indentation */
-  int		blank_code = 0;		/* Saved indented blank code line */
-  mmd_type_t	columns[256];		/* Alignment of table columns */
-  int		num_columns = 0,	/* Number of columns in table */
-		rows = 0;		/* Number of rows in table */
-  _mmd_stack_t	stack[32],		/* Block stack */
-		*stackptr = stack;	/* Pointer to top of stack */
+  return (mmdLoadIO(root, (mmd_iocb_t)mmd_iocb_file, fp));
+}
 
 
- /*
-  * Create an empty document as needed...
-  */
+//
+// 'mmdLoadIO()' - Load a markdown file into nodes using a callback.
+//
 
-  DEBUG_printf("mmdLoadFile: mmd_options=%d%s%s\n", mmd_options, (mmd_options & MMD_OPTION_METADATA) ? " METADATA" : "", (mmd_options & MMD_OPTION_TABLES) ? " TABLES" : "");
+mmd_t *					// O - First node in markdown
+mmdLoadIO(mmd_t      *root,		// I - Root node for document or `NULL` for a new document
+          mmd_iocb_t cb,		// I - Read callback function
+          void       *cbdata)		// I - Read callback data
+{
+  size_t	i;			// Looping var
+  _mmd_doc_t	doc;			// Document
+  _mmd_ref_t	*reference;		// Current reference
+  mmd_t		*block = NULL;		// Current block
+  mmd_type_t	type;			// Type for line
+  _mmd_filebuf_t file;			// File buffer
+  char		line[8192],		// Read line
+		*linestart,		// Start of line
+		*lineptr,		// Pointer into line
+		*lineend,		// End of line
+		*temp;			// Temporary pointer
+  int		newindent;		// New indentation
+  int		blank_code = 0;		// Saved indented blank code line
+  mmd_type_t	columns[256];		// Alignment of table columns
+  int		num_columns = 0,	// Number of columns in table
+		rows = 0;		// Number of rows in table
+  _mmd_stack_t	stack[32],		// Block stack
+		*stackptr = stack;	// Pointer to top of stack
+
+
+  // Create an empty document as needed...
+  DEBUG_printf("mmdLoadIO: mmd_options=%d%s%s\n", mmd_options, (mmd_options & MMD_OPTION_METADATA) ? " METADATA" : "", (mmd_options & MMD_OPTION_TABLES) ? " TABLES" : "");
 
   memset(&doc, 0, sizeof(doc));
 
@@ -526,19 +508,14 @@ mmdLoadFile(mmd_t *root,
   if (!doc.root)
     return (NULL);
 
- /*
-  * Initialize the block stack...
-  */
-
+  // Initialize the block stack...
   memset(stack, 0, sizeof(stack));
   stackptr->parent = doc.root;
 
- /*
-  * Read lines until end-of-file...
-  */
-
+  // Read lines until end-of-file...
   memset(&file, 0, sizeof(file));
-  file.fp = fp;
+  file.cb     = cb;
+  file.cbdata = cbdata;
 
 #ifdef __clang_analyzer__
   memset(line, 0, sizeof(line));
@@ -550,7 +527,7 @@ mmdLoadFile(mmd_t *root,
 #if DEBUG
     if (stackptr->parent->type == MMD_TYPE_CODE_BLOCK)
       DEBUG2_printf("	  blank_code=%d\n", blank_code);
-#endif /* DEBUG */
+#endif // DEBUG
 
     linestart = lineptr;
 
@@ -569,10 +546,7 @@ mmdLoadFile(mmd_t *root,
     }
     else if (*lineptr == '>' && (lineptr - linestart) < 4)
     {
-     /*
-      * Block quote.  See if there is an existing blockquote...
-      */
-
+      // Block quote.  See if there is an existing blockquote...
       DEBUG_printf("	 BLOCKQUOTE (stackptr=%ld)\n", stackptr - stack);
 
       if (stackptr == stack || stack[1].parent->type != MMD_TYPE_BLOCK_QUOTE)
@@ -584,10 +558,7 @@ mmdLoadFile(mmd_t *root,
 	stackptr->fence	 = '\0';
       }
 
-     /*
-      * Skip whitespace after the ">"...
-      */
-
+      // Skip whitespace after the ">"...
       lineptr ++;
       if (isspace(*lineptr & 255))
 	lineptr ++;
@@ -599,19 +570,13 @@ mmdLoadFile(mmd_t *root,
     }
     else if (*lineptr != '>' && stackptr > stack && stack[1].parent->type == MMD_TYPE_BLOCK_QUOTE && (!block || *lineptr == '\n' || mmd_is_chars(lineptr, "- \t", 3) || mmd_is_chars(lineptr, "_ \t", 3) || mmd_is_chars(lineptr, "* \t", 3)))
     {
-     /*
-      * Not a lazy continuation so terminate this block quote...
-      */
-
+      // Not a lazy continuation so terminate this block quote...
       DEBUG_puts("     Terminating BLOCKQUOTE\n");
       block    = NULL;
       stackptr = stack;
     }
 
-   /*
-    * Now handle all other markup not related to block quotes...
-    */
-
+    // Now handle all other markup not related to block quotes...
     DEBUG2_printf("	stackptr=%d (%s), block=%p (%s)\n", (int)(stackptr - stack), mmd_type_string(stackptr->parent->type) + 9, block, block ? mmd_type_string(block->type) + 9 : "");
     DEBUG2_printf("	strchr(lineptr, '|')=%p, mmd_is_table(&file, stackptr->indent)=%d\n", strchr(lineptr, '|'), mmd_is_table(&file, stackptr->indent));
     DEBUG2_printf("	linestart=%d, lineptr=%d\n", (int)(linestart - line), (int)(lineptr - line));
@@ -620,10 +585,7 @@ mmdLoadFile(mmd_t *root,
 
     if ((lineptr - line - stackptr->indent) < 4 && ((stackptr->parent->type != MMD_TYPE_CODE_BLOCK && !stackptr->fence && mmd_is_codefence(lineptr, '\0', 0, NULL)) || (stackptr->fence && mmd_is_codefence(lineptr, stackptr->fence, stackptr->fencelen, NULL))))
     {
-     /*
-      * Code fence...
-      */
-
+      // Code fence...
       DEBUG2_printf("stackptr->indent=%d, fence='%c', fencelen=%d\n", stackptr->indent, stackptr->fence, (int)stackptr->fencelen);
 
       if (stackptr->parent->type == MMD_TYPE_CODE_BLOCK)
@@ -633,7 +595,7 @@ mmdLoadFile(mmd_t *root,
       }
       else if (stackptr < (stack + sizeof(stack) / sizeof(stack[0]) - 1))
       {
-	char	*language;		/* Language name, if any */
+	char	*language;		// Language name, if any
 
 	DEBUG2_printf("Starting code block with fence '%c'.\n", *lineptr);
 
@@ -693,10 +655,7 @@ mmdLoadFile(mmd_t *root,
     }
     else if (!strncmp(lineptr, "---", 3) && doc.root->first_child == NULL && (mmd_options & MMD_OPTION_METADATA))
     {
-     /*
-      * Document metadata...
-      */
-
+      // Document metadata...
       block = mmd_add(doc.root, MMD_TYPE_METADATA, 0, NULL, NULL);
 
       while ((lineptr = mmd_read_line(&file, line, sizeof(line))) != NULL)
@@ -756,10 +715,7 @@ mmdLoadFile(mmd_t *root,
     }
     else if ((*lineptr == '-' || *lineptr == '+' || *lineptr == '*') && (lineptr[1] == '\t' || lineptr[1] == ' '))
     {
-     /*
-      * Bulleted list...
-      */
-
+      // Bulleted list...
       DEBUG_puts("     UNORDERED LIST\n");
 
       lineptr	+= 2;
@@ -808,10 +764,7 @@ mmdLoadFile(mmd_t *root,
     }
     else if (isdigit(*lineptr & 255))
     {
-     /*
-      * Ordered list?
-      */
-
+      // Ordered list?
       DEBUG_puts("     ORDERED LIST?\n");
 
       temp = lineptr + 1;
@@ -821,10 +774,7 @@ mmdLoadFile(mmd_t *root,
 
       if ((*temp == '.' || *temp == ')') && (temp[1] == '\t' || temp[1] == ' '))
       {
-       /*
-	* Yes, ordered list.
-	*/
-
+        // Yes, ordered list.
 	lineptr	  = temp + 2;
 	linestart = lineptr;
 	newindent = linestart - line;
@@ -865,19 +815,13 @@ mmdLoadFile(mmd_t *root,
       }
       else
       {
-       /*
-	* No, just a regular paragraph...
-	*/
-
+        // No, just a regular paragraph...
 	type = block ? block->type : MMD_TYPE_PARAGRAPH;
       }
     }
     else if (*lineptr == '#' && (lineptr - linestart) < 4)
     {
-     /*
-      * Heading, count the number of '#' for the heading level...
-      */
-
+      // Heading, count the number of '#' for the heading level...
       DEBUG_puts("     HEADING?\n");
 
       newindent = lineptr - line;
@@ -888,27 +832,18 @@ mmdLoadFile(mmd_t *root,
 
       if ((temp - lineptr) <= 6 && isspace(*temp & 255))
       {
-       /*
-	* Heading 1-6...
-	*/
-
+        // Heading 1-6...
 	type  = MMD_TYPE_HEADING_1 + (temp - lineptr - 1);
 	block = NULL;
 
-       /*
-	* Skip whitespace after "#"...
-	*/
-
+        // Skip whitespace after "#"...
 	lineptr = temp;
 	while (isspace(*lineptr & 255))
 	  lineptr ++;
 
 	linestart = lineptr;
 
-       /*
-	* Strip trailing "#" characters and whitespace...
-	*/
-
+        // Strip trailing "#" characters and whitespace...
 	temp = lineptr + strlen(lineptr) - 1;
 	while (temp > lineptr && isspace(*temp & 255))
 	  *temp-- = '\0';
@@ -929,10 +864,7 @@ mmdLoadFile(mmd_t *root,
       }
       else
       {
-       /*
-	* More than 6 #'s, just treat as a paragraph...
-	*/
-
+        // More than 6 #'s, just treat as a paragraph...
 	type = MMD_TYPE_PARAGRAPH;
       }
     }
@@ -978,15 +910,12 @@ mmdLoadFile(mmd_t *root,
     }
     else if ((mmd_options & MMD_OPTION_TABLES) && strchr(lineptr, '|') && (stackptr->parent->type == MMD_TYPE_TABLE || mmd_is_table(&file, stackptr->indent)))
     {
-     /*
-      * Table...
-      */
-
-      int	col;			/* Current column */
-      char	*start,			/* Start of column/cell */
-		*end;			/* End of column/cell */
-      mmd_t	*row = NULL,		/* Current row */
-		*cell;			/* Current cell */
+      // Table...
+      int	col;			// Current column
+      char	*start,			// Start of column/cell
+		*end;			// End of column/cell
+      mmd_t	*row = NULL,		// Current row
+		*cell;			// Current cell
 
       DEBUG2_printf("TABLE stackptr->parent=%p (%d), rows=%d\n", stackptr->parent, stackptr->parent->type, rows);
 
@@ -1019,7 +948,7 @@ mmdLoadFile(mmd_t *root,
 	row = mmd_add(block, MMD_TYPE_TABLE_ROW, 0, NULL, NULL);
 
       if (*lineptr == '|')
-	lineptr ++;			/* Skip leading pipe */
+	lineptr ++;			// Skip leading pipe
 
       if ((end = lineptr + strlen(lineptr) - 1) > lineptr)
       {
@@ -1027,25 +956,19 @@ mmdLoadFile(mmd_t *root,
 	  end --;
 
 	if (end > lineptr && *end == '|')
-	  *end = '\0';			/* Truncate trailing pipe */
+	  *end = '\0';			// Truncate trailing pipe
       }
 
       for (col = 0; lineptr && *lineptr && col < (int)(sizeof(columns) / sizeof(columns[0])); col ++)
       {
-       /*
-	* Get the bounds of the stackptr->parent cell...
-	*/
-
+        // Get the bounds of the stackptr->parent cell...
 	start = lineptr;
 	if ((lineptr = strchr(lineptr + 1, '|')) != NULL)
 	  *lineptr++ = '\0';
 
 	if (block)
 	{
-	 /*
-	  * Add a cell to this row...
-	  */
-
+	  // Add a cell to this row...
 	  if (block->type == MMD_TYPE_TABLE_HEADER)
 	    cell = mmd_add(row, MMD_TYPE_TABLE_HEADER_CELL, 0, NULL, NULL);
 	  else
@@ -1055,15 +978,12 @@ mmdLoadFile(mmd_t *root,
 	}
 	else
 	{
-	 /*
-	  * Process separator row for alignment...
-	  */
-
+	  // Process separator row for alignment...
 	  while (isspace(*start & 255))
 	    start ++;
 
 	  for (end = start + strlen(start) - 1; end > start && isspace(*end & 255); end --)
-	    ;				/* Find the last non-space character */
+	    ;				// Find the last non-space character
 
 	  if (*start == ':' && *end == ':')
 	    columns[col] = MMD_TYPE_TABLE_BODY_CELL_CENTER;
@@ -1074,10 +994,7 @@ mmdLoadFile(mmd_t *root,
 	}
       }
 
-     /*
-      * Make sure the table is balanced...
-      */
-
+      // Make sure the table is balanced...
       if (col > num_columns)
       {
 	num_columns = col;
@@ -1103,10 +1020,7 @@ mmdLoadFile(mmd_t *root,
 
     if (stackptr->parent->type != MMD_TYPE_CODE_BLOCK && (!block || block->type == MMD_TYPE_CODE_BLOCK) && (lineptr - linestart) >= (stackptr->indent + 4))
     {
-     /*
-      * Indented code block.
-      */
-
+      // Indented code block.
       if (stackptr->parent->type != MMD_TYPE_CODE_BLOCK && stackptr < (stack + sizeof(stack) / sizeof(stack[0]) - 1))
       {
 	stackptr[1].parent = mmd_add(stackptr->parent, MMD_TYPE_CODE_BLOCK, 0, NULL, NULL);
@@ -1136,10 +1050,7 @@ mmdLoadFile(mmd_t *root,
       block = mmd_add(stackptr->parent, type, 0, NULL, NULL);
     }
 
-   /*
-    * Read continuation lines before parsing this...
-    */
-
+    // Read continuation lines before parsing this...
     while (mmd_has_continuation(line, &file, stackptr->indent))
     {
       char *ptr = line + strlen(line);
@@ -1160,16 +1071,13 @@ mmdLoadFile(mmd_t *root,
     }
   }
 
- /*
-  * Free any references...
-  */
-
+  // Free any references...
   for (i = doc.num_references, reference = doc.references; i > 0; i --, reference ++)
   {
     if (reference->pending)
     {
-      char	text[8192];		/* Reference text */
-      size_t	j;			/* Looping var */
+      char	text[8192];		// Reference text
+      size_t	j;			// Looping var
 
       DEBUG2_printf("Clearing links for '%s'.\n", reference->name);
       snprintf(text, sizeof(text), "[%s]", reference->name);
@@ -1190,113 +1098,58 @@ mmdLoadFile(mmd_t *root,
 
   free(doc.references);
 
- /*
-  * Return the root node...
-  */
-
+  // Return the root node...
   return (doc.root);
 }
 
 
-/*
- * 'mmdLoadString()' - Load a markdown string into nodes.
- */
+//
+// 'mmdLoadString()' - Load a markdown string into nodes.
+//
 
-mmd_t *					/* O - Root node in markdown */
-mmdLoadString(mmd_t      *root,		/* I - Root node for document or `NULL` for a new document */
-              const char *s)		/* I - String to load */
+mmd_t *					// O - Root node in markdown
+mmdLoadString(mmd_t      *root,		// I - Root node for document or `NULL` for a new document
+              const char *s)		// I - String to load
 {
-  FILE		*fp;			/* File */
-
-
-#if _WIN32
- /*
-  * Windows does not provide the POSIX fmemopen, so create a temporary file and
-  * have MMD read it...
-  */
-
-  char		tempfile[1024];		/* Temporary filename */
-
-  if (tmpnam_s(tempfile, sizeof(tempfile)))
-    return (root);
-
-  if ((fp = fopen(tempfile, "w+")) == NULL)
-    return (root);
-
-  fputs(s, fp);
-  rewind(fp);
-
-#else // POSIX
- /*
-  * Open the string as a file...
-  */
-
-  if ((fp = fmemopen((void *)s, strlen(s), "r")) == NULL)
-    return (root);
-#endif // _WIN32
-
- /*
-  * Load the string...
-  */
-
-  root = mmdLoadFile(root, fp);
-
- /*
-  * Close the memory file...
-  */
-
-  fclose(fp);
-
-#if _WIN32
- /*
-  * Remove the temporary file...
-  */
-
-  unlink(tempfile);
-#endif // _WIN32
-
-  return (root);
+  return (mmdLoadIO(root, (mmd_iocb_t)mmd_iocb_string, &s));
 }
 
 
-/*
- * 'mmdSetOptions()' - Set (enable/disable) support for various markdown options.
- */
+//
+// 'mmdSetOptions()' - Set (enable/disable) support for various markdown options.
+//
 
 void
-mmdSetOptions(mmd_option_t options)	/* I - Options */
+mmdSetOptions(mmd_option_t options)	// I - Options
 {
   mmd_options = options;
 }
 
 
-/*
- * 'mmd_add()' - Add a new markdown node.
- */
+//
+// 'mmd_add()' - Add a new markdown node.
+//
 
-static mmd_t *				/* O - New node */
-mmd_add(mmd_t	   *parent,		/* I - Parent node */
-	mmd_type_t type,		/* I - Node type */
-	int	   whitespace,		/* I - 1 if whitespace precedes this node */
-	char	   *text,		/* I - Text, if any */
-	char	   *url)		/* I - URL, if any */
+static mmd_t *				// O - New node
+mmd_add(mmd_t	   *parent,		// I - Parent node
+	mmd_type_t type,		// I - Node type
+	int	   whitespace,		// I - 1 if whitespace precedes this node
+	char	   *text,		// I - Text, if any
+	char	   *url)		// I - URL, if any
 {
-  mmd_t		*temp;			/* New node */
+  mmd_t		*temp;			// New node
 
 
   DEBUG2_printf("Adding %s to %p(%s), whitespace=%d, text=\"%s\", url=\"%s\"\n", mmd_type_string(type), parent, parent ? mmd_type_string(parent->type) : "", whitespace, text ? text : "(null)", url ? url : "(null)");
 
   if (!parent && type != MMD_TYPE_DOCUMENT)
-    return (NULL);			/* Only document nodes can be at the root */
+    return (NULL);			// Only document nodes can be at the root
 
   if ((temp = calloc(1, sizeof(mmd_t))) != NULL)
   {
     if (parent)
     {
-     /*
-      * Add node to the parent...
-      */
-
+      // Add node to the parent...
       temp->parent = parent;
 
       if (parent->last_child)
@@ -1311,10 +1164,7 @@ mmd_add(mmd_t	   *parent,		/* I - Parent node */
       }
     }
 
-   /*
-    * Copy the node values...
-    */
-
+    // Copy the node values...
     temp->type	     = type;
     temp->whitespace = whitespace;
 
@@ -1329,12 +1179,12 @@ mmd_add(mmd_t	   *parent,		/* I - Parent node */
 }
 
 
-/*
- * 'mmd_free()' - Free memory used by a node.
- */
+//
+// 'mmd_free()' - Free memory used by a node.
+//
 
 static void
-mmd_free(mmd_t *node)			/* I - Node */
+mmd_free(mmd_t *node)			// I - Node
 {
   free(node->text);
   free(node->url);
@@ -1343,19 +1193,19 @@ mmd_free(mmd_t *node)			/* I - Node */
 }
 
 
-/*
- * 'mmd_has_continuation()' - Determine whether the next line is a continuation
- *			      of the current one.
- */
+//
+// 'mmd_has_continuation()' - Determine whether the next line is a continuation
+//			      of the current one.
+//
 
-static int				/* O - 1 if the next line continues, 0 otherwise */
+static int				// O - 1 if the next line continues, 0 otherwise
 mmd_has_continuation(
-    const char	   *line,		/* I - Current line */
-    _mmd_filebuf_t *file,		/* I - File buffer */
-    int		   indent)		/* I - Indentation for current block */
+    const char	   *line,		// I - Current line
+    _mmd_filebuf_t *file,		// I - File buffer
+    int		   indent)		// I - Indentation for current block
 {
-  const char	*lineptr = line;	/* Pointer into current line */
-  const char	*fileptr = file->bufptr;/* Pointer into next line */
+  const char	*lineptr = line;	// Pointer into current line
+  const char	*fileptr = file->bufptr;// Pointer into next line
 
 
   if (*fileptr == '\n' || *fileptr == '\r')
@@ -1390,19 +1240,13 @@ mmd_has_continuation(
 
   if (strchr("-+*", *fileptr) && isspace(fileptr[1] & 255))
   {
-   /*
-    * Bullet list item...
-    */
-
+    // Bullet list item...
     return (0);
   }
 
   if (isdigit(*fileptr & 255))
   {
-   /*
-    * Ordered list item...
-    */
-
+    // Ordered list item...
     while (*fileptr && isdigit(*fileptr & 255))
       fileptr ++;
 
@@ -1415,28 +1259,19 @@ mmd_has_continuation(
 
   if (mmd_is_chars(fileptr, "- \t", 3) || mmd_is_chars(fileptr, "_ \t", 3) || mmd_is_chars(fileptr, "* \t", 3))
   {
-   /*
-    * Thematic break...
-    */
-
+    // Thematic break...
     return (0);
   }
 
   if (mmd_is_chars(fileptr, "-", 1) || mmd_is_chars(fileptr, "=", 1))
   {
-   /*
-    * Heading...
-    */
-
+    // Heading...
     return (0);
   }
 
   if (*fileptr == '#')
   {
-   /*
-    * Possible heading...
-    */
-
+    // Possible heading...
     int count = 0;
 
     while (*fileptr == '#')
@@ -1453,17 +1288,57 @@ mmd_has_continuation(
 }
 
 
-/*
- * 'mmd_is_chars()' - Determine whether a line consists solely of whitespace
- *		      and the specified character.
- */
+//
+// 'mmd_iocb_file()' - Read from a file.
+//
 
-static size_t				/* O - 1 if as specified, 0 otherwise */
-mmd_is_chars(const char *lineptr,	/* I - Current line */
-	     const char *chars,		/* I - Non-space character */
-	     size_t	minchars)	/* I - Minimum number of non-space characters */
+static size_t				// O - Number of bytes read
+mmd_iocb_file(FILE   *fp,		// I - File pointer
+              char   *buffer,		// I - Buffer
+              size_t bytes)		// I - Number of bytes to read
 {
-  size_t	found_ch = 0;		/* Did we find the specified characters? */
+  return (fread(buffer, 1, bytes, fp));
+}
+
+
+//
+// 'mmd_iocb_string()' - Read from a string.
+//
+
+static size_t				// O - Number of bytes read
+mmd_iocb_string(const char **s,		// I - Pointer into string
+                char       *buffer,	// I - Buffer
+                size_t     bytes)	// I - Number of bytes to read
+{
+  size_t	ret;			// Bytes read/returned
+
+
+  // See how many bytes remain in the string...
+  if ((ret = strlen(*s)) > bytes)
+    ret = bytes;
+
+  if (ret > 0)
+  {
+    // Copy bytes from the string...
+    memcpy(buffer, *s, ret);
+    (*s) += ret;
+  }
+
+  return (ret);
+}
+
+
+//
+// 'mmd_is_chars()' - Determine whether a line consists solely of whitespace
+//		      and the specified character.
+//
+
+static size_t				// O - 1 if as specified, 0 otherwise
+mmd_is_chars(const char *lineptr,	// I - Current line
+	     const char *chars,		// I - Non-space character
+	     size_t	minchars)	// I - Minimum number of non-space characters
+{
+  size_t	found_ch = 0;		// Did we find the specified characters?
 
   while (*lineptr == *chars)
   {
@@ -1492,18 +1367,18 @@ mmd_is_chars(const char *lineptr,	/* I - Current line */
 }
 
 
-/*
- * 'mmd_is_codefence()' - Determine whether the line contains a code fence.
- */
+//
+// 'mmd_is_codefence()' - Determine whether the line contains a code fence.
+//
 
-static size_t				/* O - Length of fence or 0 otherwise */
-mmd_is_codefence(char	*lineptr,	/* I - Line */
-		 char	fence,		/* I - Current fence character, if any */
-		 size_t fencelen,	/* I - Current fence length */
-		 char	**language)	/* O - Language name, if any */
+static size_t				// O - Length of fence or 0 otherwise
+mmd_is_codefence(char	*lineptr,	// I - Line
+		 char	fence,		// I - Current fence character, if any
+		 size_t fencelen,	// I - Current fence length
+		 char	**language)	// O - Language name, if any
 {
-  char		match = fence;		/* Character to match */
-  size_t	len = 0;		/* Length of fence chars */
+  char		match = fence;		// Character to match
+  size_t	len = 0;		// Length of fence chars
 
 
   if (language)
@@ -1541,7 +1416,15 @@ mmd_is_codefence(char	*lineptr,	/* I - Line */
       *language = lineptr;
 
       while (*lineptr && !isspace(*lineptr & 255))
+      {
+	if (*lineptr == '\\' && lineptr[1])
+	{
+	  // Remove "\"
+	  memmove(lineptr, lineptr + 1, strlen(lineptr));
+	}
+
 	lineptr ++;
+      }
       *lineptr = '\0';
     }
   }
@@ -1550,16 +1433,16 @@ mmd_is_codefence(char	*lineptr,	/* I - Line */
 }
 
 
-/*
- * 'mmd_is_table()' - Look ahead to see if the next line contains a heading
- *		      divider for a table.
- */
+//
+// 'mmd_is_table()' - Look ahead to see if the next line contains a heading
+//		      divider for a table.
+//
 
-static int				/* O - 1 if this is a table, 0 otherwise */
-mmd_is_table(_mmd_filebuf_t *file,	/* I - File to read from */
-	     int	    indent)	/* I - Indentation of table line */
+static bool				// O - `true` if this is a table, `false` otherwise
+mmd_is_table(_mmd_filebuf_t *file,	// I - File to read from
+	     int	    indent)	// I - Indentation of table line
 {
-  const char	*ptr;			/* Pointer into buffer */
+  const char	*ptr;			// Pointer into buffer
 
 
   ptr = file->bufptr;
@@ -1572,7 +1455,7 @@ mmd_is_table(_mmd_filebuf_t *file,	/* I - File to read from */
   }
 
   if ((ptr - file->bufptr - indent) >= 4)
-    return (0);
+    return (false);
 
   while (*ptr)
   {
@@ -1586,24 +1469,24 @@ mmd_is_table(_mmd_filebuf_t *file,	/* I - File to read from */
 }
 
 
-/*
- * 'mmd_parse_inline()' - Parse inline formatting.
- */
+//
+// 'mmd_parse_inline()' - Parse inline formatting.
+//
 
 static void
-mmd_parse_inline(_mmd_doc_t *doc,	/* I - Document */
-		 mmd_t	    *parent,	/* I - Parent node */
-		 char	    *lineptr)	/* I - Pointer into line */
+mmd_parse_inline(_mmd_doc_t *doc,	// I - Document
+		 mmd_t	    *parent,	// I - Parent node
+		 char	    *lineptr)	// I - Pointer into line
 {
-  mmd_t		*node;			/* New node */
-  mmd_type_t	type;			/* Current node type */
-  int		whitespace;		/* Whitespace precedes? */
-  char		*text,			/* Text fragment in line */
-		*title,			/* Link title */
-		*url,			/* URL in link */
-		*refname;		/* Reference name */
-  const char	*delim = NULL;		/* Delimiter */
-  size_t	delimlen = 0;		/* Length of delimiter */
+  mmd_t		*node;			// New node
+  mmd_type_t	type;			// Current node type
+  int		whitespace;		// Whitespace precedes?
+  char		*text,			// Text fragment in line
+		*title,			// Link title
+		*url,			// URL in link
+		*refname;		// Reference name
+  const char	*delim = NULL;		// Delimiter
+  size_t	delimlen = 0;		// Length of delimiter
 
 
   whitespace = parent->last_child != NULL;
@@ -1636,10 +1519,7 @@ mmd_parse_inline(_mmd_doc_t *doc,	/* I - Document */
     }
     else if (*lineptr == '!' && lineptr[1] == '[' && type != MMD_TYPE_CODE_TEXT)
     {
-     /*
-      * Image...
-      */
-
+      // Image...
       if (text)
       {
 	mmd_add(parent, type, whitespace, text, NULL);
@@ -1667,10 +1547,7 @@ mmd_parse_inline(_mmd_doc_t *doc,	/* I - Document */
     }
     else if (*lineptr == '[' && type != MMD_TYPE_CODE_TEXT)
     {
-     /*
-      * Link or checkbox...
-      */
-
+      // Link or checkbox...
       if (text)
       {
         *lineptr = '\0';
@@ -1692,24 +1569,55 @@ mmd_parse_inline(_mmd_doc_t *doc,	/* I - Document */
         // Link
 	lineptr = mmd_parse_link(doc, lineptr, &text, &url, &title, &refname);
 
-	if (text && *text == '`')
+	if (text)
 	{
 	  char *end = text + strlen(text) - 1;
+					// End of text fragment
 
-	  text ++;
-	  if (end > text && *end == '`')
-	    *end = '\0';
+	  if (*text == '`' && *end == '`' && end != text)
+	  {
+	    // Code text
+	    text ++;
+	    if (end > text && *end == '`')
+	      *end = '\0';
 
-	  node = mmd_add(parent, MMD_TYPE_CODE_TEXT, whitespace, text, url);
-	}
-	else if (text)
-	{
-	  node = mmd_add(parent, MMD_TYPE_LINKED_TEXT, whitespace, text, url);
+	    node = mmd_add(parent, MMD_TYPE_CODE_TEXT, whitespace, text, url);
+	  }
+	  else if (*text == '*' && *end == '*' && end > text)
+	  {
+	    // Emphasized or strong text
+	    text ++;
+	    if (*text == '*' && (end - 1) > text && end[-1] == '*')
+	    {
+	      text ++;
+	      end[-1] = '\0';
+	      node    = mmd_add(parent, MMD_TYPE_STRONG_TEXT, whitespace, text, url);
+	    }
+	    else
+	    {
+	      *end = '\0';
+	      node = mmd_add(parent, MMD_TYPE_EMPHASIZED_TEXT, whitespace, text, url);
+            }
+	  }
+	  else if (type == MMD_TYPE_NORMAL_TEXT)
+	  {
+	    // Plain linked text...
+	    node = mmd_add(parent, MMD_TYPE_LINKED_TEXT, whitespace, text, url);
+	  }
+	  else
+	  {
+	    // Preserve style of linked text...
+	    node = mmd_add(parent, type, whitespace, text, url);
+	  }
+
 	  if (title)
 	    node->extra = strdup(title);
 	}
 	else
+	{
+	  // No text, no node...
 	  node = NULL;
+	}
 
 	DEBUG2_printf("mmd_parse_inline: text=\"%s\", refname=\"%s\", node=%p\n", text, refname, node);
 
@@ -1726,10 +1634,7 @@ mmd_parse_inline(_mmd_doc_t *doc,	/* I - Document */
     }
     else if (*lineptr == '<' && type != MMD_TYPE_CODE_TEXT && strchr(lineptr + 1, '>'))
     {
-     /*
-      * Autolink...
-      */
-
+      // Autolink...
       *lineptr++ = '\0';
 
       if (text)
@@ -1751,7 +1656,7 @@ mmd_parse_inline(_mmd_doc_t *doc,	/* I - Document */
     }
     else if ((*lineptr == '*' || *lineptr == '_') && (!text || ispunct(lineptr[-1] & 255) || type != MMD_TYPE_NORMAL_TEXT) && type != MMD_TYPE_CODE_TEXT)
     {
-      const char *end;			/* End delimiter */
+      const char *end;			// End delimiter
 
       if (type != MMD_TYPE_NORMAL_TEXT || !delim)
       {
@@ -1836,7 +1741,7 @@ mmd_parse_inline(_mmd_doc_t *doc,	/* I - Document */
 	type = MMD_TYPE_NORMAL_TEXT;
       }
     }
-    else if (*lineptr == '`')
+    else if (*lineptr == '`' && (type != MMD_TYPE_CODE_TEXT || lineptr[-1] != '\\'))
     {
       if (type != MMD_TYPE_NORMAL_TEXT || !delim)
       {
@@ -1882,6 +1787,7 @@ mmd_parse_inline(_mmd_doc_t *doc,	/* I - Document */
 	    textptr --;
 
 	  *textptr = '\0';
+	  lineptr += delimlen - 1;
 	}
 
 	if (type == MMD_TYPE_CODE_TEXT)
@@ -1904,7 +1810,6 @@ mmd_parse_inline(_mmd_doc_t *doc,	/* I - Document */
 	DEBUG2_puts("mmd_parse_inline: Reverting to normal text.\n");
 
 	type	 = MMD_TYPE_NORMAL_TEXT;
-	lineptr += delimlen - 1;
 	delim	 = NULL;
 	delimlen = 0;
       }
@@ -1913,58 +1818,65 @@ mmd_parse_inline(_mmd_doc_t *doc,	/* I - Document */
 	type	= MMD_TYPE_CODE_TEXT;
 	lineptr += delimlen - 1;
 
-	if (isspace(lineptr[1] & 255))
-	{
-	  whitespace = 1;
-
-	  while (isspace(lineptr[1] & 255))
-	    lineptr ++;
-	}
+	while (isspace(lineptr[1] & 255))
+	  lineptr ++;
 
 	text = lineptr + 1;
       }
     }
+    else if (!strncmp(lineptr, "\\\n", 2))
+    {
+      // Hard break
+      *lineptr++ = '\0';
+
+      if (text)
+      {
+        mmd_add(parent, type, whitespace, text, NULL);
+
+        text       = NULL;
+        whitespace = false;
+      }
+
+      mmd_add(parent, MMD_TYPE_HARD_BREAK, false, NULL, NULL);
+    }
     else if (!text)
     {
-      if (*lineptr == '\\' && lineptr[1] && lineptr[1] != '\n')
+      if (*lineptr == '\\' && ispunct(lineptr[1] & 255) && type != MMD_TYPE_CODE_TEXT)
       {
-       /*
-	* Escaped character...
-	*/
-
+        // Escaped character...
 	lineptr ++;
       }
 
       text = lineptr;
     }
-    else if (*lineptr == '\\' && lineptr[1] && lineptr[1] != '\n')
+    else if (*lineptr == '\\' && ispunct(lineptr[1] & 255) && type != MMD_TYPE_CODE_TEXT)
     {
-     /*
-      * Escaped character...
-      */
-
+      // Escaped character...
       memmove(lineptr, lineptr + 1, strlen(lineptr));
     }
   }
 
   if (text)
+  {
+    DEBUG_puts("mms_parse_inline: Adding text at end.\n");
     mmd_add(parent, type, whitespace, text, NULL);
+  }
 }
 
 
-/*
- * 'mmd_parse_link()' - Parse a link.
- */
+//
+// 'mmd_parse_link()' - Parse a link.
+//
 
-static char *				/* O - End of link text */
-mmd_parse_link(_mmd_doc_t *doc,		/* I - Document */
-	       char	  *lineptr,	/* I - Pointer into line */
-	       char	  **text,	/* O - Text */
-	       char	  **url,	/* O - URL */
-	       char	  **title,	/* O - Title, if any */
-	       char	  **refname)	/* O - Reference name */
+static char *				// O - End of link text
+mmd_parse_link(_mmd_doc_t *doc,		// I - Document
+	       char	  *lineptr,	// I - Pointer into line
+	       char	  **text,	// O - Text
+	       char	  **url,	// O - URL
+	       char	  **title,	// O - Title, if any
+	       char	  **refname)	// O - Reference name
 {
-  lineptr ++; /* skip "[" */
+  lineptr ++; // skip "["
 
   *text	   = lineptr;
   *url	   = NULL;
@@ -1996,17 +1908,29 @@ mmd_parse_link(_mmd_doc_t *doc,		/* I - Document */
 
   if (*lineptr == '(')
   {
-   /*
-    * Get URL...
-    */
-
+    // Get URL...
     lineptr ++;
     *url = lineptr;
 
     while (*lineptr && *lineptr != ')')
     {
       if (isspace(*lineptr & 255))
+      {
 	*lineptr = '\0';
+      }
+      else if (*lineptr == '\\' && lineptr[1])
+      {
+        if (lineptr[1] == ')')
+        {
+	  // Remove "\"
+	  memmove(lineptr, lineptr + 1, strlen(lineptr));
+	}
+	else
+	{
+	  // Keep "\"
+	  lineptr ++;
+	}
+      }
       else if (*lineptr == '\"' || *lineptr == '\'')
       {
 	char quote = *lineptr++;
@@ -2015,7 +1939,15 @@ mmd_parse_link(_mmd_doc_t *doc,		/* I - Document */
 	  *title = lineptr;
 
 	while (*lineptr && *lineptr != quote)
+	{
+	  if (*lineptr == '\\' && lineptr[1])
+	  {
+	    // Remove "\"
+	    memmove(lineptr, lineptr + 1, strlen(lineptr));
+	  }
+
 	  lineptr ++;
+	}
 
 	if (!*lineptr)
 	  return (lineptr);
@@ -2030,24 +1962,28 @@ mmd_parse_link(_mmd_doc_t *doc,		/* I - Document */
   }
   else if (*lineptr == '[')
   {
-   /*
-    * Get reference...
-    */
-
+    // Get reference...
     lineptr ++;
     *refname = lineptr;
 
     while (*lineptr && *lineptr != ']')
     {
       if (isspace(*lineptr & 255))
+      {
 	*lineptr = '\0';
+      }
       else if (*lineptr == '\\' && lineptr[1])
       {
-       /*
-	* Remove \
-	*/
-
-	memmove(lineptr, lineptr + 1, strlen(lineptr));
+        if (lineptr[1] == ']')
+        {
+	  // Remove "\"
+	  memmove(lineptr, lineptr + 1, strlen(lineptr));
+	}
+	else
+	{
+	  // Keep "\"
+	  lineptr ++;
+	}
       }
       else if (*lineptr == '\"' || *lineptr == '\'')
       {
@@ -2074,10 +2010,7 @@ mmd_parse_link(_mmd_doc_t *doc,		/* I - Document */
   }
   else if (*lineptr == ':')
   {
-   /*
-    * Get reference definition...
-    */
-
+    // Get reference definition...
     lineptr ++;
     while (*lineptr && isspace(*lineptr & 255))
       lineptr ++;
@@ -2085,7 +2018,15 @@ mmd_parse_link(_mmd_doc_t *doc,		/* I - Document */
     *url = lineptr;
 
     while (*lineptr && !isspace(*lineptr & 255))
+    {
+      if (*lineptr == '\\' && lineptr[1])
+      {
+        // Remove "\"
+	memmove(lineptr, lineptr + 1, strlen(lineptr));
+      }
+
       lineptr ++;
+    }
 
     if (*lineptr)
     {
@@ -2101,7 +2042,15 @@ mmd_parse_link(_mmd_doc_t *doc,		/* I - Document */
 	  *title = lineptr;
 
 	while (*lineptr && *lineptr != quote)
+	{
+	  if (*lineptr == '\\' && lineptr[1])
+	  {
+	    // Remove "\"
+	    memmove(lineptr, lineptr + 1, strlen(lineptr));
+	  }
+
 	  lineptr ++;
+	}
 
 	if (!*lineptr)
 	  return (lineptr);
@@ -2120,10 +2069,7 @@ mmd_parse_link(_mmd_doc_t *doc,		/* I - Document */
   }
   else
   {
-   /*
-    * Shortcut reference...
-    */
-
+    // Shortcut reference...
     *refname = *text;
   }
 
@@ -2131,68 +2077,56 @@ mmd_parse_link(_mmd_doc_t *doc,		/* I - Document */
 }
 
 
-/*
- * 'mmd_read_buffer()' - Fill the file buffer with more data from a file.
- */
+//
+// 'mmd_read_buffer()' - Fill the file buffer with more data from a file.
+//
 
 static void
-mmd_read_buffer(_mmd_filebuf_t *file)	/* I - File buffer */
+mmd_read_buffer(_mmd_filebuf_t *file)	// I - File buffer
 {
-  size_t	bytes;			/* Bytes read */
+  size_t	bytes;			// Bytes read
 
 
   if (file->bufptr && file->bufptr > file->buffer)
   {
-   /*
-    * Discard previous characters in the buffer.
-    */
-
+    // Discard previous characters in the buffer.
     memmove(file->buffer, file->bufptr, file->bufend - file->bufptr);
     file->bufend -= (file->bufptr - file->buffer);
   }
   else
   {
-   /*
-    * Otherwise just clear the buffer...
-    */
-
+    // Otherwise just clear the buffer...
     file->bufend = file->buffer;
   }
 
-  if ((bytes = fread(file->bufend, 1, sizeof(file->buffer) - (size_t)(file->bufend - file->buffer - 1), file->fp)) > 0)
+  if ((bytes = (file->cb)(file->cbdata, file->bufend, sizeof(file->buffer) - (size_t)(file->bufend - file->buffer - 1))) > 0)
     file->bufend += bytes;
 
   *(file->bufend) = '\0';
-  file->bufptr = file->buffer;
+  file->bufptr    = file->buffer;
 }
 
 
-/*
- * 'mmd_read_line()' - Read a line from a file in a Markdown-aware way.
- */
+//
+// 'mmd_read_line()' - Read a line from a file in a Markdown-aware way.
+//
 
-static char *				/* O - Pointer to line or `NULL` on EOF */
-mmd_read_line(_mmd_filebuf_t *file,	/* I - File buffer */
-	      char	     *line,	/* I - Line buffer */
-	      size_t	     linesize)	/* I - Size of line buffer */
+static char *				// O - Pointer to line or `NULL` on EOF
+mmd_read_line(_mmd_filebuf_t *file,	// I - File buffer
+	      char	     *line,	// I - Line buffer
+	      size_t	     linesize)	// I - Size of line buffer
 {
-  int	ch,				/* Current character */
-	column = 0;			/* Current column */
-  char	*lineptr = line,		/* Pointer into line */
-	*lineend = line + linesize - 1; /* Pointer to end of buffer */
+  int	ch,				// Current character
+	column = 0;			// Current column
+  char	*lineptr = line,		// Pointer into line
+	*lineend = line + linesize - 1; // Pointer to end of buffer
 
 
- /*
-  * Fill the buffer as needed...
-  */
-
+  // Fill the buffer as needed...
   if (!file->bufptr || (file->bufptr >= file->bufend) || !strchr(file->bufptr, '\n'))
     mmd_read_buffer(file);
 
- /*
-  * Copy a line out of the file buffer...
-  */
-
+  // Copy a line out of the file buffer...
   while (file->bufptr < file->bufend)
   {
     ch = *(file->bufptr);
@@ -2200,11 +2134,8 @@ mmd_read_line(_mmd_filebuf_t *file,	/* I - File buffer */
 
     if (ch == '\t')
     {
-     /*
-      * Expand tabs since nobody uses the same tab width and Markdown says
-      * 4 columns per tab...
-      */
-
+      // Expand tabs since nobody uses the same tab width and Markdown says
+      // 4 columns per tab...
       do
       {
 	column ++;
@@ -2234,20 +2165,20 @@ mmd_read_line(_mmd_filebuf_t *file,	/* I - File buffer */
 }
 
 
-/*
- * 'mmd_ref_add()' - Add or update a reference...
- */
+//
+// 'mmd_ref_add()' - Add or update a reference...
+//
 
 static void
-mmd_ref_add(_mmd_doc_t *doc,		/* I - Document */
-	    mmd_t      *node,		/* I - Link node, if any */
-	    const char *name,		/* I - Reference name */
-	    const char *url,		/* I - Reference URL */
-	    const char *title)		/* I - Title, if any */
+mmd_ref_add(_mmd_doc_t *doc,		// I - Document
+	    mmd_t      *node,		// I - Link node, if any
+	    const char *name,		// I - Reference name
+	    const char *url,		// I - Reference URL
+	    const char *title)		// I - Title, if any
 {
-  size_t	i;			/* Looping var */
+  size_t	i;			// Looping var
   _mmd_ref_t	*ref = mmd_ref_find(doc, name);
-					/* Reference */
+					// Reference
 
 
   DEBUG2_printf("mmd_ref_add(doc=%p, node=%p, name=\"%s\", url=\"%s\", title=\"%s\")\n", doc, node, name, url, title);
@@ -2316,15 +2247,15 @@ mmd_ref_add(_mmd_doc_t *doc,		/* I - Document */
 }
 
 
-/*
- * 'mmd_ref_find()' - Find a reference...
- */
+//
+// 'mmd_ref_find()' - Find a reference...
+//
 
-static _mmd_ref_t *			/* O - Reference or NULL */
-mmd_ref_find(_mmd_doc_t *doc,		/* I - Document */
-	     const char *name)		/* I - Reference name */
+static _mmd_ref_t *			// O - Reference or NULL
+mmd_ref_find(_mmd_doc_t *doc,		// I - Document
+	     const char *name)		// I - Reference name
 {
-  size_t	i;			/* Looping var */
+  size_t	i;			// Looping var
 
 
   for (i = 0; i < doc->num_references; i ++)
@@ -2335,12 +2266,12 @@ mmd_ref_find(_mmd_doc_t *doc,		/* I - Document */
 }
 
 
-/*
- * 'mmd_remove()' - Remove a node from its parent.
- */
+//
+// 'mmd_remove()' - Remove a node from its parent.
+//
 
 static void
-mmd_remove(mmd_t *node)			/* I - Node */
+mmd_remove(mmd_t *node)			// I - Node
 {
   if (node && node->parent)
   {
@@ -2362,14 +2293,14 @@ mmd_remove(mmd_t *node)			/* I - Node */
 
 
 #if DEBUG
-/*
- * 'mmd_type_string()' - Return a string for the specified type enumeration.
- */
+//
+// 'mmd_type_string()' - Return a string for the specified type enumeration.
+//
 
-static const char *			/* O - String representing the type */
-mmd_type_string(mmd_type_t type)	/* I - Type value */
+static const char *			// O - String representing the type
+mmd_type_string(mmd_type_t type)	// I - Type value
 {
-  static char	unknown[64];		/* Unknown type buffer */
+  static char	unknown[64];		// Unknown type buffer
 
 
   switch (type)
@@ -2447,4 +2378,4 @@ mmd_type_string(mmd_type_t type)	/* I - Type value */
 	return (unknown);
   }
 }
-#endif /* DEBUG */
+#endif // DEBUG

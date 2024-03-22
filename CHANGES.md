@@ -1,6 +1,7 @@
 # Changes in HTMLDOC v1.9.19
 
 - Updated configure script to look for zlib with pkg-config (Issue #519)
+- Updated markdown support code to mmd.
 
 
 # Changes in HTMLDOC v1.9.18
