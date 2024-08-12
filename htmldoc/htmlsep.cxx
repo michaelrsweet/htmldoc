@@ -1,17 +1,13 @@
-/*
- * Separated HTML export functions for HTMLDOC, a HTML document processing
- * program.
- *
- * Copyright 2011-2021 by Michael R Sweet.
- * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
- *
- * This program is free software.  Distribution and use rights are outlined in
- * the file "COPYING".
- */
-
-/*
- * Include necessary headers.
- */
+//
+// Separated HTML export functions for HTMLDOC, a HTML document processing
+// program.
+//
+// Copyright © 2011-2024 by Michael R Sweet.
+// Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
+//
+// This program is free software.  Distribution and use rights are outlined in
+// the file "COPYING".
+//
 
 #include "htmldoc.h"
 #include "markdown.h"
@@ -19,13 +15,13 @@
 
 
 //
-// Named link structure...
+// Local type...
 //
 
-typedef struct
+typedef struct				// Named link structure...
 {
-  uchar		*filename;	/* File for link */
-  uchar		name[124];	/* Reference name */
+  uchar		*filename;		// File for link
+  uchar		name[124];		// Reference name
 } link_t;
 
 
@@ -203,22 +199,22 @@ htmlsep_export(tree_t *document,	// I - Document to export
 }
 
 
-/*
- * 'write_header()' - Output the standard "header" for a HTML file.
- */
+//
+// 'write_header()' - Output the standard "header" for a HTML file.
+//
 
 static void
-write_header(FILE   **out,	/* IO - Output file */
-             uchar  *filename,	/* I - Output filename */
-	     uchar  *title,	/* I - Title for document */
-             uchar  *author,	/* I - Author for document */
-             uchar  *copyright,	/* I - Copyright for document */
-             uchar  *docnumber,	/* I - ID number for document */
-	     int    heading)	/* I - Current heading */
+write_header(FILE   **out,		// IO - Output file
+             uchar  *filename,		// I - Output filename
+	     uchar  *title,		// I - Title for document
+             uchar  *author,		// I - Author for document
+             uchar  *copyright,		// I - Copyright for document
+             uchar  *docnumber,		// I - ID number for document
+	     int    heading)		// I - Current heading
 {
-  char		realname[1024];	/* Real filename */
-  const char	*basename;	/* Filename without directory */
-  static const char *families[] =/* Typeface names */
+  char		realname[1024];		// Real filename
+  const char	*basename;		// Filename without directory
+  static const char *families[] =	// Typeface names
 		{
 		  "monospace",
 		  "serif",
@@ -334,13 +330,13 @@ write_header(FILE   **out,	/* IO - Output file */
 }
 
 
-/*
- * 'write_footer()' - Output the standard "footer" for a HTML file.
- */
+//
+// 'write_footer()' - Output the standard "footer" for a HTML file.
+//
 
 static void
-write_footer(FILE **out,	/* IO - Output file pointer */
-	     int  heading)	/* I  - Current heading */
+write_footer(FILE **out,		// IO - Output file pointer
+	     int  heading)		// I  - Current heading
 {
   if (*out == NULL)
     return;
@@ -378,21 +374,21 @@ write_footer(FILE **out,	/* IO - Output file pointer */
 }
 
 
-/*
- * 'write_title()' - Write a title page...
- */
+//
+// 'write_title()' - Write a title page...
+//
 
 static void
-write_title(FILE  *out,		/* I - Output file */
-            uchar *title,	/* I - Title for document */
-            uchar *author,	/* I - Author for document */
-            uchar *copyright,	/* I - Copyright for document */
-            uchar *docnumber)	/* I - ID number for document */
+write_title(FILE  *out,			// I - Output file
+            uchar *title,		// I - Title for document
+            uchar *author,		// I - Author for document
+            uchar *copyright,		// I - Copyright for document
+            uchar *docnumber)		// I - ID number for document
 {
-  FILE		*fp;		/* Title file */
-  const char	*title_ext,	/* Extension of title file */
-		*title_file;	/* Location of title file */
-  tree_t	*t;		/* Title file document tree */
+  FILE		*fp;			// Title file
+  const char	*title_ext,		// Extension of title file
+		*title_file;		// Location of title file
+  tree_t	*t;			// Title file document tree
 
 
   if (out == NULL)
@@ -482,14 +478,14 @@ write_title(FILE  *out,		/* I - Output file */
 }
 
 
-/*
- * 'write_all()' - Write all markup text for the given tree.
- */
+//
+// 'write_all()' - Write all markup text for the given tree.
+//
 
-static int			/* O - Current column */
-write_all(FILE   *out,		/* I - Output file */
-          tree_t *t,		/* I - Document tree */
-          int    col)		/* I - Current column */
+static int				// O - Current column
+write_all(FILE   *out,			// I - Output file
+          tree_t *t,			// I - Document tree
+          int    col)			// I - Current column
 {
   if (out == NULL)
     return (0);
@@ -510,9 +506,9 @@ write_all(FILE   *out,		/* I - Output file */
 }
 
 
-/*
- * 'write_doc()' - Write the entire document.
- */
+//
+// 'write_doc()' - Write the entire document.
+//
 
 static int				// O - Current column
 write_doc(FILE   **out,			// I - Output file
@@ -561,21 +557,21 @@ write_doc(FILE   **out,			// I - Output file
 }
 
 
-/*
- * 'write_node()' - Write a single tree node.
- */
+//
+// 'write_node()' - Write a single tree node.
+//
 
-static int			/* O - Current column */
-write_node(FILE   *out,		/* I - Output file */
-           tree_t *t,		/* I - Document tree node */
-           int    col)		/* I - Current column */
+static int				// O - Current column
+write_node(FILE   *out,			// I - Output file
+           tree_t *t,			// I - Document tree node
+           int    col)			// I - Current column
 {
-  int		i;		/* Looping var */
-  uchar		*ptr,		/* Pointer to output string */
-		*entity,	/* Entity string */
-		*src,		/* Source image */
-		*realsrc,	/* Real source image */
-		newsrc[1024];	/* New source image filename */
+  int		i;			// Looping var
+  uchar		*ptr,			// Pointer to output string
+		*entity,		// Entity string
+		*src,			// Source image
+		*realsrc,		// Real source image
+		newsrc[1024];		// New source image filename
 
 
   if (out == NULL)
@@ -753,14 +749,14 @@ write_node(FILE   *out,		/* I - Output file */
 }
 
 
-/*
- * 'write_nodeclose()' - Close a single tree node.
- */
+//
+// 'write_nodeclose()' - Close a single tree node.
+//
 
-static int			/* O - Current column */
-write_nodeclose(FILE   *out,	/* I - Output file */
-                tree_t *t,	/* I - Document tree node */
-                int    col)	/* I - Current column */
+static int				// O - Current column
+write_nodeclose(FILE   *out,		// I - Output file
+                tree_t *t,		// I - Document tree node
+                int    col)		// I - Current column
 {
   if (out == NULL)
     return (0);
@@ -841,14 +837,14 @@ write_nodeclose(FILE   *out,	/* I - Output file */
 }
 
 
-/*
- * 'write_toc()' - Write all markup text for the given table-of-contents.
- */
+//
+// 'write_toc()' - Write all markup text for the given table-of-contents.
+//
 
-static int			/* O - Current column */
-write_toc(FILE   *out,		/* I - Output file */
-          tree_t *t,		/* I - Document tree */
-          int    col)		/* I - Current column */
+static int				// O - Current column
+write_toc(FILE   *out,			// I - Output file
+          tree_t *t,			// I - Document tree
+          int    col)			// I - Current column
 {
   if (out == NULL)
     return (0);
@@ -872,14 +868,14 @@ write_toc(FILE   *out,		/* I - Output file */
 }
 
 
-/*
- * 'get_title()' - Get the title string for the given document...
- */
+//
+// 'get_title()' - Get the title string for the given document...
+//
 
-static uchar *		/* O - Title string */
-get_title(tree_t *doc)	/* I - Document tree */
+static uchar *				// O - Title string
+get_title(tree_t *doc)			// I - Document tree
 {
-  uchar	*temp;		/* Temporary pointer to title */
+  uchar	*temp;				// Temporary pointer to title
 
 
   while (doc != NULL)
@@ -975,7 +971,7 @@ add_heading(tree_t *t)			// I - Heading node
   else
   {
     // Make a copy of the string "s" and free the old heading string...
-    headings[num_headings] = (uchar *)strdup((char *)s);
+    headings[num_headings] = (uchar *)hd_strdup((char *)s);
     free(heading);
   }
 
@@ -983,15 +979,15 @@ add_heading(tree_t *t)			// I - Heading node
 }
 
 
-/*
- * 'add_link()' - Add a named link...
- */
+//
+// 'add_link()' - Add a named link...
+//
 
 static void
-add_link(uchar *name)		/* I - Name of link */
+add_link(uchar *name)			// I - Name of link
 {
-  uchar		*filename;	/* File for link */
-  link_t	*temp;		/* New name */
+  uchar		*filename;		// File for link
+  link_t	*temp;			// New name
 
 
   if (num_headings)
@@ -1000,7 +996,9 @@ add_link(uchar *name)		/* I - Name of link */
     filename = (uchar *)"noheading";
 
   if ((temp = find_link(name)) != NULL)
+  {
     temp->filename = filename;
+  }
   else
   {
     // See if we need to allocate memory for links...
@@ -1039,16 +1037,16 @@ add_link(uchar *name)		/* I - Name of link */
 }
 
 
-/*
- * 'find_link()' - Find a named link...
- */
+//
+// 'find_link()' - Find a named link...
+//
 
 static link_t *
-find_link(uchar *name)		/* I - Name to find */
+find_link(uchar *name)			// I - Name to find
 {
-  uchar		*target;	/* Pointer to target name portion */
-  link_t	key,		/* Search key */
-		*match;		/* Matching name entry */
+  uchar		*target;		// Pointer to target name portion
+  link_t	key,			// Search key
+		*match;			// Matching name entry
 
 
   if (name == NULL || num_links == 0)
@@ -1066,27 +1064,27 @@ find_link(uchar *name)		/* I - Name to find */
 }
 
 
-/*
- * 'compare_links()' - Compare two named links.
- */
+//
+// 'compare_links()' - Compare two named links.
+//
 
-static int			/* O - 0 = equal, -1 or 1 = not equal */
-compare_links(link_t *n1,	/* I - First name */
-              link_t *n2)	/* I - Second name */
+static int				// O - 0 = equal, -1 or 1 = not equal
+compare_links(link_t *n1,		// I - First name
+              link_t *n2)		// I - Second name
 {
   return (strcasecmp((char *)n1->name, (char *)n2->name));
 }
 
 
-/*
- * 'scan_links()' - Scan a document for link targets, and keep track of
- *                  the files they are in...
- */
+//
+// 'scan_links()' - Scan a document for link targets, and keep track of
+//                  the files they are in...
+//
 
 static void
-scan_links(tree_t *t)		/* I - Document tree */
+scan_links(tree_t *t)			// I - Document tree
 {
-  uchar	*name;			/* Name of link */
+  uchar	*name;				// Name of link
 
 
   while (t != NULL)
@@ -1107,18 +1105,18 @@ scan_links(tree_t *t)		/* I - Document tree */
 }
 
 
-/*
- * 'update_links()' - Update links as needed.
- */
+//
+// 'update_links()' - Update links as needed.
+//
 
 static void
-update_links(tree_t *t,		/* I - Document tree */
-             int    *heading)	/* I - Current heading */
+update_links(tree_t *t,			// I - Document tree
+             int    *heading)		// I - Current heading
 {
-  link_t	*link;		/* Link */
-  uchar		*href;		/* Reference name */
-  uchar		newhref[1024];	/* New reference name */
-  uchar		*filename;	/* Current filename */
+  link_t	*link;			// Link
+  uchar		*href;			// Reference name
+  uchar		newhref[1024];		// New reference name
+  uchar		*filename;		// Current filename
 
 
   // Scan the document, rewriting HREF's as needed...

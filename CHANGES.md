@@ -1,5 +1,7 @@
 # Changes in HTMLDOC v1.9.19
 
+- Updated HTML and header/footer code to use a string pool to simplify memory
+  management and fix potential double-free bugs.
 - Updated configure script to look for zlib with pkg-config (Issue #519)
 - Updated markdown support code to mmd.
 

@@ -4195,6 +4195,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
 
     htmlDeleteTree(document);
     htmlDeleteTree(toc);
+    hd_strfreeall();
 
     file_cleanup();
     image_flush_cache();

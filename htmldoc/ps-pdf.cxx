@@ -14,10 +14,6 @@
  */
 
 /*
- * Include necessary headers.
- */
-
-/*
  * The GCC compiler on HP-UX has a nasty habit of incorrectly "fixing"
  * the vmtypes.h header file provided with HP-UX.  The following
  * conditional magic makes sure that "page_t" (which we use in our
@@ -374,7 +370,7 @@ int
 pspdf_export(tree_t *document,	/* I - Document to export */
              tree_t *toc)	/* I - Table of contents for document */
 {
-  int		i, j;		/* Looping vars */
+  int		i;		/* Looping var */
   const char	*title_file;	/* Location of title image/file */
   uchar		*author,	/* Author of document */
 		*creator,	/* HTML file creator (Netscape, etc) */
@@ -940,47 +936,6 @@ pspdf_export(tree_t *document,	/* I - Document to export */
     links        = NULL;
   }
 
-  for (i = 0; i < (int)num_pages; i ++)
-  {
-    if ((i == 0 || pages[i].chapter != pages[i - 1].chapter) &&
-        pages[i].chapter)
-      free(pages[i].chapter);
-
-    if ((i == 0 || pages[i].heading != pages[i - 1].heading) &&
-        pages[i].heading)
-      free(pages[i].heading);
-
-    if (!pages[i].heading)
-      continue;
-
-    for (j = 0; j < 3; j ++)
-    {
-      if (!pages[i].header[j])
-        continue;
-
-      if (i == 0 || pages[i].header[j] != pages[i - 1].header[j])
-        free(pages[i].header[j]);
-    }
-
-    for (j = 0; j < 3; j ++)
-    {
-      if (!pages[i].header1[j])
-        continue;
-
-      if (i == 0 || pages[i].header1[j] != pages[i - 1].header1[j])
-        free(pages[i].header1[j]);
-    }
-
-    for (j = 0; j < 3; j ++)
-    {
-      if (!pages[i].footer[j])
-        continue;
-
-      if (i == 0 || pages[i].footer[j] != pages[i - 1].footer[j])
-        free(pages[i].footer[j]);
-    }
-  }
-
   for (i = 0; i < 3; i ++)
   {
     Header[i]    = NULL;
@@ -1032,6 +987,8 @@ pspdf_debug_stats()
   if ((debug = getenv("HTMLDOC_DEBUG")) == NULL ||
       (strstr(debug, "all") == NULL && strstr(debug, "memory") == NULL))
     return;
+
+  progress_error(HD_ERROR_NONE, "DEBUG: String Pool = %ld kbytes", (long)(hd_strgetsize() + 1023) / 1024);
 
   bytes = alloc_headings * sizeof(int) * 2;
 
@@ -3466,7 +3423,7 @@ pdf_write_links(FILE *out)		/* I - Output file */
 	   /*
             * Local link...
             */
-            if (link->page < num_pages)
+            if (link->page < (int)num_pages)
             {
 	      float x1, y1, x2, y2;
 
@@ -4007,7 +3964,9 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 
 	    if (t->markup == MARKUP_B && pages[*page].chapter == pages[*page - 1].chapter)
 	    {
-	      pages[*page].chapter = htmlGetText(t->child->child);
+	      uchar *chapter = htmlGetText(t->child->child);
+	      pages[*page].chapter = (uchar *)hd_strdup((char *)chapter);
+	      free(chapter);
 
               for (int i = *page + 1; i < (int)num_pages; i ++)
                 pages[i].chapter = pages[*page].chapter;
@@ -4015,7 +3974,9 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 
 	    if (pages[*page].heading == pages[*page - 1].heading)
 	    {
-	      pages[*page].heading = htmlGetText(t->child->child);
+	      uchar *heading = htmlGetText(t->child->child);
+	      pages[*page].heading = (uchar *)hd_strdup((char *)heading);
+	      free(heading);
 
               for (int i = *page + 1; i < (int)num_pages; i ++)
                 pages[i].heading = pages[*page].heading;
@@ -4707,7 +4668,9 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
 
   if (t->markup == MARKUP_H1 && !title_page)
   {
-    pages[*page].chapter = htmlGetText(current_heading);
+    uchar *chapter = htmlGetText(current_heading);
+    pages[*page].chapter = (uchar *)hd_strdup((char *)chapter);
+    free(chapter);
 
     for (int i = *page + 1; i < (int)num_pages; i ++)
       pages[i].chapter = pages[*page].chapter;
@@ -4717,8 +4680,10 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
       (*page > 0 && pages[*page].heading == pages[*page - 1].heading)) &&
       !title_page)
   {
-    pages[*page].heading  = htmlGetText(current_heading);
+    uchar *heading = htmlGetText(current_heading);
+    pages[*page].heading  = (uchar *)hd_strdup((char *)heading);
     pages[*page].headnode = current_heading;
+    free(heading);
 
     for (int i = *page + 1; i < (int)num_pages; i ++)
     {
@@ -8385,7 +8350,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       *ptr = '\0';
 
       if (ptr > buffer)
-        Header[pos] = strdup(buffer);
+        Header[pos] = hd_strdup(buffer);
       else
         Header[pos] = NULL;
 
@@ -8496,7 +8461,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       *ptr = '\0';
 
       if (ptr > buffer)
-        Header1[pos] = strdup(buffer);
+        Header1[pos] = hd_strdup(buffer);
       else
         Header1[pos] = NULL;
 
@@ -8597,7 +8562,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       *ptr = '\0';
 
       if (ptr > buffer)
-        Footer[pos] = strdup(buffer);
+        Footer[pos] = hd_strdup(buffer);
       else
         Footer[pos] = NULL;
 
@@ -9024,8 +8989,10 @@ check_pages(int page)	// I - Current page
 
         if (current_heading != temp->headnode)
 	{
-	  temp->heading  = htmlGetText(current_heading);
+	  uchar *heading = htmlGetText(current_heading);
+	  temp->heading  = (uchar *)hd_strdup((char *)heading);
 	  temp->headnode = current_heading;
+	  free(heading);
 	}
       }
 

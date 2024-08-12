@@ -1,30 +1,26 @@
-/*
- * HTML parsing routines for HTMLDOC, a HTML document processing program.
- *
- * Copyright 2011-2024 by Michael R Sweet.
- * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
- *
- * This program is free software.  Distribution and use rights are outlined in
- * the file "COPYING".
- */
-
-/*
- * Include necessary headers.
- */
+//
+// HTML parsing routines for HTMLDOC, a HTML document processing program.
+//
+// Copyright 2011-2024 by Michael R Sweet.
+// Copyright 1997-2010 by Easy Software Products.  All rights reserved.
+//
+// This program is free software.  Distribution and use rights are outlined in
+// the file "COPYING".
+//
 
 #include "htmldoc.h"
 #include <cups/http.h>
 #include <ctype.h>
 
 
-/*
- * Markup strings...
- */
+//
+// Markup strings...
+//
 
 const char	*_htmlMarkups[] =
 		{
-		  "",		/* MARKUP_NONE */
-		  "!--",	/* MARKUP_COMMENT */
+		  "",		// MARKUP_NONE
+		  "!--",	// MARKUP_COMMENT
 		  "!DOCTYPE",
 		  "a",
 		  "acronym",
@@ -123,26 +119,26 @@ const char	*_htmlMarkups[] =
 		};
 
 const char	*_htmlCurrentFile = "UNKNOWN";
-					/* Current file */
-const char	*_htmlData = HTML_DATA;	/* Data directory */
-float		_htmlPPI = 80.0f;	/* Image resolution */
-int		_htmlGrayscale = 0;	/* Grayscale output? */
-uchar		_htmlTextColor[255] =	/* Default text color */
+					// Current file
+const char	*_htmlData = HTML_DATA;	// Data directory
+float		_htmlPPI = 80.0f;	// Image resolution
+int		_htmlGrayscale = 0;	// Grayscale output?
+uchar		_htmlTextColor[255] =	// Default text color
 		{ 0 };
 float		_htmlBrowserWidth = 680.0f;
-					/* Browser width for pixel scaling */
-float		_htmlSizes[8] =		/* Point size for each HTML size */
+					// Browser width for pixel scaling
+float		_htmlSizes[8] =		// Point size for each HTML size
 		{ 6.0f, 8.0f, 9.0f, 11.0f, 14.0f, 17.0f, 20.0f, 24.0f };
-float		_htmlSpacings[8] =	/* Line height for each HTML size */
+float		_htmlSpacings[8] =	// Line height for each HTML size
 		{ 7.2f, 9.6f, 10.8f, 13.2f, 16.8f, 20.4f, 24.0f, 28.8f };
 typeface_t	_htmlBodyFont = TYPE_TIMES,
 		_htmlHeadingFont = TYPE_HELVETICA;
 
-int		_htmlInitialized = 0;	/* Initialized glyphs yet? */
+int		_htmlInitialized = 0;	// Initialized glyphs yet?
 char		_htmlCharSet[256] = "iso-8859-1";
-					/* Character set name */
+					// Character set name
 int		_htmlWidthsLoaded[TYPE_MAX][STYLE_MAX] =
-		{			/* Have the widths been loaded? */
+		{			// Have the widths been loaded?
 		  { 0, 0, 0, 0 },
 		  { 0, 0, 0, 0 },
 		  { 0, 0, 0, 0 },
@@ -153,17 +149,17 @@ int		_htmlWidthsLoaded[TYPE_MAX][STYLE_MAX] =
 		  { 0, 0, 0, 0 }
 		};
 short		_htmlWidths[TYPE_MAX][STYLE_MAX][256];
-					/* Character widths of fonts */
+					// Character widths of fonts
 short		_htmlWidthsAll[TYPE_MAX][STYLE_MAX][65536];
-                                        /* Unicode widths of fonts */
-int		_htmlUnicode[256];	/* Character to Unicode mapping */
-uchar           _htmlCharacters[65536]; /* Unicode to character mapping */
-int             _htmlUTF8 = 0;          /* Doing UTF-8? */
-const char	*_htmlGlyphsAll[65536];	/* Character glyphs for Unicode */
-const char	*_htmlGlyphs[256];	/* Character glyphs for charset */
-int		_htmlNumSorted = 0;	/* Number of sorted glyphs */
-const char	*_htmlSorted[256];	/* Sorted character glyphs for charset */
-uchar		_htmlSortedChars[256];	/* Sorted character indices */
+                                        // Unicode widths of fonts
+int		_htmlUnicode[256];	// Character to Unicode mapping
+uchar           _htmlCharacters[65536]; // Unicode to character mapping
+int             _htmlUTF8 = 0;          // Doing UTF-8?
+const char	*_htmlGlyphsAll[65536];	// Character glyphs for Unicode
+const char	*_htmlGlyphs[256];	// Character glyphs for charset
+int		_htmlNumSorted = 0;	// Number of sorted glyphs
+const char	*_htmlSorted[256];	// Sorted character glyphs for charset
+uchar		_htmlSortedChars[256];	// Sorted character indices
 const char	*_htmlFonts[TYPE_MAX][STYLE_MAX] =
 		{
 		  {
@@ -228,9 +224,9 @@ int		_htmlStandardFonts[TYPE_MAX] =
 		};
 
 
-/*
- * Local functions.
- */
+//
+// Local functions.
+//
 
 extern "C" {
 typedef int	(*compare_func_t)(const void *, const void *);
@@ -266,12 +262,12 @@ static int      utf8_getc(int ch, FILE *fp);
 
 #ifdef DEBUG
 static uchar	indent[255] = "";
-#endif /* DEBUG */
+#endif // DEBUG
 
 
-/*
- * 'htmlReadFile()' - Read a file for HTML markup codes.
- */
+//
+// 'htmlReadFile()' - Read a file for HTML markup codes.
+//
 
 tree_t *				// O - Pointer to top of file tree
 htmlReadFile(tree_t     *parent,	// I - Parent tree entry
@@ -308,25 +304,16 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
   indent[0] = '\0';
 #endif // DEBUG
 
- /*
-  * Start off with no previous tree entry...
-  */
-
+  // Start off with no previous tree entry...
   prev = NULL;
   tree = NULL;
 
- /*
-  * Parse data until we hit end-of-file...
-  */
-
+  // Parse data until we hit end-of-file...
   linenum = 1;
 
   while ((ch = getc(fp)) != EOF)
   {
-   /*
-    * Ignore leading whitespace...
-    */
-
+    // Ignore leading whitespace...
     if (parent == NULL || !parent->preformatted)
     {
       while (isspace(ch))
@@ -342,24 +329,18 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
         break;
     }
 
-   /*
-    * Allocate a new tree entry - use calloc() to get zeroed data...
-    */
-
+    // Allocate a new tree entry - use calloc() to get zeroed data...
     t = (tree_t *)calloc(sizeof(tree_t), 1);
     if (t == NULL)
     {
 #ifndef DEBUG
       progress_error(HD_ERROR_OUT_OF_MEMORY,
                      "Unable to allocate memory for HTML tree node!");
-#endif /* !DEBUG */
+#endif // !DEBUG
       break;
     }
 
-   /*
-    * Set/copy font characteristics...
-    */
-
+    // Set/copy font characteristics...
     if (parent == NULL)
     {
       t->halignment   = ALIGN_LEFT;
@@ -388,26 +369,17 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
       t->strikethrough = parent->strikethrough;
     }
 
-   /*
-    * See what the character was...
-    */
-
+    // See what the character was...
     if (ch == '<')
     {
-     /*
-      * Markup char; grab the next char to see if this is a /...
-      */
-
+      // Markup char; grab the next char to see if this is a /...
       ch = getc(fp);
 
       if (isspace(ch) || ch == '=' || ch == '<')
       {
-       /*
-        * Sigh...  "<" followed by anything but an element name is
-	* invalid HTML, but so many people have asked for this to
-	* be supported that we have added this hack...
-	*/
-
+        // Sigh...  "<" followed by anything but an element name is
+	// invalid HTML, but so many people have asked for this to
+	// be supported that we have added this hack...
 	progress_error(HD_ERROR_HTML_ERROR, "Unquoted < on line %d of %s.",
 	               linenum, _htmlCurrentFile);
 
@@ -432,14 +404,11 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	*ptr++ = '\0';
 
 	t->markup = MARKUP_NONE;
-	t->data   = (uchar *)strdup((char *)s);
+	t->data   = (uchar *)hd_strdup((char *)s);
       }
       else
       {
-       /*
-        * Start of a markup...
-	*/
-
+        // Start of a markup...
 	if (ch != '/')
           ungetc(ch, fp);
 
@@ -449,134 +418,142 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
           progress_error(HD_ERROR_READ_ERROR,
                          "Unable to parse HTML element on line %d of %s!",
 			 linenum, _htmlCurrentFile);
-#endif /* !DEBUG */
+#endif // !DEBUG
 
           delete_node(t);
           break;
 	}
 
-       /*
-	* Eliminate extra whitespace...
-	*/
-
-	if (issuper(t->markup) || isblock(t->markup) ||
-            islist(t->markup) || islentry(t->markup) ||
-            istable(t->markup) || istentry(t->markup) ||
-	    t->markup == MARKUP_TITLE)
+        // Eliminate extra whitespace...
+	if (issuper(t->markup) || isblock(t->markup) || islist(t->markup) || islentry(t->markup) ||
+            istable(t->markup) || istentry(t->markup) || t->markup == MARKUP_TITLE)
           have_whitespace = 0;
 
-       /*
-	* If this is the matching close mark, or if we are starting the same
-	* markup, or if we've completed a list, we're done!
-	*/
-
+        // If this is the matching close mark, or if we are starting the same
+	// markup, or if we've completed a list, we're done!
 	if (ch == '/')
 	{
-	 /*
-          * Close markup; find matching markup...
-          */
-
+	  // Close markup; find matching markup...
           for (temp = parent; temp != NULL; temp = temp->parent)
+          {
             if (temp->markup == t->markup)
+            {
               break;
+	    }
 	    else if (temp->markup == MARKUP_EMBED)
 	    {
 	      temp = NULL;
               break;
 	    }
+	  }
 	}
 	else if (t->markup == MARKUP_BODY || t->markup == MARKUP_HEAD)
 	{
-	 /*
-          * Make sure we aren't inside an existing HEAD or BODY...
-	  */
-
+	  // Make sure we aren't inside an existing HEAD or BODY...
           for (temp = parent; temp != NULL; temp = temp->parent)
+          {
             if (temp->markup == MARKUP_BODY || temp->markup == MARKUP_HEAD)
+            {
               break;
+	    }
 	    else if (temp->markup == MARKUP_EMBED)
 	    {
 	      temp = NULL;
 	      break;
 	    }
+	  }
 	}
 	else if (t->markup == MARKUP_EMBED)
 	{
-	 /*
-          * Close any text blocks...
-	  */
-
+	  // Close any text blocks...
           for (temp = parent; temp != NULL; temp = temp->parent)
+          {
             if (isblock(temp->markup) || islentry(temp->markup))
+            {
               break;
-	    else if (istentry(temp->markup) || islist(temp->markup) ||
-	             issuper(temp->markup) || temp->markup == MARKUP_EMBED)
+	    }
+	    else if (istentry(temp->markup) || islist(temp->markup) || issuper(temp->markup) || temp->markup == MARKUP_EMBED)
 	    {
 	      temp = NULL;
 	      break;
 	    }
+	  }
 	}
 	else if (issuper(t->markup))
 	{
           for (temp = parent; temp != NULL; temp = temp->parent)
+          {
 	    if (istentry(temp->markup) || temp->markup == MARKUP_EMBED)
 	    {
 	      temp = NULL;
               break;
 	    }
+	  }
 	}
 	else if (islist(t->markup))
 	{
           for (temp = parent; temp != NULL; temp = temp->parent)
+          {
             if (isblock(temp->markup))
+	    {
 	      break;
-	    else if (islentry(temp->markup) || istentry(temp->markup) ||
-	             issuper(temp->markup) || temp->markup == MARKUP_EMBED)
+	    }
+	    else if (islentry(temp->markup) || istentry(temp->markup) || issuper(temp->markup) || temp->markup == MARKUP_EMBED)
 	    {
 	      temp = NULL;
               break;
 	    }
+	  }
 	}
 	else if (islentry(t->markup))
 	{
           for (temp = parent; temp != NULL; temp = temp->parent)
+          {
             if (islentry(temp->markup))
+            {
               break;
-	    else if (islist(temp->markup) || issuper(temp->markup) ||
-	             istentry(temp->markup) || temp->markup == MARKUP_EMBED)
+	    }
+	    else if (islist(temp->markup) || issuper(temp->markup) || istentry(temp->markup) || temp->markup == MARKUP_EMBED)
             {
 	      temp = NULL;
 	      break;
 	    }
+	  }
 	}
 	else if (isblock(t->markup))
 	{
           for (temp = parent; temp != NULL; temp = temp->parent)
+          {
             if (isblock(temp->markup))
+            {
               break;
-	    else if (istentry(temp->markup) || islist(temp->markup) ||
-	             islentry(temp->markup) ||
-	             issuper(temp->markup) || temp->markup == MARKUP_EMBED)
+	    }
+	    else if (istentry(temp->markup) || islist(temp->markup) || islentry(temp->markup) || issuper(temp->markup) || temp->markup == MARKUP_EMBED)
 	    {
 	      temp = NULL;
 	      break;
 	    }
+	  }
 	}
 	else if (t->markup == MARKUP_THEAD || t->markup == MARKUP_TBODY || t->markup == MARKUP_TFOOT)
 	{
           for (temp = parent; temp != NULL; temp = temp->parent)
+          {
 	    if (temp->markup == MARKUP_TABLE || temp->markup == MARKUP_EMBED)
 	    {
 	      temp = NULL;
               break;
 	    }
+	  }
 	}
 	else if (t->markup == MARKUP_TR)
 	{
           for (temp = parent; temp != NULL; temp = temp->parent)
           {
             if (temp->markup == MARKUP_TR)
+            {
               break;
+            }
             else if (temp->markup == MARKUP_TABLE || t->markup == MARKUP_THEAD || t->markup == MARKUP_TBODY || t->markup == MARKUP_TFOOT || temp->markup == MARKUP_EMBED)
 	    {
 	      temp = NULL;
@@ -589,9 +566,10 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
           for (temp = parent; temp != NULL; temp = temp->parent)
           {
             if (istentry(temp->markup))
+            {
               break;
-	    else if (temp->markup == MARKUP_TABLE || istable(temp->markup) ||
-	             temp->markup == MARKUP_EMBED)
+	    }
+	    else if (temp->markup == MARKUP_TABLE || istable(temp->markup) || temp->markup == MARKUP_EMBED)
 	    {
 	      if (temp->markup != MARKUP_TR)
 	      {
@@ -615,7 +593,9 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	  }
 	}
 	else
+	{
           temp = NULL;
+        }
 
 	if (temp != NULL)
 	{
@@ -729,10 +709,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
     }
     else if (t->preformatted)
     {
-     /*
-      * Read a pre-formatted string into the current tree entry...
-      */
-
+      // Read a pre-formatted string into the current tree entry...
       ptr = s;
       while (ch != '<' && ch != EOF && ptr < (s + sizeof(s) - 1))
       {
@@ -808,16 +785,13 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
         ungetc(ch, fp);
 
       t->markup = MARKUP_NONE;
-      t->data   = (uchar *)strdup((char *)s);
+      t->data   = (uchar *)hd_strdup((char *)s);
 
       DEBUG_printf(("%sfragment \"%s\", line %d\n", indent, s, linenum));
     }
     else
     {
-     /*
-      * Read the next string fragment...
-      */
-
+      // Read the next string fragment...
       ptr = s;
       if (have_whitespace)
       {
@@ -902,17 +876,14 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
         ungetc(ch, fp);
 
       t->markup = MARKUP_NONE;
-      t->data   = (uchar *)strdup((char *)s);
+      t->data   = (uchar *)hd_strdup((char *)s);
 
       DEBUG_printf(("%sfragment \"%s\" (len=%d), line %d\n", indent, s,
                     (int)(ptr - s), linenum));
     }
 
-   /*
-    * If the parent tree pointer is not null and this is the first
-    * entry we've read, set the child pointer...
-    */
-
+    // If the parent tree pointer is not null and this is the first
+    // entry we've read, set the child pointer...
     DEBUG_printf(("%sADDING %s node to %s parent!\n", indent,
                   _htmlMarkups[t->markup],
 		  parent ? _htmlMarkups[parent->markup] : "ROOT"));
@@ -922,10 +893,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
     if (parent != NULL)
       parent->last_child = t;
 
-   /*
-    * Do the prev/next links...
-    */
-
+    // Do the prev/next links...
     t->parent = parent;
     t->prev   = prev;
     if (prev != NULL)
@@ -936,19 +904,13 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 
     prev = t;
 
-   /*
-    * Do markup-specific stuff...
-    */
-
+    // Do markup-specific stuff...
     descend = 0;
 
     switch (t->markup)
     {
       case MARKUP_BODY :
-         /*
-	  * Update the text color as necessary...
-	  */
-
+          // Update the text color as necessary...
           if ((color = htmlGetVariable(t, (uchar *)"TEXT")) != NULL)
             compute_color(t, color);
 	  else
@@ -989,10 +951,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
       case MARKUP_BR :
       case MARKUP_NONE :
       case MARKUP_SPACER :
-	 /*
-	  * Figure out the width & height of this markup...
-	  */
-
+	  // Figure out the width & height of this markup...
           compute_size(t);
 	  break;
 
@@ -1119,7 +1078,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	      progress_error(HD_ERROR_FILE_NOT_FOUND,
                              "Unable to embed \"%s\" - %s", filename,
 	                     strerror(errno));
-#endif /* !DEBUG */
+#endif // !DEBUG
 	  }
           break;
 
@@ -1570,10 +1529,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	  break;
 
       default :
-         /*
-          * All other markup types should be using <MARK>...</MARK>
-          */
-
+          // All other markup types should be using <MARK>...</MARK>
           get_alignment(t);
 
           descend = 1;
@@ -1595,17 +1551,17 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 }
 
 
-/*
- * 'write_file()' - Write a tree entry to a file...
- */
+//
+// 'write_file()' - Write a tree entry to a file...
+//
 
-static int			/* I - New column */
-write_file(tree_t *t,		/* I - Tree entry */
-           FILE   *fp,		/* I - File to write to */
-           int    col)		/* I - Current column */
+static int			// I - New column
+write_file(tree_t *t,		// I - Tree entry
+           FILE   *fp,		// I - File to write to
+           int    col)		// I - Current column
 {
-  int	i;			/* Looping var */
-  uchar	*ptr;			/* Character pointer */
+  int	i;			// Looping var
+  uchar	*ptr;			// Character pointer
 
 
   while (t != NULL)
@@ -1769,13 +1725,13 @@ write_file(tree_t *t,		/* I - Tree entry */
 }
 
 
-/*
- * 'htmlWriteFile()' - Write an HTML markup tree to a file.
- */
+//
+// 'htmlWriteFile()' - Write an HTML markup tree to a file.
+//
 
-int				/* O - Write status: 0 = success, -1 = fail */
-htmlWriteFile(tree_t *parent,	/* I - Parent tree entry */
-              FILE   *fp)	/* I - File to write to */
+int				// O - Write status: 0 = success, -1 = fail
+htmlWriteFile(tree_t *parent,	// I - Parent tree entry
+              FILE   *fp)	// I - File to write to
 {
   if (write_file(parent, fp, 0) < 0)
     return (-1);
@@ -1784,25 +1740,22 @@ htmlWriteFile(tree_t *parent,	/* I - Parent tree entry */
 }
 
 
-/*
- * 'htmlAddTree()' - Add a tree node to the parent.
- */
+//
+// 'htmlAddTree()' - Add a tree node to the parent.
+//
 
-tree_t *			/* O - New entry */
-htmlAddTree(tree_t   *parent,	/* I - Parent entry */
-            markup_t markup,	/* I - Markup code */
-            uchar    *data)	/* I - Data/text */
+tree_t *			// O - New entry
+htmlAddTree(tree_t   *parent,	// I - Parent entry
+            markup_t markup,	// I - Markup code
+            uchar    *data)	// I - Data/text
 {
-  tree_t	*t;		/* New tree entry */
+  tree_t	*t;		// New tree entry
 
 
   if ((t = htmlNewTree(parent, markup, data)) == NULL)
     return (NULL);
 
- /*
-  * Add the tree entry to the end of the chain of children...
-  */
-
+  // Add the tree entry to the end of the chain of children...
   if (parent != NULL)
   {
     if (parent->last_child != NULL)
@@ -1820,14 +1773,14 @@ htmlAddTree(tree_t   *parent,	/* I - Parent entry */
 }
 
 
-/*
- * 'htmlDeleteTree()' - Free all memory associated with a tree...
- */
+//
+// 'htmlDeleteTree()' - Free all memory associated with a tree...
+//
 
-int				/* O - 0 for success, -1 for failure */
-htmlDeleteTree(tree_t *parent)	/* I - Parent to delete */
+int				// O - 0 for success, -1 for failure
+htmlDeleteTree(tree_t *parent)	// I - Parent to delete
 {
-  tree_t	*next;		/* Next tree entry */
+  tree_t	*next;		// Next tree entry
 
 
   if (parent == NULL)
@@ -1850,25 +1803,22 @@ htmlDeleteTree(tree_t *parent)	/* I - Parent to delete */
 }
 
 
-/*
- * 'htmlInsertTree()' - Insert a tree node under the parent.
- */
+//
+// 'htmlInsertTree()' - Insert a tree node under the parent.
+//
 
-tree_t *			/* O - New entry */
-htmlInsertTree(tree_t   *parent,/* I - Parent entry */
-               markup_t markup,	/* I - Markup code */
-               uchar    *data)	/* I - Data/text */
+tree_t *			// O - New entry
+htmlInsertTree(tree_t   *parent,// I - Parent entry
+               markup_t markup,	// I - Markup code
+               uchar    *data)	// I - Data/text
 {
-  tree_t	*t;		/* New tree entry */
+  tree_t	*t;		// New tree entry
 
 
   if ((t = htmlNewTree(parent, markup, data)) == NULL)
     return (NULL);
 
- /*
-  * Insert the tree entry at the beginning of the chain of children...
-  */
-
+  // Insert the tree entry at the beginning of the chain of children...
   if (parent != NULL)
   {
     if (parent->child != NULL)
@@ -1886,14 +1836,14 @@ htmlInsertTree(tree_t   *parent,/* I - Parent entry */
 }
 
 
-/*
- * 'htmlMapUnicode()' - Map a Unicode character to the custom character set.
- */
+//
+// 'htmlMapUnicode()' - Map a Unicode character to the custom character set.
+//
 
-uchar				/* O - Charset character */
-htmlMapUnicode(int ch)		/* I - Unicode character */
+uchar				// O - Charset character
+htmlMapUnicode(int ch)		// I - Unicode character
 {
-  uchar	newch;			/* New charset character */
+  uchar	newch;			// New charset character
 
 
   // If we already have a mapping for this character, return it...
@@ -1920,38 +1870,29 @@ htmlMapUnicode(int ch)		/* I - Unicode character */
 }
 
 
-/*
- * 'htmlNewTree()' - Create a new tree node for the parent.
- */
+//
+// 'htmlNewTree()' - Create a new tree node for the parent.
+//
 
-tree_t *			/* O - New entry */
-htmlNewTree(tree_t   *parent,	/* I - Parent entry */
-            markup_t markup,	/* I - Markup code */
-            uchar    *data)	/* I - Data/text */
+tree_t *			// O - New entry
+htmlNewTree(tree_t   *parent,	// I - Parent entry
+            markup_t markup,	// I - Markup code
+            uchar    *data)	// I - Data/text
 {
-  tree_t	*t;		/* New tree entry */
+  tree_t	*t;		// New tree entry
 
 
- /*
-  * Allocate a new tree entry - use calloc() to get zeroed data...
-  */
-
+  // Allocate a new tree entry - use calloc() to get zeroed data...
   t = (tree_t *)calloc(sizeof(tree_t), 1);
   if (t == NULL)
     return (NULL);
 
- /*
-  * Set the markup code and copy the data if necessary...
-  */
-
+  // Set the markup code and copy the data if necessary...
   t->markup = markup;
   if (data != NULL)
-    t->data = (uchar *)strdup((char *)data);
+    t->data = (uchar *)hd_strdup((char *)data);
 
- /*
-  * Set/copy font characteristics...
-  */
-
+  // Set/copy font characteristics...
   if (parent == NULL)
   {
     t->halignment = ALIGN_LEFT;
@@ -1982,10 +1923,7 @@ htmlNewTree(tree_t   *parent,	/* I - Parent entry */
   {
     case MARKUP_NONE :
     case MARKUP_IMG :
-       /*
-	* Figure out the width & height of this fragment...
-	*/
-
+        // Figure out the width & height of this fragment...
         compute_size(t);
 	break;
 
@@ -2103,12 +2041,12 @@ htmlNewTree(tree_t   *parent,	/* I - Parent entry */
 }
 
 
-/*
- * 'htmlGetText()' - Get all text from the given tree.
- */
+//
+// 'htmlGetText()' - Get all text from the given tree.
+//
 
-uchar *				/* O - String containing text nodes */
-htmlGetText(tree_t *t)		/* I - Tree to pick */
+uchar *				// O - String containing text nodes
+htmlGetText(tree_t *t)		// I - Tree to pick
 {
   uchar		*s,		// String
 		*s2,		// New string
@@ -2168,24 +2106,21 @@ htmlGetText(tree_t *t)		/* I - Tree to pick */
 }
 
 
-/*
- * 'htmlGetMeta()' - Get document "meta" data...
- */
+//
+// 'htmlGetMeta()' - Get document "meta" data...
+//
 
-uchar *				/* O - Content string */
-htmlGetMeta(tree_t *tree,	/* I - Document tree */
-            uchar  *name)	/* I - Metadata name */
+uchar *				// O - Content string
+htmlGetMeta(tree_t *tree,	// I - Document tree
+            uchar  *name)	// I - Metadata name
 {
-  uchar	*tname,			/* Name value from tree entry */
-	*tcontent;		/* Content value from tree entry */
+  uchar	*tname,			// Name value from tree entry
+	*tcontent;		// Content value from tree entry
 
 
   while (tree != NULL)
   {
-   /*
-    * Check this tree entry...
-    */
-
+    // Check this tree entry...
     if (tree->markup == MARKUP_META &&
         (tname = htmlGetVariable(tree, (uchar *)"NAME")) != NULL &&
         (tcontent = htmlGetVariable(tree, (uchar *)"CONTENT")) != NULL)
@@ -2198,18 +2133,12 @@ htmlGetMeta(tree_t *tree,	/* I - Document tree */
       return (tcontent);
     }
 
-   /*
-    * Check child entries...
-    */
-
+    // Check child entries...
     if (tree->child != NULL)
       if ((tcontent = htmlGetMeta(tree->child, name)) != NULL)
         return (tcontent);
 
-   /*
-    * Next tree entry...
-    */
-
+    // Next tree entry...
     tree = tree->next;
   }
 
@@ -2217,9 +2146,9 @@ htmlGetMeta(tree_t *tree,	/* I - Document tree */
 }
 
 
-/*
- * 'htmlGetStyle()' - Get a style value from a node's STYLE attribute.
- */
+//
+// 'htmlGetStyle()' - Get a style value from a node's STYLE attribute.
+//
 
 uchar *				// O - Value or NULL
 htmlGetStyle(tree_t *t,		// I - Node
@@ -2257,16 +2186,16 @@ htmlGetStyle(tree_t *t,		// I - Node
 }
 
 
-/*
- * 'htmlGetVariable()' - Get a variable value from a markup entry.
- */
+//
+// 'htmlGetVariable()' - Get a variable value from a markup entry.
+//
 
-uchar *				/* O - Value or NULL if variable does not exist */
-htmlGetVariable(tree_t *t,	/* I - Tree entry */
-                uchar  *name)	/* I - Variable name */
+uchar *				// O - Value or NULL if variable does not exist
+htmlGetVariable(tree_t *t,	// I - Tree entry
+                uchar  *name)	// I - Variable name
 {
-  var_t	*v,			/* Matching variable */
-	key;			/* Search key */
+  var_t	*v,			// Matching variable
+	key;			// Search key
 
 
   if (t == NULL || name == NULL || t->nvars == 0)
@@ -2284,25 +2213,22 @@ htmlGetVariable(tree_t *t,	/* I - Tree entry */
 }
 
 
-/*
- * 'htmlLoadFontWidths()' - Load all of the font width files.
- */
+//
+// 'htmlLoadFontWidths()' - Load all of the font width files.
+//
 
 void
 htmlLoadFontWidths(int typeface, int style)
 {
-  char		filename[1024];		/* Filenames */
-  FILE		*fp;			/* Files */
-  int		ch;			/* Character */
-  float		width;			/* Width value */
-  char		glyph[64];		/* Glyph name */
-  char		line[1024];		/* Line from AFM file */
+  char		filename[1024];		// Filenames
+  FILE		*fp;			// Files
+  int		ch;			// Character
+  float		width;			// Width value
+  char		glyph[64];		// Glyph name
+  char		line[1024];		// Line from AFM file
 
 
- /*
-  * Now read all of the font widths...
-  */
-
+  // Now read all of the font widths...
   for (ch = 0; ch < 256; ch ++)
     _htmlWidths[typeface][style][ch] = 600;
 
@@ -2317,7 +2243,7 @@ htmlLoadFontWidths(int typeface, int style)
   {
 #ifndef DEBUG
     progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to open font width file %s!", filename);
-#endif /* !DEBUG */
+#endif // !DEBUG
     return;
   }
 
@@ -2328,10 +2254,7 @@ htmlLoadFontWidths(int typeface, int style)
 
     if (typeface < TYPE_SYMBOL)
     {
-     /*
-      * Handle encoding of regular fonts using assigned charset...
-      */
-
+      // Handle encoding of regular fonts using assigned charset...
       if (sscanf(line, "%*s%*s%*s%*s%f%*s%*s%63s", &width, glyph) != 2)
 	continue;
 
@@ -2358,10 +2281,7 @@ htmlLoadFontWidths(int typeface, int style)
     }
     else
     {
-     /*
-      * Symbol and Dingbats fonts uses their own encoding...
-      */
-
+      // Symbol and Dingbats fonts uses their own encoding...
       if (sscanf(line, "%*s%d%*s%*s%f", &ch, &width) != 2)
 	continue;
 
@@ -2383,17 +2303,17 @@ htmlLoadFontWidths(int typeface, int style)
 }
 
 
-/*
- * 'htmlSetVariable()' - Set a variable for a markup entry.
- */
+//
+// 'htmlSetVariable()' - Set a variable for a markup entry.
+//
 
-int				/* O - Set status: 0 = success, -1 = fail */
-htmlSetVariable(tree_t *t,	/* I - Tree entry */
-                uchar  *name,	/* I - Variable name */
-                uchar  *value)	/* I - Variable value */
+int				// O - Set status: 0 = success, -1 = fail
+htmlSetVariable(tree_t *t,	// I - Tree entry
+                uchar  *name,	// I - Variable name
+                uchar  *value)	// I - Variable value
 {
-  var_t	*v,			/* Matching variable */
-	key;			/* Search key */
+  var_t	*v,			// Matching variable
+	key;			// Search key
 
 
   DEBUG_printf(("%shtmlSetVariable(%p, \"%s\", \"%s\")\n", indent, (void *)t, name,
@@ -2425,9 +2345,9 @@ htmlSetVariable(tree_t *t,	/* I - Tree entry */
     t->vars  = v;
     v        += t->nvars;
     t->nvars ++;
-    v->name  = (uchar *)strdup((char *)name);
+    v->name  = (uchar *)hd_strdup((char *)name);
     if (value != NULL)
-      v->value = (uchar *)strdup((char *)value);
+      v->value = (uchar *)hd_strdup((char *)value);
     else
       v->value = NULL;
 
@@ -2442,27 +2362,22 @@ htmlSetVariable(tree_t *t,	/* I - Tree entry */
   }
   else if (v->value != value)
   {
-    if (v->value != NULL)
-      free(v->value);
-    if (value != NULL)
-      v->value = (uchar *)strdup((char *)value);
-    else
-      v->value = NULL;
+    v->value = (uchar *)hd_strdup((char *)value);
   }
 
   return (0);
 }
 
 
-/*
- * 'htmlSetBaseSize()' - Set the font sizes and spacings...
- */
+//
+// 'htmlSetBaseSize()' - Set the font sizes and spacings...
+//
 
 void
-htmlSetBaseSize(double p,	/* I - Point size of paragraph font */
-                double s)	/* I - Spacing */
+htmlSetBaseSize(double p,	// I - Point size of paragraph font
+                double s)	// I - Spacing
 {
-  int	i;			/* Looping var */
+  int	i;			// Looping var
 
 
   p /= 1.2 * 1.2 * 1.2;
@@ -2474,30 +2389,27 @@ htmlSetBaseSize(double p,	/* I - Point size of paragraph font */
 }
 
 
-/*
- * 'htmlSetCharSet()' - Set the character set for output.
- */
+//
+// 'htmlSetCharSet()' - Set the character set for output.
+//
 
 void
-htmlSetCharSet(const char *cs)		/* I - Character set file to load */
+htmlSetCharSet(const char *cs)		// I - Character set file to load
 {
-  int		i;			/* Looping var */
-  char		filename[1024];		/* Filenames */
-  FILE		*fp;			/* Files */
-  int		ch, unicode;		/* Character values */
-  char		glyph[64];		/* Glyph name */
-  char		line[1024];		/* Line from charset file */
-  int		chars[256];		/* Character encoding array */
+  int		i;			// Looping var
+  char		filename[1024];		// Filenames
+  FILE		*fp;			// Files
+  int		ch, unicode;		// Character values
+  char		glyph[64];		// Glyph name
+  char		line[1024];		// Line from charset file
+  int		chars[256];		// Character encoding array
 
 
   strlcpy(_htmlCharSet, cs, sizeof(_htmlCharSet));
 
   if (!_htmlInitialized)
   {
-   /*
-    * Load the PostScript glyph names for all of Unicode...
-    */
-
+    // Load the PostScript glyph names for all of Unicode...
     memset(_htmlGlyphsAll, 0, sizeof(_htmlGlyphsAll));
 
     snprintf(line, sizeof(line), "%s/data/psglyphs", _htmlData);
@@ -2514,7 +2426,7 @@ htmlSetCharSet(const char *cs)		/* I - Character set file to load */
     else
       progress_error(HD_ERROR_FILE_NOT_FOUND,
                      "Unable to open psglyphs data file!");
-#endif /* !DEBUG */
+#endif // !DEBUG
   }
 
   memset(_htmlGlyphs, 0, sizeof(_htmlGlyphs));
@@ -2529,10 +2441,7 @@ htmlSetCharSet(const char *cs)		/* I - Character set file to load */
 
     for (i = 0; i < 128; i ++)
     {
-     /*
-      * Add the glyph to the charset array...
-      */
-
+      // Add the glyph to the charset array...
       _htmlGlyphs[i]  = _htmlGlyphsAll[i];
       _htmlUnicode[i] = i;
     }
@@ -2548,24 +2457,18 @@ htmlSetCharSet(const char *cs)		/* I - Character set file to load */
 
   if ((fp = fopen(filename, "r")) == NULL)
   {
-   /*
-    * Can't open charset file; use ISO-8859-1...
-    */
-
+    // Can't open charset file; use ISO-8859-1...
 #ifndef DEBUG
     progress_error(HD_ERROR_FILE_NOT_FOUND,
                    "Unable to open character set file %s!", cs);
-#endif /* !DEBUG */
+#endif // !DEBUG
 
     for (i = 0; i < 256; i ++)
       chars[i] = i;
   }
   else
   {
-   /*
-    * Read the <char> <unicode> lines from the file...
-    */
-
+    // Read the <char> <unicode> lines from the file...
     memset(chars, 0, sizeof(chars));
 
     while (fscanf(fp, "%x%x", &ch, &unicode) == 2)
@@ -2574,16 +2477,10 @@ htmlSetCharSet(const char *cs)		/* I - Character set file to load */
     fclose(fp);
   }
 
- /*
-  * Build the glyph array...
-  */
-
+  // Build the glyph array...
   for (i = 0; i < 256; i ++)
   {
-   /*
-    * Add the glyph to the charset array...
-    */
-
+    // Add the glyph to the charset array...
     if (chars[i] == 0)
     {
       _htmlGlyphs[i] = NULL;
@@ -2600,36 +2497,36 @@ htmlSetCharSet(const char *cs)		/* I - Character set file to load */
 }
 
 
-/*
- * 'htmlSetTextColor()' - Set the default text color.
- */
+//
+// 'htmlSetTextColor()' - Set the default text color.
+//
 
 void
-htmlSetTextColor(uchar *color)	/* I - Text color */
+htmlSetTextColor(uchar *color)	// I - Text color
 {
   strlcpy((char *)_htmlTextColor, (char *)color, sizeof(_htmlTextColor));
 }
 
 
-/*
- * 'compare_variables()' - Compare two markup variables.
- */
+//
+// 'compare_variables()' - Compare two markup variables.
+//
 
-static int			/* O - -1 if v0 < v1, 0 if v0 == v1, 1 if v0 > v1 */
-compare_variables(var_t *v0,	/* I - First variable */
-                  var_t *v1)	/* I - Second variable */
+static int			// O - -1 if v0 < v1, 0 if v0 == v1, 1 if v0 > v1
+compare_variables(var_t *v0,	// I - First variable
+                  var_t *v1)	// I - Second variable
 {
   return (strcasecmp((char *)v0->name, (char *)v1->name));
 }
 
 
-/*
- * 'compare_markups()' - Compare two markup strings...
- */
+//
+// 'compare_markups()' - Compare two markup strings...
+//
 
-static int			/* O - -1 if m0 < m1, 0 if m0 == m1, 1 if m0 > m1 */
-compare_markups(uchar **m0,	/* I - First markup */
-                uchar **m1)	/* I - Second markup */
+static int			// O - -1 if m0 < m1, 0 if m0 == m1, 1 if m0 > m1
+compare_markups(uchar **m0,	// I - First markup
+                uchar **m1)	// I - Second markup
 {
   if (tolower((*m0)[0]) == 'h' && isdigit((*m0)[1]) &&
       tolower((*m1)[0]) == 'h' && isdigit((*m1)[1]))
@@ -2639,33 +2536,17 @@ compare_markups(uchar **m0,	/* I - First markup */
 }
 
 
-/*
- * 'delete_node()' - Free all memory associated with a node...
- */
+//
+// 'delete_node()' - Free all memory associated with a node...
+//
 
 static void
-delete_node(tree_t *t)		/* I - Node to delete */
+delete_node(tree_t *t)		// I - Node to delete
 {
-  int		i;		/* Looping var */
-  var_t		*var;		/* Current variable */
-
-
   if (t == NULL)
     return;
 
-  if (t->data != NULL)
-    free(t->data);
-
-  for (i = t->nvars, var = t->vars; i > 0; i --, var ++)
-  {
-    free(var->name);
-    if (var->value != NULL)
-      free(var->value);
-  }
-
-  if (t->vars != NULL)
-    free(t->vars);
-
+  free(t->vars);
   free(t);
 }
 
@@ -2689,7 +2570,7 @@ insert_space(tree_t *parent,	// I - Parent node
 #ifndef DEBUG
     progress_error(HD_ERROR_OUT_OF_MEMORY,
                    "Unable to allocate memory for HTML tree node!");
-#endif /* !DEBUG */
+#endif // !DEBUG
     return;
   }
 
@@ -2708,7 +2589,7 @@ insert_space(tree_t *parent,	// I - Parent node
 
   // Initialize element data...
   space->markup = MARKUP_NONE;
-  space->data   = (uchar *)strdup(" ");
+  space->data   = (uchar *)" ";
 
   // Set tree pointers...
   space->parent = parent;
@@ -2726,21 +2607,21 @@ insert_space(tree_t *parent,	// I - Parent node
 }
 
 
-/*
- * 'parse_markup()' - Parse a markup string.
- */
+//
+// 'parse_markup()' - Parse a markup string.
+//
 
-static int			/* O - -1 on error, MARKUP_nnnn otherwise */
-parse_markup(tree_t *t,		/* I - Current tree entry */
-             FILE   *fp,	/* I - Input file */
-	     int    *linenum)	/* O - Current line number */
+static int			// O - -1 on error, MARKUP_nnnn otherwise
+parse_markup(tree_t *t,		// I - Current tree entry
+             FILE   *fp,	// I - Input file
+	     int    *linenum)	// O - Current line number
 {
-  int	ch, ch2;		/* Characters from file */
-  uchar	markup[255],		/* Markup string... */
-	*mptr,			/* Current character... */
-	comment[10240],		/* Comment string */
-	*cptr,			/* Current char... */
-	**temp;			/* Markup variable entry */
+  int	ch, ch2;		// Characters from file
+  uchar	markup[255],		// Markup string...
+	*mptr,			// Current character...
+	comment[10240],		// Comment string
+	*cptr,			// Current char...
+	**temp;			// Markup variable entry
 
 
   mptr = markup;
@@ -2790,10 +2671,7 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
 
   if (temp == NULL)
   {
-   /*
-    * Unrecognized markup stuff...
-    */
-
+    // Unrecognized markup stuff...
     t->markup = MARKUP_UNKNOWN;
     strlcpy((char *)comment, (char *)markup, sizeof(comment));
     cptr = comment + strlen((char *)comment);
@@ -2904,7 +2782,7 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
     }
 
     *cptr = '\0';
-    t->data = (uchar *)strdup((char *)comment);
+    t->data = (uchar *)hd_strdup((char *)comment);
   }
   else
   {
@@ -2938,9 +2816,9 @@ parse_markup(tree_t *t,		/* I - Current tree entry */
 }
 
 
-/*
- * 'parse_variable()' - Parse a markup variable string.
- */
+//
+// 'parse_variable()' - Parse a markup variable string.
+//
 
 static int				// O - -1 on error, 0 on success
 parse_variable(tree_t *t,		// I - Current tree entry
@@ -3227,22 +3105,22 @@ parse_variable(tree_t *t,		// I - Current tree entry
 }
 
 
-/*
- * 'compute_size()' - Compute the width and height of a tree entry.
- */
+//
+// 'compute_size()' - Compute the width and height of a tree entry.
+//
 
-static int			/* O - 0 = success, -1 = failure */
-compute_size(tree_t *t)		/* I - Tree entry */
+static int			// O - 0 = success, -1 = failure
+compute_size(tree_t *t)		// I - Tree entry
 {
-  uchar		*ptr;		/* Current character */
-  float		width;		/* Current width */
-  int		int_width;	/* Integer width */
-  uchar		*width_ptr,	/* Pointer to width string */
-		*height_ptr,	/* Pointer to height string */
-		*size_ptr,	/* Pointer to size string */
-		*type_ptr;	/* Pointer to spacer type string */
-  image_t	*img;		/* Image */
-  char		number[255];	/* Width or height value */
+  uchar		*ptr;		// Current character
+  float		width;		// Current width
+  int		int_width;	// Integer width
+  uchar		*width_ptr,	// Pointer to width string
+		*height_ptr,	// Pointer to height string
+		*size_ptr,	// Pointer to size string
+		*type_ptr;	// Pointer to spacer type string
+  image_t	*img;		// Image
+  char		number[255];	// Width or height value
 
 
   if (!_htmlInitialized)
@@ -3341,7 +3219,7 @@ compute_size(tree_t *t)		/* I - Tree entry */
   }
   else if (t->preformatted && t->data)
   {
-    int		max_width = 0;		/* Maximum width */
+    int		max_width = 0;		// Maximum width
 
     for (int_width = 0, ptr = t->data; *ptr != '\0'; ptr ++)
     {
@@ -3388,16 +3266,16 @@ compute_size(tree_t *t)		/* I - Tree entry */
 }
 
 
-/*
- * 'compute_color()' - Compute the red, green, blue color from the given
- *                     string.
- */
+//
+// 'compute_color()' - Compute the red, green, blue color from the given
+//                     string.
+//
 
 static int
-compute_color(tree_t *t,	/* I - Tree entry */
-              uchar  *color)	/* I - Color string */
+compute_color(tree_t *t,	// I - Tree entry
+              uchar  *color)	// I - Color string
 {
-  float	rgb[3];			/* RGB color */
+  float	rgb[3];			// RGB color
 
 
   get_color(color, rgb);
@@ -3410,14 +3288,14 @@ compute_color(tree_t *t,	/* I - Tree entry */
 }
 
 
-/*
- * 'get_alignment()' - Get horizontal & vertical alignment values.
- */
+//
+// 'get_alignment()' - Get horizontal & vertical alignment values.
+//
 
-static int			/* O - 0 for success, -1 for failure */
-get_alignment(tree_t *t)	/* I - Tree entry */
+static int			// O - 0 for success, -1 for failure
+get_alignment(tree_t *t)	// I - Tree entry
 {
-  uchar	*align;			/* Alignment string */
+  uchar	*align;			// Alignment string
 
 
   if ((align = htmlGetVariable(t, (uchar *)"ALIGN")) == NULL)
@@ -3461,18 +3339,18 @@ get_alignment(tree_t *t)	/* I - Tree entry */
 }
 
 
-/*
- * 'fix_filename()' - Fix a filename to be relative to the base directory.
- */
+//
+// 'fix_filename()' - Fix a filename to be relative to the base directory.
+//
 
-static const char *			/* O - Fixed filename */
-fix_filename(char *filename,		/* I - Original filename */
-             char *base)		/* I - Base directory */
+static const char *			// O - Fixed filename
+fix_filename(char *filename,		// I - Original filename
+             char *base)		// I - Base directory
 {
-  char		*slash;			/* Location of slash */
-  char		*tempptr;		/* Pointer into filename */
-  static char	temp[1024];		/* Temporary filename */
-  static char	newfilename[1024];	/* New filename */
+  char		*slash;			// Location of slash
+  char		*tempptr;		// Pointer into filename
+  static char	temp[1024];		// Temporary filename
+  static char	newfilename[1024];	// New filename
 
 
 //  printf("fix_filename(filename=\"%s\", base=\"%s\")\n", filename, base);
@@ -3613,7 +3491,6 @@ fix_filename(char *filename,		/* I - Original filename */
 static int				// O - Bytes used
 html_memory_used(tree_t *t)		// I - Tree node
 {
-  int	i;				// Looping var
   int	bytes;				// Bytes used
 
 
@@ -3626,17 +3503,6 @@ html_memory_used(tree_t *t)		// I - Tree node
   {
     bytes += sizeof(tree_t);
     bytes += (size_t)t->nvars * sizeof(var_t);
-
-    for (i = 0; i < t->nvars; i ++)
-    {
-      bytes += (strlen((char *)t->vars[i].name) + 8) & (size_t)~7;
-
-      if (t->vars[i].value != NULL)
-        bytes += (strlen((char *)t->vars[i].value) + 8) & (size_t)~7;
-    }
-
-    if (t->data != NULL)
-      bytes += (strlen((char *)t->data) + 8) & (size_t)~7;
 
     bytes += html_memory_used(t->child);
 
@@ -3655,7 +3521,7 @@ void
 htmlDebugStats(const char *title,	// I - Title
                tree_t     *t)		// I - Document root node
 {
-  const char	*debug;			/* HTMLDOC_DEBUG env var */
+  const char	*debug;			// HTMLDOC_DEBUG env var
 
 
   if ((debug = getenv("HTMLDOC_DEBUG")) == NULL ||
@@ -3795,10 +3661,7 @@ utf8_getc(int  ch,                      // I - Initial character
 
   if ((ch & 0xe0) == 0xc0)
   {
-   /*
-    * Two-byte sequence for 0x80 to 0x7ff...
-    */
-
+    // Two-byte sequence for 0x80 to 0x7ff...
     ch  = (ch & 0x1f) << 6;
     ch2 = getc(fp);
 
@@ -3809,10 +3672,7 @@ utf8_getc(int  ch,                      // I - Initial character
   }
   else if ((ch & 0xf0) == 0xe0)
   {
-   /*
-    * Three-byte sequence from 0x800 to 0xffff...
-    */
-
+    // Three-byte sequence from 0x800 to 0xffff...
     ch  = (ch & 0x0f) << 12;
     ch2 = getc(fp);
 
