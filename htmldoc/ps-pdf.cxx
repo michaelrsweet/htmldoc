@@ -1001,6 +1001,8 @@ pspdf_debug_stats()
 
       if (r->type == RENDER_TEXT)
         bytes += strlen((char *)r->data.text.buffer);
+      else if (r->type == RENDER_LINK)
+        bytes += strlen((char *)r->data.link);
     }
   }
 
