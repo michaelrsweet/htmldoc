@@ -70,7 +70,6 @@ extern int	hd_strcasecmp(const char *, const char *);
 #    define strcasecmp hd_strcasecmp
 #  endif // !HAVE_STRCASECMP
 
-#  ifndef HAVE_STRNCASECMP
 #  ifndef HAVE_STRLCAT
 extern size_t hd_strlcat(char *, const char *, size_t);
 #    define strlcat hd_strlcat
@@ -81,6 +80,7 @@ extern size_t hd_strlcpy(char *, const char *, size_t);
 #    define strlcpy hd_strlcpy
 #  endif // !HAVE_STRLCPY
 
+#  ifndef HAVE_STRNCASECMP
 extern int	hd_strncasecmp(const char *, const char *, size_t n);
 #    define strncasecmp hd_strncasecmp
 #  endif // !HAVE_STRNCASECMP
