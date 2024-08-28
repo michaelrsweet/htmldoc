@@ -4,6 +4,7 @@
   management and fix potential double-free bugs.
 - Updated configure script to look for zlib with pkg-config (Issue #519)
 - Updated markdown support code to mmd.
+- Fixed handling of whitespace-only nodes (Issue #528)
 
 
 # Changes in HTMLDOC v1.9.18

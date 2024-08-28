@@ -5201,7 +5201,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
       if (temp->markup != MARKUP_A)
         break;
 
-    if (temp != NULL && temp->markup == MARKUP_NONE && temp->data[0] == ' ')
+    if (temp != NULL && temp->markup == MARKUP_NONE && temp->data[0] == ' ' && temp->data[1])
     {
       // Drop leading space...
       for (dataptr = temp->data; *dataptr; dataptr ++)
