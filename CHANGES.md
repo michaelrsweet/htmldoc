@@ -5,6 +5,7 @@
 - Updated configure script to look for zlib with pkg-config (Issue #519)
 - Updated markdown support code to mmd.
 - Fixed handling of whitespace-only nodes (Issue #528)
+- Fixed handling of tabs in PRE nodes (Issue #529)
 
 
 # Changes in HTMLDOC v1.9.18

@@ -5669,10 +5669,13 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
 
 	case MARKUP_NONE :
             for (lineptr = line, dataptr = start->data;
-		 *dataptr != '\0' && lineptr < (line + sizeof(line) - 1);
+		 *dataptr != '\0' && lineptr < (line + sizeof(line) - 9);
 		 dataptr ++)
+	    {
               if (*dataptr == '\n')
+              {
 		break;
+              }
               else if (*dataptr == '\t')
               {
                /* This code changed after 15 years to work around new compiler optimization bugs (Issue #349) */
@@ -5687,6 +5690,7 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
         	*lineptr++ = *dataptr;
         	col ++;
               }
+           }
 
             *lineptr = '\0';
 
