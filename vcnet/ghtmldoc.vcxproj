@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="packages\libcups2_native.2.4.3.4\build\native\libcups2_native.props" Condition="Exists('packages\libcups2_native.2.4.3.4\build\native\libcups2_native.props')" />
+  <Import Project="packages\libcups2_native.2.4.11.1\build\native\libcups2_native.props" Condition="Exists('packages\libcups2_native.2.4.11.1\build\native\libcups2_native.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
@@ -78,7 +78,7 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>packages\libcups2_native.2.4.3.4\build\native\lib\x64\Release\libcups2.lib;packages\fltk_native.1.3.7\build\native\lib\x64\Debug\fltkd.lib;packages\fltk_native.1.3.7\build\native\lib\x64\Debug\fltkimagesd.lib;packages\libpng_native.1.6.30\build\native\lib\x64\Release\libpng16.lib;packages\libjpeg-turbo-v142.2.0.4.3\build\native\lib\x64\v142\Release\jpeg.lib;packages\zlib_native.1.2.11\build\native\lib\x64\Release\zlib.lib;comctl32.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>packages\libcups2_native.2.4.11.1\build\native\lib\x64\Release\libcups2.lib;packages\fltk_native.1.3.7\build\native\lib\x64\Debug\fltkd.lib;packages\fltk_native.1.3.7\build\native\lib\x64\Debug\fltkimagesd.lib;packages\libpng_native.1.6.30\build\native\lib\x64\Release\libpng16.lib;packages\libjpeg-turbo-v142.2.0.4.3\build\native\lib\x64\v142\Release\jpeg.lib;packages\zlib_native.1.2.11\build\native\lib\x64\Release\zlib.lib;comctl32.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)ghtmldocd.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <IgnoreSpecificDefaultLibraries>libcmtd.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -117,7 +117,7 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>packages\libcups2_native.2.4.3.4\build\native\lib\x64\Release\libcups2.lib;packages\fltk_native.1.3.7\build\native\lib\x64\Release\fltk.lib;packages\fltk_native.1.3.7\build\native\lib\x64\Release\fltkimages.lib;packages\libpng_native.1.6.30\build\native\lib\x64\Release\libpng16.lib;packages\libjpeg-turbo-v142.2.0.4.3\build\native\lib\x64\v142\Release\jpeg.lib;packages\zlib_native.1.2.11\build\native\lib\x64\Release\zlib.lib;comctl32.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>packages\libcups2_native.2.4.11.1\build\native\lib\x64\Release\libcups2.lib;packages\fltk_native.1.3.7\build\native\lib\x64\Release\fltk.lib;packages\fltk_native.1.3.7\build\native\lib\x64\Release\fltkimages.lib;packages\libpng_native.1.6.30\build\native\lib\x64\Release\libpng16.lib;packages\libjpeg-turbo-v142.2.0.4.3\build\native\lib\x64\v142\Release\jpeg.lib;packages\zlib_native.1.2.11\build\native\lib\x64\Release\zlib.lib;comctl32.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)ghtmldoc.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
