@@ -5,6 +5,7 @@
   management and fix potential double-free bugs.
 - Updated configure script to look for zlib with pkg-config (Issue #519)
 - Updated markdown support code to mmd.
+- Fixed export of UTF-8 HTML (Issue #526)
 - Fixed handling of whitespace-only nodes (Issue #528)
 - Fixed handling of tabs in PRE nodes (Issue #529)
 - Fixed case sensitivity of link targets (Issue #530)

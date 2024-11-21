@@ -2,15 +2,11 @@
  * ISO-8859-1 conversion routines for HTMLDOC, an HTML document
  * processing program.
  *
- * Copyright 2011-2019 by Michael R Sweet.
+ * Copyright 2011-2024 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
  * the file "COPYING".
- */
-
-/*
- * Include necessary headers.
  */
 
 #include <stdio.h>
@@ -441,11 +437,49 @@ iso8859(uchar value)	/* I - ISO-8859-1 equivalent */
 
   if (iso8859_names[value] == NULL)
   {
-    buf[0] = value;
-    buf[1] = '\0';
+    if (value < 127)
+    {
+      // ASCII...
+      buf[0] = value;
+      buf[1] = '\0';
+    }
+    else if (_htmlUTF8)
+    {
+      // UTF-8...
+      int unich = _htmlUnicode[value];	// Unicode character
+
+      if (unich < 0x400)
+      {
+        buf[0] = 0xc0 | (unich >> 6);
+        buf[1] = 0x80 | (unich & 0x3f);
+        buf[2] = '\0';
+      }
+      else if (unich < 0x10000)
+      {
+        buf[0] = 0xe0 | (unich >> 12);
+        buf[1] = 0x80 | ((unich >> 6) & 0x3f);
+        buf[2] = 0x80 | (unich & 0x3f);
+        buf[3] = '\0';
+      }
+      else
+      {
+        buf[0] = 0xf0 | (unich >> 18);
+        buf[1] = 0x80 | ((unich >> 12) & 0x3f);
+        buf[2] = 0x80 | ((unich >> 6) & 0x3f);
+        buf[3] = 0x80 | (unich & 0x3f);
+        buf[4] = '\0';
+      }
+    }
+    else
+    {
+      // Character-set neutral way to map to Unicode...
+      snprintf((char *)buf, sizeof(buf), "&#%d;", _htmlUnicode[value]);
+    }
   }
   else
+  {
     snprintf((char *)buf, sizeof(buf), "&%s;", iso8859_names[value]->name);
+  }
 
   return (buf);
 }
