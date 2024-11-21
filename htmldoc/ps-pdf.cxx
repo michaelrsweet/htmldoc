@@ -9064,7 +9064,7 @@ add_link(tree_t *html,		/* I - HTML node */
   {
     uchar	*filename;		/* Filename */
 
-    if ((filename = htmlGetVariable(html->parent, (uchar *)"_HD_FILENAME")) != NULL)
+    if ((filename = htmlGetVariable(html->parent, (uchar *)"_HD_URL")) != NULL)
       snprintf((char *)temp->name, sizeof(temp->name), "%s#%s", (char *)filename, (char *)name);
     else
       strlcpy((char *)temp->name, (char *)name, sizeof(temp->name));
@@ -9100,8 +9100,18 @@ find_link(uchar *name)	/* I - Name to find */
     name ++;
 
   strlcpy((char *)key.name, (char *)name, sizeof(key.name));
-  match = (link_t *)bsearch(&key, links, num_links, sizeof(link_t),
-                            (compare_func_t)compare_links);
+  match = (link_t *)bsearch(&key, links, num_links, sizeof(link_t), (compare_func_t)compare_links);
+
+  if (!match)
+  {
+    uchar *target = (uchar *)strchr((char *)name, '#');
+
+    if (target)
+    {
+      strlcpy((char *)key.name, (char *)target + 1, sizeof(key.name));
+      match = (link_t *)bsearch(&key, links, num_links, sizeof(link_t), (compare_func_t)compare_links);
+    }
+  }
 
   return (match);
 }
