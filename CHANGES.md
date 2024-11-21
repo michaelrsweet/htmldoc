@@ -7,6 +7,7 @@
 - Updated markdown support code to mmd.
 - Fixed handling of whitespace-only nodes (Issue #528)
 - Fixed handling of tabs in PRE nodes (Issue #529)
+- Fixed case sensitivity of link targets (Issue #530)
 
 
 # Changes in HTMLDOC v1.9.18

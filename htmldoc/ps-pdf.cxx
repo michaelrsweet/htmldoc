@@ -9115,7 +9115,7 @@ static int			/* O - 0 = equal, -1 or 1 = not equal */
 compare_links(link_t *n1,	/* I - First name */
               link_t *n2)	/* I - Second name */
 {
-  return (strcasecmp((char *)n1->name, (char *)n2->name));
+  return (strcmp((char *)n1->name, (char *)n2->name));
 }
 
 
