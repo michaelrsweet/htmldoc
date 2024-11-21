@@ -1,6 +1,7 @@
 # Changes in HTMLDOC v1.9.19
 
 - Security: Fixed an issue with the `file_basename` implementation (Issue #532)
+- Added support for 'file' method in links (Issue #512)
 - Updated HTML and header/footer code to use a string pool to simplify memory
   management and fix potential double-free bugs.
 - Updated configure script to look for zlib with pkg-config (Issue #519)
