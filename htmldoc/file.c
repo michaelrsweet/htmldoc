@@ -1,7 +1,7 @@
 /*
  * Filename routines for HTMLDOC, a HTML document processing program.
  *
- * Copyright © 2011-2023 by Michael R Sweet.
+ * Copyright © 2011-2024 by Michael R Sweet.
  * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -89,23 +89,23 @@ file_basename(const char *s)	/* I - Filename or URL */
   if (s == NULL)
     return (NULL);
 
+  if (strchr(s, '#') != NULL)
+  {
+    char	*bufptr;	// Pointer into buffer
+
+    strlcpy(buf, s, sizeof(buf));
+    s = buf;
+
+    if ((bufptr = strchr(buf, '#')) != NULL)
+      *bufptr = '\0';
+  }
+
   if ((basename = strrchr(s, '/')) != NULL)
-    basename ++;
+    return (basename + 1);
   else if ((basename = strrchr(s, '\\')) != NULL)
-    basename ++;
+    return (basename + 1);
   else
-    basename = (char *)s;
-
-  if (basename[0] == '#')
-    return (NULL);
-
-  if (strchr(basename, '#') == NULL)
-    return (basename);
-
-  strlcpy(buf, basename, sizeof(buf));
-  *(char *)strchr(buf, '#') = '\0';
-
-  return (buf);
+    return (s);
 }
 
 
