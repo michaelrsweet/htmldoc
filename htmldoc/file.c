@@ -8,10 +8,6 @@
  * the file "COPYING".
  */
 
-/*
- * Include necessary headers.
- */
-
 #include "file.h"
 #include <cups/http.h>
 #include "progress.h"
@@ -525,10 +521,10 @@ file_find_check(const char *filename)	/* I - File or URL */
 
       if (!httpGet(http, connpath))
       {
-	while ((status = httpUpdate(http)) == HTTP_CONTINUE);
+	while ((status = httpUpdate(http)) == HTTP_STATUS_CONTINUE);
       }
       else
-	status = HTTP_ERROR;
+	status = HTTP_STATUS_ERROR;
 
       if (status >= HTTP_STATUS_MULTIPLE_CHOICES && status < HTTP_STATUS_BAD_REQUEST)
       {
@@ -549,7 +545,7 @@ file_find_check(const char *filename)	/* I - File or URL */
       }
     }
 
-    if (status != HTTP_OK)
+    if (status != HTTP_STATUS_OK)
     {
       progress_hide();
       progress_error((HDerror)status, "%s (%s)", httpStatus(status), filename);
