@@ -93,7 +93,7 @@ typedef __int64 ssize_t;
  * What is the version number for this software?
  */
 
-#define SVERSION	"1.9.19"
+#define SVERSION	"1.9.20"
 
 
 /*

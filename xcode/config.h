@@ -12,7 +12,7 @@
  * What is the version number for this software?
  */
 
-#define SVERSION "1.9.19"
+#define SVERSION "1.9.20"
 
 
 /*
