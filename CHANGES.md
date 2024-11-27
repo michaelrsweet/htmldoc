@@ -1,3 +1,9 @@
+# Changes in HTMLDOC v1.9.20
+
+- Fixed a regression that caused spaces to disappear between some words
+  (Issue #533)
+
+
 # Changes in HTMLDOC v1.9.19
 
 - Security: Fixed an issue with the `file_basename` implementation (Issue #532)
