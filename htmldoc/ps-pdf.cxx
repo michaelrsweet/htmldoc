@@ -3425,6 +3425,7 @@ pdf_write_links(FILE *out)		/* I - Output file */
 	   /*
             * Local link...
             */
+
             if (link->page < (int)num_pages)
             {
 	      float x1, y1, x2, y2;

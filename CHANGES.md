@@ -2,7 +2,7 @@
 
 - Fixed a regression that caused spaces to disappear between some words
   (Issue #533)
-- Fixed broken links to HTML files in the document (Issue #534)
+- Fixed resolution of relative links within a document (Issue #534)
 
 
 # Changes in HTMLDOC v1.9.19

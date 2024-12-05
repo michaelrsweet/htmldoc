@@ -3584,21 +3584,27 @@ htmlFixLinks(tree_t *doc,		// I - Top node
       progress_error(HD_ERROR_NONE, "DEBUG: Updating links in document.");
   }
 
+  DEBUG_printf(("htmlFixLinks: base=\"%s\"\n", (char *)base));
+
   while (tree)
   {
     if (tree->markup == MARKUP_A && base && base[0] &&
         (href = htmlGetVariable(tree, (uchar *)"HREF")) != NULL)
     {
       // Check if the link needs to be localized...
-      if (href[0] != '#' && file_method((char *)href) == NULL &&
-          file_method((char *)base) != NULL &&
-	  htmlFindFile(doc, (uchar *)file_basename((char *)href)) == NULL)
+      DEBUG_printf(("htmlFixLinks: href=\"%s\", file_method(href)=\"%s\", file_method(base)=\"%s\"\\n", (char *)href, file_method((char *)href), file_method((char *)base)));
+
+      if (href[0] != '#' && file_method((char *)href) == NULL)
       {
         // Yes, localize it...
+        DEBUG_puts("htmlFixLinks: Localizing");
+
 	if (href[0] == '/')
 	{
 	  // Absolute URL, just copy scheme, server, etc.
 	  char *ptr;			// Pointer into URL...
+
+          DEBUG_puts("htmlFixLinks: Absolute");
 
 	  strlcpy(full_href, (char *)base, sizeof(full_href));
 
@@ -3608,8 +3614,7 @@ htmlFixLinks(tree_t *doc,		// I - Top node
 	    if ((ptr = strstr(full_href, "//")) != NULL)
 	      *ptr ='\0';
 	  }
-	  else if ((ptr = strstr(full_href, "//")) != NULL  &&
-	           (ptr = strchr(ptr + 2, '/')) != NULL)
+	  else if ((ptr = strstr(full_href, "//")) != NULL && (ptr = strchr(ptr + 2, '/')) != NULL)
 	    *ptr ='\0';
 
 	  strlcat(full_href, (char *)href, sizeof(full_href));
@@ -3618,12 +3623,35 @@ htmlFixLinks(tree_t *doc,		// I - Top node
 	{
 	  // Relative URL of the form "./foo/bar", append href sans
 	  // "./" to base to form full href...
+          DEBUG_puts("htmlFixLinks: Current directory");
+
 	  snprintf(full_href, sizeof(full_href), "%s/%s", base, href + 2);
+	}
+	else if (!strncmp((char *)href, "../", 3))
+	{
+	  // Relative URL of the form "../foo/bar", append href sans
+	  // "../" to parent to form full href...
+	  char parent[1024], *pptr;	// Parent directory
+
+	  strlcpy(parent, (char *)base, sizeof(parent));
+	  if ((pptr = strrchr(parent, '/')) != NULL)
+	    pptr[1] = '\0';
+	  else
+	    parent[0] = '\0';
+
+          DEBUG_printf(("htmlFixLinks: Subdirectory, parent=\"%s\"\n", parent));
+
+	  snprintf(full_href, sizeof(full_href), "%s%s", parent, href + 3);
 	}
 	else
 	{
 	  // Relative URL, append href to base to form full href...
-	  snprintf(full_href, sizeof(full_href), "%s/%s", base, href);
+          DEBUG_puts("htmlFixLinks: Relative");
+
+          if (strcmp((char *)base, "."))
+	    snprintf(full_href, sizeof(full_href), "%s/%s", (char *)base, (char *)href);
+	  else
+	    strlcpy(full_href, (char *)href, sizeof(full_href));
 	}
 
         if (show_debug)

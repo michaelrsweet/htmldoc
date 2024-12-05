@@ -1,7 +1,7 @@
 #
 # Makefile for HTMLDOC documentation files.
 #
-# Copyright © 2011-2018 by Michael R Sweet.
+# Copyright © 2011-2024 by Michael R Sweet.
 # Copyright © 1997-2010 by Easy Software Products.
 #
 # This program is free software.  Distribution and use rights are outlined in
@@ -80,7 +80,7 @@ htmldoc.d:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 		$(RM) -r htmldoc.d; \
 	fi
 	$(MKDIR) htmldoc.d
-	$(VALGRIND) $(HTMLDOC) --batch htmldoc.book -t htmlsep -d htmldoc.d
+	$(VALGRIND) $(HTMLDOC) --batch htmldoc.book --strict -t htmlsep -d htmldoc.d
 
 
 #
@@ -89,7 +89,7 @@ htmldoc.d:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 
 htmldoc.epub:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 	echo Formatting htmldoc.epub...
-	$(VALGRIND) $(HTMLDOC) --batch htmldoc.book --titleimage htmldoc-cover.png -f htmldoc.epub
+	$(VALGRIND) $(HTMLDOC) --batch htmldoc.book --strict --titleimage htmldoc-cover.png -f htmldoc.epub
 
 
 #
@@ -98,7 +98,7 @@ htmldoc.epub:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 
 htmldoc.html:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 	echo Formatting htmldoc.html...
-	$(VALGRIND) $(HTMLDOC) --batch htmldoc.book -f htmldoc.html
+	$(VALGRIND) $(HTMLDOC) --batch htmldoc.book --strict -f htmldoc.html
 
 
 #
@@ -107,7 +107,7 @@ htmldoc.html:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 
 htmldoc.pdf:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 	echo Formatting htmldoc.pdf...
-	$(VALGRIND) $(HTMLDOC) --batch htmldoc.book -f htmldoc.pdf
+	$(VALGRIND) $(HTMLDOC) --batch htmldoc.book --strict -f htmldoc.pdf
 
 
 #
@@ -116,4 +116,4 @@ htmldoc.pdf:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 
 htmldoc.ps:	$(SOURCES) ../htmldoc/htmldoc$(EXEEXT)
 	echo Formatting htmldoc.ps...
-	$(VALGRIND) $(HTMLDOC) --batch htmldoc.book -f htmldoc.ps
+	$(VALGRIND) $(HTMLDOC) --batch htmldoc.book --strict -f htmldoc.ps
