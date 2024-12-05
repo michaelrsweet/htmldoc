@@ -3634,14 +3634,19 @@ htmlFixLinks(tree_t *doc,		// I - Top node
 	  char parent[1024], *pptr;	// Parent directory
 
 	  strlcpy(parent, (char *)base, sizeof(parent));
-	  if ((pptr = strrchr(parent, '/')) != NULL)
-	    pptr[1] = '\0';
-	  else
-	    parent[0] = '\0';
+          while (!strncmp((char *)href, "../", 3))
+          {
+            href += 3;
+
+	    if ((pptr = strrchr(parent, '/')) != NULL)
+	      pptr[1] = '\0';
+	    else
+	      parent[0] = '\0';
+	  }
 
           DEBUG_printf(("htmlFixLinks: Subdirectory, parent=\"%s\"\n", parent));
 
-	  snprintf(full_href, sizeof(full_href), "%s%s", parent, href + 3);
+	  snprintf(full_href, sizeof(full_href), "%s%s", parent, href);
 	}
 	else
 	{
