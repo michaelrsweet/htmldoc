@@ -1,11 +1,22 @@
-# Changes in HTMLDOC v1.9.20
+Changes in HTMLDOC
+==================
+
+v1.9.21 (YYYY-MM-DD)
+--------------------
+
+- Updated markdown parser.
+
+
+v1.9.20 (2024-12-09)
+--------------------
 
 - Fixed a regression that caused spaces to disappear between some words
   (Issue #533)
 - Fixed resolution of relative links within a document (Issue #534)
 
 
-# Changes in HTMLDOC v1.9.19
+v1.9.19 (2024-11-21)
+--------------------
 
 - Security: Fixed an issue with the `file_basename` implementation (Issue #532)
 - Added support for 'file' method in links (Issue #512)
@@ -20,7 +31,8 @@
 - Fixed case sensitivity of link targets (Issue #530)
 
 
-# Changes in HTMLDOC v1.9.18
+v1.9.18 (2024-02-11)
+--------------------
 
 - Fixed table rendering when there are missing `</tr>` (Issue #494)
 - Fixed support for links of the form "filename.html#anchor" in PDF output
@@ -29,7 +41,8 @@
 - Fixed markdown emphasized, strong, and struck-through text (Issue 517)
 
 
-# Changes in HTMLDOC v1.9.17
+v1.9.17 (2023-09-17)
+--------------------
 
 - Added new `--pre-indent` option to control indentation of pre-formatted text
   (Issue #505)
@@ -43,7 +56,8 @@
 - Fixed some minor CodeQL warnings.
 
 
-# Changes in HTMLDOC v1.9.16
+v1.9.16 (2022-05-19)
+--------------------
 
 - Added support for `$DATE(format)` and `$TIME(format)` header/footer strings
   (Issue #472)
@@ -57,7 +71,8 @@
 - Updated the GUI interface for current display fonts.
 
 
-# Changes in HTMLDOC v1.9.15
+v1.9.15 (2022-02-05)
+--------------------
 
 - Fixed a potential heap overflow bug with GIF images (Issue #461)
 - Fixed a potential double-free bug with PNG images (Issue #462)
@@ -69,7 +84,8 @@
 - Fixed a potential stack overflow bug with GIF images (Issue #470)
 
 
-# Changes in HTMLDOC v1.9.14
+v1.9.14 (2021-12-22)
+--------------------
 
 - BMP image support is now deprecated and will be removed in a future
   release of HTMLDOC.
@@ -79,7 +95,8 @@
 - Fixed a compile issue when libpng was not available (Issue #458)
 
 
-# Changes in HTMLDOC v1.9.13
+v1.9.13 (2021-11-05)
+--------------------
 
 - Now install a 32x32 icon for Linux (Issue #432)
 - Fixed an issue with large values for roman numerals and letters in headings
@@ -91,7 +108,8 @@
 - Fixed a potential stack overflow bug with bogus BMP images (Issue #453)
 
 
-# Changes in HTMLDOC v1.9.12
+v1.9.12 (2021-05-17)
+--------------------
 
 - Fixed a crash bug with "data:" URIs and EPUB output (Issue #410)
 - Fixed crash bugs for books (Issue #412, Issue #414)
@@ -107,7 +125,8 @@
 - Removed the bundled libjpeg, libpng, and zlib.
 
 
-# Changes in HTMLDOC v1.9.11
+v1.9.11 (2020-12-24)
+--------------------
 
 - Added high-resolution desktop icons for Linux.
 - Updated the internal HTTP library to fix truncation of redirection URLs
@@ -118,7 +137,8 @@
   (Issue #405)
 
 
-# Changes in HTMLDOC v1.9.10
+v1.9.10 (2020-09-05)
+--------------------
 
 - Updated local zlib to v1.2.11.
 - Updated local libpng to v1.6.37.
@@ -128,7 +148,8 @@
 - Page comments are now allowed in `pre` text (Issue #394)
 
 
-# Changes in HTMLDOC v1.9.9
+v1.9.9 (2020-06-11)
+-------------------
 
 - Fixed a redirection issue - some sites (incorrectly) provide an incomplete
   Location: URL in the HTTP response.
@@ -138,7 +159,8 @@
 - Added support for `<FONT FACE="monospace">` (Issue #385)
 
 
-# Changes in HTMLDOC v1.9.8
+v1.9.8 (2020-02-15)
+-------------------
 
 - Added support for a `HTMLDOC.filename` META keyword that controls the filename
   reported in CGI mode; the default remains "htmldoc.pdf" (Issue #367)
@@ -151,7 +173,8 @@
 - Updated the build documentation (Issue #374)
 
 
-# Changes in HTMLDOC v1.9.7
+v1.9.7 (2019-10-09)
+-------------------
 
 - Refactored the PRE rendering code to work around compiler optimization bugs
   (Issue #349)
@@ -159,7 +182,8 @@
 - Fixed a table rowspan + valign bug (Issue #360)
 
 
-# Changes in HTMLDOC v1.9.6
+v1.9.6 (2019-09-25)
+-------------------
 
 - Added support for data URIs (Issue #340)
 - HTMLDOC no longer includes a PDF table of contents when converting a single
@@ -179,7 +203,8 @@
 - Title files can now be markdown.
 
 
-# Changes in HTMLDOC v1.9.5
+v1.9.5 (2019-01-23)
+-------------------
 
 - The GUI did not support EPUB output.
 - Empty markdown table cells were not rendered in PDF or PostScript output.
@@ -193,14 +218,16 @@
 - Fixed an issue with HTML title pages and EPUB output.
 
 
-# Changes in HTMLDOC v1.9.4
+v1.9.4 (2018-08-31)
+-------------------
 
 - Inline fixed-width text is no longer reduced in size automatically
   (Issue #309)
 - Optimized initialization of font width data (Issue #334)
 
 
-# Changes in HTMLDOC v1.9.3
+v1.9.3 (2018-04-10)
+-------------------
 
 - Fixed formatting bugs with aligned images (Issue #322, Issue #324)
 - Fixed support for three digit "#RGB" color values (Issue #323)
@@ -209,13 +236,15 @@
 - The makefiles did not use the CPPFLAGS value (Issue #328)
 
 
-# Changes in HTMLDOC v1.9.2
+v1.9.2 (2018-02-03)
+-------------------
 
 - Added Markdown table support.
 - Fixed parsing of TBODY, TFOOT, and THEAD elements in HTML files.
 
 
-# Changes in HTMLDOC v1.9.1
+v1.9.1 (2017-10-29)
+-------------------
 
 - Fixed monospace font size issue (Issue #309)
 - Added support for reproducible builds (Issue #310)
@@ -228,7 +257,8 @@
 - Now support both NAME and ID for table-of-contents targets.
 
 
-# Changes in HTMLDOC v1.9
+v1.9.0 (2017-07-04)
+-------------------
 
 - Added support for repeating a single header row for tables that span multiple
   pages (Issue #16)
@@ -241,134 +271,3 @@
 - Compiler fixes (Issue #304, Issue #306)
 - Fixed a bug when running HTMLDOC as a macOS application.
 - Updated the bundled libpng to v1.6.29.
-
-
-# Changes in HTMLDOC v1.8.30
-
-- Updated documentation to reflect new project page on Github.
-- Dropped old CDE and IRIX desktop integration files.
-- Cleaned up the GUI and adopted new default text editors for Linux and macOS.
-- PAGE BREAK comments at the end of a file in web page mode would lose the
-  first page (Issue #251)
-- Fixed the scaling of header/footer images to limit them to the height of the
-  header or footer (Issue #273)
-- Fixed an issue with the top-level makefile not exiting with an error as
-  needed (Issue #282)
-- Fixed a URL referencing bug when the same hostname but a different port was
-  used (Issue #290)
-- Fixed build issue on macOS (Issue #291)
-- Fixed handling of indexed+alpha PNG images (Issue #295)
-
-
-# Changes in HTMLDOC v1.8.29
-
-- Updated local PNG library to version 1.6.20.
-- Updated local JPEG library to version 9b.
-- Dropped support for OpenSSL.
-- Added configure script support for libjpeg-turbo.
-- Updated HTTP code to latest CUPS/ippsample sources.
-- Duplex PDF output incorrectly forced an even number of pages
-- The table of contents showed the wrong page numbers after headings containing
-  the "_HD_OMIT_TOC" attribute.
-- Fixed reported build issues
-- The configure script's --enable-local* options did not work.
-
-
-# Changes in HTMLDOC v1.8.28
-
-- Updated local zlib to version 1.2.8.
-- Updated local PNG library to version 1.6.8.
-- Updated local JPEG library to version 9.
-- Updated default PDF version to 1.4.
-- SECURITY: Fixed three buffer overflow issues when reading AFM files and
-  parsing page sizes.
-- Fixed incompatibility with Fortify's version of strcpy, which does not work
-  properly with variable-length arrays
-- Fixed compilation against PNG library 1.5 or later
-- Fixed documentation errors
-- Marked Zapf-Dingbats as a standard font
-- Fixed GPL license text in GUI
-- Fixed a table formatting problem when a column has multiple colspan values
-- Fixed parsing of HTML comments
-- Fixed potential out-of-bounds read in table-of-contents rendering code
-- Fixed handling of image URLs with ampersands in them
-- Fixed top/bottom margins for logo and header/footer images
-- Fixed image alignment bug
-- Fixed X11 build problem
-
-
-# Changes in HTMLDOC v1.8.27
-
-- Fixed a crash bug that appeared when more than 10 blank pages were present in
-  a document
-- Color changes were not reflected in PRE text
-- Remote URLs did not always work on older operating systems
-- Image filenames using % escapes were not decoded properly.
-- Rows using BGCOLOR that spanned across multiple pages did not render properly
-- Rows no longer start on a new page due to a cell with both HEIGHT and ROWSPAN
-  specified
-- CMYK JPEG images caused HTMLDOC to crash
-- Table cell width calculations didn't always account for the proper minimum
-  width
-- Images were not copied when generating indexed HTML output to a directory
-- Changing the bottom margin resulted in text that was formatted below the
-  bottom margin.
-- The Monospace-Oblique font was not embedded properly in PDF files.
-
-
-# Changes in HTMLDOC v1.8.26
-
-- Outline and keyword strings in PDF files are now stored as Unicode
-- The Flate compression code could get in an infinite loop if it ran out of
-  memory
-- Book files saved from the GUI did not handle filenames with spaces
-- Fixed and re-enabled the ASCII85Device filter support in PostScript Level 2/3
-  output
-- Character entities in the first word of a file were not rendered properly
-- Fixed-size table columns were incorrectly resized when a table width was also
-  specified and there was extra space to distribute
-- Text could "walk" up or down when in-line images were used
-- Row backgrounds incorrectly replaced cell backgrounds when the first cell in a
-  row used ROWSPAN
-- HTMLDOC did not correctly parse FONT FACE attributes
-- Images in Level 2/3 PostScript output did not work on some printers
-- The GUI did not use the first page header
-
-
-# Changes in HTMLDOC v1.8.25
-
-- Added "--overflow" and "--no-overflow" command-line options to show or hide
-  the content-too-large errors; the default is "--no-overflow".
-- Added "--header1" command-line option and "HEADER1" page comments to set the
-  page header for the first page of each chapter.
-- Added "timing" and "remotebytes" debug data generation.
-- Added DejaVu font collection to better support Cyrillic and Greek text; the
-  new fonts are available under the generic names "monospace", "sans", and
-  "serif".
-- Added "--referer" command-line option and corresponding CGI-mode support to
-  pass Referer: information in HTTP requests
-- On Windows, HTMLDOC now logs CGI mode errors to a file called "htmldoc.log" in
-  the Windows temporary directory.
-- HTMLDOC no longer uses Base-85 encoding for image data when producing Level 2
-  and 3 PostScript output. It appears that many printers and PostScript
-  interpreters cannot properly decode this data when the original image data is
-  not a multiple of 8 bits.
-- HTMLDOC now renders STRONG elements in boldface instead of bold-italic to
-  match the W3C recommendations.
-- HTMLDOC now automatically inserts a TR element before a TD or TH element as
-  needed to improve web site compatibility; this also triggers a HTML error in
-  --strict mode.
-- "$HFIMAGEn" didn't work in a header/footer string.
-- HTMLDOC could crash when rendering a table.
-- Book files were not used in CGI mode
-- Cookies were not sent in HTTP requests
-- Table cells were not aligned properly when the ROWSPAN attribute was set to 1
-- HTMLDOC crashed when rendering unresolved hyperlinks in aligned images
-- Documented the HTMLDOC_NOCGI environment variable
-- HTMLDOC sometimes crashed when rendering tables with background colors
-- HTMLDOC would crash when writing encrypted strings longer than 1024 bytes
-- HTMLDOC didn't set the data directory when running in CGI mode on Windows.
-- HTMLDOC could crash when loading the Symbol.afm file
-- HTMLDOC did not always honor HEIGHT attributes in table rows.
-- Tables with a mix of colspan and rowspan sometimes caused cells to be moved
-  vertically outside the cell.
