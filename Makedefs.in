@@ -1,7 +1,7 @@
 #
 # Makefile definitions for HTMLDOC, an HTML document processing program.
 #
-# Copyright © 2011-2023 by Michael R Sweet.
+# Copyright © 2011-2025 by Michael R Sweet.
 # Copyright © 1997-2010 by Easy Software Products.
 #
 # This program is free software.  Distribution and use rights are outlined in
@@ -16,7 +16,6 @@ AR		=	@AR@
 AWK		=	@AWK@
 CC		=	@CC@
 CXX		=	@CXX@
-CHMOD		=	@CHMOD@
 CP		=	@CP@
 INSTALL		=	@INSTALL@
 LN		=	/bin/ln -sf

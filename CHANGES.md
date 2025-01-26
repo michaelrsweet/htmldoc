@@ -5,6 +5,7 @@ v1.9.21 (YYYY-MM-DD)
 --------------------
 
 - Updated markdown parser.
+- Fixed a bug in the new PDF link code (Issue #536)
 
 
 v1.9.20 (2024-12-09)

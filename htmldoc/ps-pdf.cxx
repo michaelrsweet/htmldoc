@@ -4129,7 +4129,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
     {
       // Add file links, stripping any trailing HTTP GET parameters...
       uchar	newname[256],	// New filename
-		*sep;		// "?" separator in links
+		*sep,		// "?" separator in links
+		*base;		// Base path/URL
       int	linkpage;	// Link page
 
       // Figure out what page the file will actually start on...
@@ -4146,18 +4147,24 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       }
 
       // Base filename link...
-      strlcpy((char *)newname, (char *)htmlGetVariable(t, (uchar *)"_HD_FILENAME"), sizeof(newname));
-      if ((sep = (uchar *)strchr((char *)newname, '?')) != NULL)
-        *sep = '\0';
+      if ((base = htmlGetVariable(t, (uchar *)"_HD_FILENAME")) != NULL)
+      {
+        strlcpy((char *)newname, (char *)base, sizeof(newname));
+        if ((sep = (uchar *)strchr((char *)newname, '?')) != NULL)
+          *sep = '\0';
 
-      add_link(NULL, newname, linkpage, (int)*top);
+        add_link(NULL, newname, linkpage, (int)*top);
+      }
 
       // Relative filename link...
-      strlcpy((char *)newname, (char *)htmlGetVariable(t, (uchar *)"_HD_URL"), sizeof(newname));
-      if ((sep = (uchar *)strchr((char *)newname, '?')) != NULL)
-        *sep = '\0';
+      if ((base = htmlGetVariable(t, (uchar *)"_HD_URL")) != NULL)
+      {
+        strlcpy((char *)newname, (char *)base, sizeof(newname));
+        if ((sep = (uchar *)strchr((char *)newname, '?')) != NULL)
+          *sep = '\0';
 
-      add_link(NULL, newname, linkpage, (int)*top);
+        add_link(NULL, newname, linkpage, (int)*top);
+      }
     }
 
     if (chapter == 0 && !title_page)
