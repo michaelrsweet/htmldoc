@@ -1,7 +1,7 @@
 /*
  * Filename routines for HTMLDOC, a HTML document processing program.
  *
- * Copyright © 2011-2024 by Michael R Sweet.
+ * Copyright © 2011-2025 by Michael R Sweet.
  * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -9,7 +9,7 @@
  */
 
 #include "file.h"
-#include <cups/http.h>
+#include <cups/cups.h>
 #include "progress.h"
 #include "debug.h"
 
@@ -25,6 +25,10 @@
 #include <sys/stat.h>
 #include <ctype.h>
 
+#if CUPS_VERSION_MAJOR == 2 && CUPS_VERSION_MINOR < 5
+#  define cupsGetError cupsGetLastError
+#  define cupsGetErrorString cupsGetLastErrorString
+#endif // CUPS_VERSION_MAJOR == 2 && CUPS_VERSION_MINOR < 5
 
 
 /*
@@ -497,7 +501,7 @@ file_find_check(const char *filename)	/* I - File or URL */
         if ((http = httpConnect2(connhost, connport, NULL, AF_UNSPEC, encryption, 1, 30000, NULL)) == NULL)
 	{
           progress_hide();
-          progress_error(HD_ERROR_NETWORK_ERROR, "Unable to connect to %s:%d", connhost, connport);
+          progress_error(HD_ERROR_NETWORK_ERROR, "Unable to connect to %s:%d - %s", connhost, connport, cupsGetErrorString());
           return (NULL);
         }
       }
