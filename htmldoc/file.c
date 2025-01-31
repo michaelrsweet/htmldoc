@@ -26,8 +26,8 @@
 #include <ctype.h>
 
 #if CUPS_VERSION_MAJOR == 2 && CUPS_VERSION_MINOR < 5
-#  define cupsGetError cupsGetLastError
-#  define cupsGetErrorString cupsGetLastErrorString
+#  define cupsGetError cupsLastError
+#  define cupsGetErrorString cupsLastErrorString
 #endif // CUPS_VERSION_MAJOR == 2 && CUPS_VERSION_MINOR < 5
 
 
