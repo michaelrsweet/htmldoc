@@ -7644,6 +7644,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       {
         // NEW SHEET breaks to the next side/sheet...
         (*page) ++;
+        check_pages(*page);
 
 	for (i = *page - 1; i >= 0; i --)
 	  if (pages[i].nup != NumberUp)
