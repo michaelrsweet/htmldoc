@@ -3966,9 +3966,9 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 
 	    if (t->markup == MARKUP_B && pages[*page].chapter == pages[*page - 1].chapter)
 	    {
-	      uchar *chapter = htmlGetText(t->child->child);
-	      pages[*page].chapter = (uchar *)hd_strdup((char *)chapter);
-	      free(chapter);
+	      uchar *tchapter = htmlGetText(t->child->child);
+	      pages[*page].chapter = (uchar *)hd_strdup((char *)tchapter);
+	      free(tchapter);
 
               for (int i = *page + 1; i < (int)num_pages; i ++)
                 pages[i].chapter = pages[*page].chapter;
@@ -3976,9 +3976,9 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 
 	    if (pages[*page].heading == pages[*page - 1].heading)
 	    {
-	      uchar *heading = htmlGetText(t->child->child);
-	      pages[*page].heading = (uchar *)hd_strdup((char *)heading);
-	      free(heading);
+	      uchar *theading = htmlGetText(t->child->child);
+	      pages[*page].heading = (uchar *)hd_strdup((char *)theading);
+	      free(theading);
 
               for (int i = *page + 1; i < (int)num_pages; i ++)
                 pages[i].heading = pages[*page].heading;
@@ -4691,9 +4691,9 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
 
   if (t->markup == MARKUP_H1 && !title_page)
   {
-    uchar *chapter = htmlGetText(current_heading);
-    pages[*page].chapter = (uchar *)hd_strdup((char *)chapter);
-    free(chapter);
+    uchar *tchapter = htmlGetText(current_heading);
+    pages[*page].chapter = (uchar *)hd_strdup((char *)tchapter);
+    free(tchapter);
 
     for (int i = *page + 1; i < (int)num_pages; i ++)
       pages[i].chapter = pages[*page].chapter;
@@ -4703,10 +4703,10 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
       (*page > 0 && pages[*page].heading == pages[*page - 1].heading)) &&
       !title_page)
   {
-    uchar *heading = htmlGetText(current_heading);
-    pages[*page].heading  = (uchar *)hd_strdup((char *)heading);
+    uchar *theading = htmlGetText(current_heading);
+    pages[*page].heading  = (uchar *)hd_strdup((char *)theading);
     pages[*page].headnode = current_heading;
-    free(heading);
+    free(theading);
 
     for (int i = *page + 1; i < (int)num_pages; i ++)
     {
