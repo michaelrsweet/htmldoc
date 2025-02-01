@@ -916,8 +916,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
 
     pspdf_debug_stats();
 
-    progress_error(HD_ERROR_NO_PAGES,
-                   "Error: no pages generated! (did you remember to use webpage mode?");
+    progress_error(HD_ERROR_NO_PAGES, "No pages generated, did you remember to use --webpage mode?");
   }
 
  /*
