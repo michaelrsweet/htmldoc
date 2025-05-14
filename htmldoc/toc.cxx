@@ -156,9 +156,18 @@ parse_tree(tree_t *t)		/* I - Document tree */
 	  }
 
           if ((var = htmlGetVariable(t, (uchar *)"VALUE")) != NULL)
-            heading_numbers[level] = atoi((char *)var);
+          {
+            int temp = atoi((char *)var);
+
+            if (temp > 0)
+              heading_numbers[level] = temp;
+            else
+              heading_numbers[level] ++;
+          }
           else
+          {
             heading_numbers[level] ++;
+          }
 
           if (level == 0)
             TocDocCount ++;
