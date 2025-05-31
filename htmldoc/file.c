@@ -498,7 +498,7 @@ file_find_check(const char *filename)	/* I - File or URL */
 
         http_encryption_t encryption = !strcmp(connscheme, "http") ? HTTP_ENCRYPTION_IF_REQUESTED : HTTP_ENCRYPTION_ALWAYS;
 
-        if ((http = httpConnect2(connhost, connport, NULL, AF_UNSPEC, encryption, 1, 30000, NULL)) == NULL)
+        if ((http = httpConnect2(connhost, connport, NULL, AF_UNSPEC, encryption, 1, 300000, NULL)) == NULL)
 	{
           progress_hide();
           progress_error(HD_ERROR_NETWORK_ERROR, "Unable to connect to %s:%d - %s", connhost, connport, cupsGetErrorString());

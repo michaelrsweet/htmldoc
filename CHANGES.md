@@ -6,6 +6,7 @@ v1.9.21 (YYYY-MM-DD)
 
 - Updated HTTP/HTTPS connection error reporting to include the reason.
 - Updated markdown parser.
+- Updated the HTTP/HTTPS connection timeout to 5 minutes (Issue #541)
 - Fixed a bug in the new PDF link code (Issue #536)
 - Fixed a bug in the number-up code (Issue #539)
 - Fixed a regression in leading whitespace handling (Issue #540)
