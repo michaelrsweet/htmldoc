@@ -8489,6 +8489,9 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       else
         Header1[pos] = NULL;
 
+      check_pages(*page);
+      pages[*page].header1[pos] = (uchar *)Header1[pos];
+
       // Adjust top margin as needed...
       float adjust, image_adjust, temp_adjust;
 

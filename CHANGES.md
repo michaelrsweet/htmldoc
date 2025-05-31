@@ -10,6 +10,7 @@ v1.9.21 (YYYY-MM-DD)
 - Fixed a bug in the number-up code (Issue #539)
 - Fixed a regression in leading whitespace handling (Issue #540)
 - Fixed a bug in numbered heading support (Issue #543)
+- Fixed a bug with setting the header on the first page (Issue #544)
 
 
 v1.9.20 (2024-12-09)
