@@ -12,6 +12,7 @@ v1.9.21 (YYYY-MM-DD)
 - Fixed a regression in leading whitespace handling (Issue #540)
 - Fixed a bug in numbered heading support (Issue #543)
 - Fixed a bug with setting the header on the first page (Issue #544)
+- Fixed paths in the HTMLDOC snap (Issue #545)
 
 
 v1.9.20 (2024-12-09)
