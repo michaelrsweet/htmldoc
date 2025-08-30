@@ -157,10 +157,10 @@ parse_tree(tree_t *t)		/* I - Document tree */
 
           if ((var = htmlGetVariable(t, (uchar *)"VALUE")) != NULL)
           {
-            int temp = atoi((char *)var);
+            int value = atoi((char *)var);
 
-            if (temp > 0)
-              heading_numbers[level] = temp;
+            if (value > 0)
+              heading_numbers[level] = value;
             else
               heading_numbers[level] ++;
           }
