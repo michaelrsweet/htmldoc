@@ -178,7 +178,7 @@
     <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DigCertStoreComponent">
-    <ROW TimeStampUrl="http://timestamp.digicert.com" SignerDescription="[|ProductName]" SignOptions="7" SignTool="0" UseSha256="1" Thumbprint="5228095289C59404ADEFD5C94336C747FA48B6B1 Subject: Michael R Sweet&#10;Issuer: Sectigo Public Code Signing CA R36&#10;Valid from 09/07/2025 to 09/07/2028" Subject="CN=Michael R Sweet, O=Michael R Sweet, S=Ontario, C=CA" Store="User\MY"/>
+    <ROW TimeStampUrl="http://timestamp.digicert.com" SignerDescription="[|ProductName]" SignOptions="0" SignTool="0" UseSha256="1" Thumbprint="5228095289C59404ADEFD5C94336C747FA48B6B1 Subject: Michael R Sweet&#10;Issuer: Sectigo Public Code Signing CA R36&#10;Valid from 09/07/2025 to 09/07/2028" Subject="CN=Michael R Sweet, O=Michael R Sweet, S=Ontario, C=CA" Store="User\MY"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.FragmentComponent">
     <ROW Fragment="CommonUI.aip" Path="&lt;AI_FRAGS&gt;CommonUI.aip"/>
