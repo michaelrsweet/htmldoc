@@ -1,7 +1,7 @@
 Changes in HTMLDOC
 ==================
 
-v1.9.21 (YYYY-MM-DD)
+v1.9.21 (2025-09-12)
 --------------------
 
 - Updated HTTP/HTTPS connection error reporting to include the reason.
