@@ -684,6 +684,7 @@ build_os
 build_vendor
 build_cpu
 build
+SYEAR
 SVERSION
 target_alias
 host_alias
@@ -2731,6 +2732,11 @@ ac_config_headers="$ac_config_headers config.h"
 SVERSION="1.9.21"
 
 printf "%s\n" "#define SVERSION \"$SVERSION\"" >>confdefs.h
+
+
+SYEAR="2025"
+
+printf "%s\n" "#define SYEAR \"$SYEAR\"" >>confdefs.h
 
 
 

@@ -2617,17 +2617,13 @@ usage(const char *arg)			// I - Bad argument string
   if (CGIMode)
     puts("Content-Type: text/plain\r\n\r");
 
-  puts("HTMLDOC Version " SVERSION " Copyright 2011-2025 by Michael R Sweet.");
+  puts("HTMLDOC Version " SVERSION " Copyright 2011-" SYEAR " by Michael R Sweet.");
   puts("HTMLDOC is provided under the terms of the GNU General Public License and");
   puts("comes with absolutely no warranty.  This software is based in part on the work");
   puts("of the Independent JPEG Group.");
   puts("");
 
-#ifdef HAVE_SSL
   puts("This copy of HTMLDOC has been built to support both http: and https: URLs.");
-#else
-  puts("This copy of HTMLDOC has been built to support http: URLs only.");
-#endif /* HAVE_SSL */
   puts("");
 
   if (CGIMode)

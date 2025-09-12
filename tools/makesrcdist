@@ -9,11 +9,75 @@ if test $# != 1; then
 fi
 
 version=$1
+year=$(date +%Y)
 
+# Validate that all version numbers and copyrights have been updated...
+status=0
+
+if grep -q v$version CHANGES.md; then
+    if test "x$(grep v$version CHANGES.md | awk '{print $2}')" = "x(YYYY-MM-DD)"; then
+        echo "Need to update release date in 'CHANGES.md'."
+        status=1
+    fi
+else
+    echo "Need to add v$version to 'CHANGES.md'."
+    status=1
+fi
+
+temp="$(grep AC_INIT configure.ac | awk '{print $2}' | sed -e '1,$s/^\[//' -e '1,$s/\],$//')"
+if test "$temp" != $version; then
+	echo "Still need to update version to $version in configure.ac (saw $temp)"
+	exit 1
+fi
+
+temp="$(grep SYEAR= configure.ac | awk -F \" '{print $2}')"
+if test "$temp" != $year; then
+	echo "Still need to update SYEAR to $year in configure.ac (saw $temp)"
+	exit 1
+fi
+
+if test "$(grep SVERSION= configure | awk -F \" '{print $2}')" != "$version"; then
+    echo "Still need to run 'autoconf -f'."
+    exit 1
+elif test "$(grep SYEAR= configure | awk -F \" '{print $2}')" != "$year"; then
+    echo "Still need to run 'autoconf -f'."
+    exit 1
+fi
+
+temp="$(grep '^version:' snap/snapcraft.yaml | awk -F\" '{print $2}')"
+if test "$temp" != "$version"; then
+	echo "Still need to update version to $version in snap/snapcraft.yaml (saw $temp)"
+	exit 1
+fi
+
+temp="$(grep SVERSION vcnet/config.h | awk -F \" '{print $2}')"
+if test "$temp" != "$version"; then
+    echo "Still need to update SVERSION in 'vcnet/config.h' (saw $temp)."
+    exit 1
+fi
+
+temp="$(grep ProductVersion vcnet/htmldoc-installer.aip | head -1 | awk -F \" '{print $4}')"
+if test "x$temp" != "x$version.0"; then
+    echo "Still need to update ProductVersion to $version.0 in 'vcnet/htmldoc-installer.aip' (saw $temp)."
+    exit 1
+fi
+
+temp="$(grep SVERSION xcode/config.h | awk -F \" '{print $2}')"
+if test "$temp" != "$version"; then
+    echo "Still need to update SVERSION in 'xcode/config.h' (saw $temp)."
+    exit 1
+fi
+
+if test $status = 1; then
+    exit 1
+fi
+
+# Create the tag and push it...
 echo Creating tag for release...
 git tag -s -m "Tag $version" v$version
 git push origin v$version
 
+# Create the tarballs and sign them...
 echo Creating htmldoc-$version-source.tar.gz...
 git archive --format tar --prefix=htmldoc-$version/ HEAD | gzip -v9 >~/Desktop/htmldoc-$version-source.tar.gz
 gpg --detach-sign ~/Desktop/htmldoc-$version-source.tar.gz

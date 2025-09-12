@@ -25,10 +25,14 @@ AC_INIT([HTMLDOC], [1.9.21], [https://github.com/michaelrsweet/htmldoc/issues], 
 AC_CONFIG_HEADERS([config.h])
 
 
-dnl De])ne the version number...
+dnl De])ne the version number and year...
 SVERSION="AC_PACKAGE_VERSION"
 AC_SUBST(SVERSION)
 AC_DEFINE_UNQUOTED(SVERSION, "$SVERSION")
+
+SYEAR="2025"
+AC_SUBST(SYEAR)
+AC_DEFINE_UNQUOTED(SYEAR, "$SYEAR")
 
 
 dnl GNU autoheader, automake, etc. will break the build system, this macro
