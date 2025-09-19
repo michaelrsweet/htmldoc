@@ -1,6 +1,12 @@
 Changes in HTMLDOC
 ==================
 
+v1.9.22 (YYYY-MM-DD)
+--------------------
+
+- Fixed a crash bug with certain markdown files (Issue #548)
+
+
 v1.9.21 (2025-09-12)
 --------------------
 

@@ -12,7 +12,7 @@
  * What is the version number and year for this software?
  */
 
-#define SVERSION "1.9.21"
+#define SVERSION "1.9.22"
 #define SYEAR "2025"
 
 
