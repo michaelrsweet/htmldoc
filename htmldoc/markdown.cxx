@@ -385,7 +385,7 @@ get_text(uchar *text)                   /* I - Markdown text */
   static uchar  buffer[8192];           /* Temporary buffer */
 
 
-  if (!_htmlUTF8)
+  if (!_htmlUTF8 || text == NULL)
     return (text);
 
   bufptr = buffer;
