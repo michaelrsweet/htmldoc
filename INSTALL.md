@@ -12,7 +12,7 @@ To compile HTMLDOC you'll need C and C++ compilers (clang and gcc are fine)
 along with the following libraries:
 
 - FLTK 1.3.x+ for GUI support
-- CUPS 2.2+ for HTTP/HTTPS support
+- CUPS 2.2+ for HTTP/HTTPS, CGI mode, and "data:" URI support
 - libjpeg 7+ or libjpeg-turbo for JPEG support
 - libpng 1.6+ or higher for PNG support
 - zlib 1.1+ or higher

@@ -122,6 +122,10 @@ Markdown files into PostScript and PDF files.</p>
 
 <h3>CGI Mode</h3>
 
+<blockquote><b>Note:<b> CGI mode is only available when HTMLDOC is compiled with
+HTTP/HTTPS support.  The snap and MSI versions of HTMLDOC both include support
+for CGI mode and HTTP/HTTPS references.</blockquote>
+
 <p>HTMLDOC supports operation as a CGI program. You can copy or symlink the <var>htmldoc</var> (all but Windows) or <var>htmldoc.exe</var> (Windows) executable to your web server's <var>cgi-bin</var> directory and then use it to produce PDF versions of your web pages.</p>
 
 <p>The CGI converts a page on your local server to PDF and sends it to the client's web browser. For example, to convert a page called <var>superproducts.html</var> at the following URL:</p>
