@@ -9,7 +9,9 @@
  */
 
 #include "file.h"
-#include <cups/cups.h>
+#ifdef HAVE_LIBCUPS
+#  include <cups/cups.h>
+#endif // HAVE_LIBCUPS
 #include "progress.h"
 #include "debug.h"
 
@@ -25,10 +27,33 @@
 #include <sys/stat.h>
 #include <ctype.h>
 
-#if CUPS_VERSION_MAJOR == 2 && CUPS_VERSION_MINOR < 5
-#  define cupsGetError cupsLastError
-#  define cupsGetErrorString cupsLastErrorString
-#endif // CUPS_VERSION_MAJOR == 2 && CUPS_VERSION_MINOR < 5
+
+/*
+ * Support different versions of the CUPS API...
+ */
+
+#ifdef HAVE_LIBCUPS
+#  if CUPS_VERSION_MAJOR == 2
+#    define httpAddrGetPort	httpAddrPort
+#    define httpConnect		httpConnect2
+#    define httpDecode64	httpDecode64_3
+#    define httpEncode64(out,outlen,in,inlen,url) httpEncode64_2(out,outlen,in,inlen)
+#    define httpGetLength	httpGetLength2
+#    define httpRead		httpRead2
+#    define httpStatusString	httpStatus
+#    if CUPS_VERSION_MINOR < 5
+static char *httpDecode64_3(char *out, size_t *outlen, const char *in, const char **end)
+{
+  int templen = (int)*outlen;
+  char *ret = httpDecode64_2(out, &templen, in);
+  *outlen = (size_t)templen;
+  return (ret);
+}
+#      define cupsGetError	cupsLastError
+#      define cupsGetErrorString cupsLastErrorString
+#    endif // CUPS_VERSION_MINOR < 5
+#  endif // CUPS_VERSION_MAJOR == 2
+#endif // HAVE_LIBCUPS
 
 
 /*
@@ -62,17 +87,20 @@ typedef struct		/* Cache for all temporary files */
  * Local globals...
  */
 
+#ifdef HAVE_LIBCUPS
 char	proxy_scheme[32] = "",		/* Proxy scheme */
-	proxy_host[HTTP_MAX_URI] = "";	/* Proxy hostname */
+	proxy_host[256] = "";		/* Proxy hostname */
 int	proxy_port = 0;			/* Proxy port */
 http_t	*http = NULL;			/* Connection to remote server */
+char	cookies[1024] = "";		/* HTTP cookies, if any */
+char	referer_url[256] = "";		/* HTTP referer, if any */
+#endif // HAVE_LIBCUPS
+
+int	no_local = 0;			/* Non-zero to disable local files */
+
 size_t	web_files = 0,			/* Number of temporary files */
 	web_alloc = 0;			/* Number of allocated files */
 cache_t	*web_cache = NULL;		/* Cache array */
-int	no_local = 0;			/* Non-zero to disable local files */
-char	cookies[1024] = "";		/* HTTP cookies, if any */
-char	referer_url[HTTP_MAX_VALUE] = "";
-					/* HTTP referer, if any */
 
 
 /*
@@ -127,11 +155,13 @@ file_cleanup(void)
   const char	*debug;			/* HTMLDOC_DEBUG env var */
 
 
+#ifdef HAVE_LIBCUPS
   if (http)
   {
     httpClose(http);
     http = NULL;
   }
+#endif // HAVE_LIBCUPS
 
 #ifdef WIN32
   if ((tmpdir = getenv("TEMP")) == NULL)
@@ -203,10 +233,8 @@ file_cleanup(void)
 
     web_files --;
 
-    if (web_cache[web_files].name)
-      free(web_cache[web_files].name);
-    if (web_cache[web_files].url)
-      free(web_cache[web_files].url);
+    free(web_cache[web_files].name);
+    free(web_cache[web_files].url);
   }
 
   if (web_alloc)
@@ -226,10 +254,12 @@ file_cleanup(void)
 void
 file_cookies(const char *s)		/* I - Cookie string or NULL */
 {
+#ifdef HAVE_LIBCUPS
   if (s)
     strlcpy(cookies, s, sizeof(cookies));
   else
     cookies[0] = '\0';
+#endif // HAVE_LIBCUPS
 }
 
 
@@ -237,27 +267,28 @@ file_cookies(const char *s)		/* I - Cookie string or NULL */
  * 'file_directory()' - Return the directory without filename or target.
  */
 
-const char *			/* O - Directory for file */
-file_directory(const char *s)	/* I - Filename or URL */
+const char *				/* O - Directory for file */
+file_directory(const char *s)		/* I - Filename or URL */
 {
-  char		*dir;		/* Pointer to directory separator */
-  static char	buf[1024];	/* Buffer for files with targets */
+  char		*dir;			/* Pointer to directory separator */
+  static char	buf[1024];		/* Buffer for files with targets */
 
 
   if (s == NULL || !strncmp(s, "data:", 5))
     return (NULL);
 
+#ifdef HAVE_LIBCUPS
   if (strncmp(s, "http://", 7) == 0 || strncmp(s, "https://", 8) == 0)
   {
    /*
     * Handle URLs...
     */
 
-    char	scheme[HTTP_MAX_URI],
-		username[HTTP_MAX_URI],
-		hostname[HTTP_MAX_URI],
-		resource[HTTP_MAX_URI];
-    int		port;
+    char	scheme[32],		// URL scheme
+		username[32],		// User:password
+		hostname[256],		// Hostname
+		resource[1024];		// Resource path
+    int		port;			// Port number
 
 
     httpSeparateURI(HTTP_URI_CODING_ALL, s, scheme, sizeof(scheme),
@@ -270,6 +301,7 @@ file_directory(const char *s)	/* I - Filename or URL */
                     hostname, port, resource);
   }
   else
+#endif // HAVE_LIBCUPS
   {
    /*
     * Normal stuff...
@@ -300,16 +332,17 @@ file_directory(const char *s)	/* I - Filename or URL */
  * 'file_extension()' - Return the extension of a file without the target.
  */
 
-const char *			/* O - File extension */
-file_extension(const char *s)	/* I - Filename or URL */
+const char *				/* O - File extension */
+file_extension(const char *s)		/* I - Filename or URL */
 {
-  const char	*extension;	/* Pointer to directory separator */
-  char		*bufptr;	/* Pointer into buffer */
-  static char	buf[1024];	/* Buffer for files with targets */
+  const char	*extension;		/* Pointer to directory separator */
+  char		*bufptr;		/* Pointer into buffer */
+  static char	buf[1024];		/* Buffer for files with targets */
 
 
   if (s == NULL)
     return (NULL);
+#ifdef HAVE_LIBCUPS
   else if (!strncmp(s, "data:image/bmp;", 15))
     return ("bmp");
   else if (!strncmp(s, "data:image/gif;", 15))
@@ -318,6 +351,7 @@ file_extension(const char *s)	/* I - Filename or URL */
     return ("jpg");
   else if (!strncmp(s, "data:image/png;", 15))
     return ("png");
+#endif // HAVE_LIBCUPS
   else if ((extension = strrchr(s, '/')) != NULL)
     extension ++;
   else if ((extension = strrchr(s, '\\')) != NULL)
@@ -349,27 +383,28 @@ file_extension(const char *s)	/* I - Filename or URL */
 static const char *			/* O - Pathname or NULL */
 file_find_check(const char *filename)	/* I - File or URL */
 {
+  DEBUG_printf(("file_find_check(filename=\"%s\")\n", filename));
+
+#ifdef HAVE_LIBCUPS
   int		i;			/* Looping var */
   int		retry;			/* Current retry */
-  char		scheme[HTTP_MAX_URI],	/* Method/scheme */
-		username[HTTP_MAX_URI],	/* Username:password */
-		hostname[HTTP_MAX_URI],	/* Hostname */
-		resource[HTTP_MAX_URI];	/* Resource */
+  char		scheme[1024],		/* Scheme */
+		username[1024],		/* Username:password */
+		hostname[1024],		/* Hostname */
+		resource[1024];		/* Resource */
   int		port;			/* Port number */
   const char	*connscheme;		/* Scheme for connection */
   const char	*connhost;		/* Host to connect to */
   int		connport;		/* Port to connect to */
-  char		connpath[HTTP_MAX_URI],	/* Path for GET */
-		connauth[HTTP_MAX_VALUE];/* Auth string */
+  char		connpath[1024],		/* Path for GET */
+		connauth[256];		/* Auth string */
   http_status_t	status;			/* Status of request... */
   FILE		*fp;			/* Web file */
   ssize_t	bytes,			/* Bytes read */
 		count;			/* Number of bytes so far */
   off_t		total;			/* Total bytes in file */
-  char		tempname[HTTP_MAX_URI];	/* Temporary filename */
+  char		tempname[1024];		/* Temporary filename */
 
-
-  DEBUG_printf(("file_find_check(filename=\"%s\")\n", filename));
 
   if (strncmp(filename, "http:", 5) == 0 || strncmp(filename, "//", 2) == 0)
     strlcpy(scheme, "http", sizeof(scheme));
@@ -381,6 +416,7 @@ file_find_check(const char *filename)	/* I - File or URL */
     strlcpy(scheme, "file", sizeof(scheme));
 
   if (strcmp(scheme, "file") == 0)
+#endif // HAVE_LIBCUPS
   {
    /*
     * Return immediately if we aren't allowing access to local files...
@@ -399,6 +435,7 @@ file_find_check(const char *filename)	/* I - File or URL */
       return (filename);
     }
   }
+#ifdef HAVE_LIBCUPS
   else if (!strcmp(scheme, "data"))
   {
    /*
@@ -406,7 +443,7 @@ file_find_check(const char *filename)	/* I - File or URL */
     */
 
     const char	*data;			/* Pointer to data */
-    int		len;			/* Number of bytes */
+    size_t	len;			/* Number of bytes */
     char	buffer[8192];		/* Data buffer */
 
     for (i = 0; i < (int)web_files; i ++)
@@ -421,7 +458,7 @@ file_find_check(const char *filename)	/* I - File or URL */
     if ((data = strstr(filename, ";base64,")) != NULL)
     {
       len = sizeof(buffer);
-      httpDecode64_2(buffer, &len, data + 8);
+      httpDecode64(buffer, &len, data + 8, /*end*/NULL);
 
       if ((fp = file_temp(tempname, sizeof(tempname))) == NULL)
       {
@@ -430,7 +467,7 @@ file_find_check(const char *filename)	/* I - File or URL */
 	return (NULL);
       }
 
-      fwrite(buffer, 1, (size_t)len, fp);
+      fwrite(buffer, 1, len, fp);
       fclose(fp);
 
       progress_hide();
@@ -481,11 +518,9 @@ file_find_check(const char *filename)	/* I - File or URL */
         strlcpy(connpath, resource, sizeof(connpath));
       }
 
-      if (connport != httpAddrPort(httpGetAddress(http)) ||
-#ifdef HAVE_SSL
+      if (connport != httpAddrGetPort(httpGetAddress(http)) ||
 	  (!strcmp(connscheme, "https") && !httpIsEncrypted(http)) ||
           (!strcmp(connscheme, "http") && httpIsEncrypted(http)) ||
-#endif // HAVE_SSL
           strcasecmp(httpGetHostname(http, tempname, sizeof(tempname)), hostname))
       {
         httpClose(http);
@@ -498,7 +533,7 @@ file_find_check(const char *filename)	/* I - File or URL */
 
         http_encryption_t encryption = !strcmp(connscheme, "http") ? HTTP_ENCRYPTION_IF_REQUESTED : HTTP_ENCRYPTION_ALWAYS;
 
-        if ((http = httpConnect2(connhost, connport, NULL, AF_UNSPEC, encryption, 1, 300000, NULL)) == NULL)
+        if ((http = httpConnect(connhost, connport, NULL, AF_UNSPEC, encryption, 1, 300000, NULL)) == NULL)
 	{
           progress_hide();
           progress_error(HD_ERROR_NETWORK_ERROR, "Unable to connect to %s:%d - %s", connhost, connport, cupsGetErrorString());
@@ -516,19 +551,29 @@ file_find_check(const char *filename)	/* I - File or URL */
       if (username[0])
       {
         strlcpy(connauth, "Basic ", sizeof(connauth));
-        httpEncode64_2(connauth + 6, sizeof(connauth) - 6, username, strlen(username));
+        httpEncode64(connauth + 6, sizeof(connauth) - 6, username, strlen(username), /*url*/false);
         httpSetField(http, HTTP_FIELD_AUTHORIZATION, connauth);
       }
 
       if (cookies[0])
         httpSetCookie(http, cookies);
 
+#  if CUPS_VERSION_MAJOR == 2
       if (!httpGet(http, connpath))
+#  else
+      if (httpWriteRequest(http, "GET", connpath))
+#  endif // CUPS_VERSION_MAJOR == 2
       {
-	while ((status = httpUpdate(http)) == HTTP_STATUS_CONTINUE);
+	do
+	{
+	  status = httpUpdate(http);
+	}
+	while (status == HTTP_STATUS_CONTINUE);
       }
       else
+      {
 	status = HTTP_STATUS_ERROR;
+      }
 
       if (status >= HTTP_STATUS_MULTIPLE_CHOICES && status < HTTP_STATUS_BAD_REQUEST)
       {
@@ -552,7 +597,7 @@ file_find_check(const char *filename)	/* I - File or URL */
     if (status != HTTP_STATUS_OK)
     {
       progress_hide();
-      progress_error((HDerror)status, "%s (%s)", httpStatus(status), filename);
+      progress_error((HDerror)status, "%s (%s)", httpStatusString(status), filename);
       httpFlush(http);
       return (NULL);
     }
@@ -567,11 +612,11 @@ file_find_check(const char *filename)	/* I - File or URL */
       return (NULL);
     }
 
-    if ((total = httpGetLength2(http)) == 0)
+    if ((total = httpGetLength(http)) == 0)
       total = 8192;
 
     count = 0;
-    while ((bytes = httpRead2(http, resource, sizeof(resource))) > 0)
+    while ((bytes = httpRead(http, resource, sizeof(resource))) > 0)
     {
       count += bytes;
       progress_update((100 * count / total) % 101);
@@ -588,6 +633,7 @@ file_find_check(const char *filename)	/* I - File or URL */
 
     return (web_cache[web_files - 1].name);
   }
+#endif // HAVE_LIBCUPS
 
   return (NULL);
 }
@@ -601,13 +647,12 @@ const char *				/* O - Pathname or NULL */
 file_find(const char *path,		/* I - Path "dir;dir;dir" */
           const char *s)		/* I - File to find */
 {
-  int		i;			/* Looping var */
   char		*temp;			/* Current position in filename */
   const char	*sptr;			/* Pointer into "s" */
   int		ch;			/* Quoted character */
-  char		basename[HTTP_MAX_URI];	/* Base (unquoted) filename */
+  char		basename[1024];		/* Base (unquoted) filename */
   const char	*realname;		/* Real filename */
-  static char	filename[HTTP_MAX_URI];	/* Current filename */
+  static char	filename[1024];		/* Current filename */
 
 
  /*
@@ -619,11 +664,12 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
 
   DEBUG_printf(("file_find(path=\"%s\", s=\"%s\")\n", path ? path : "(null)", s));
 
+#ifdef HAVE_CUPS
  /*
   * See if this is a cached remote file...
   */
 
-  for (i = 0; i < (int)web_files; i ++)
+  for (int i = 0; i < (int)web_files; i ++)
   {
     if (strcmp(s, web_cache[i].name) == 0)
     {
@@ -633,6 +679,7 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
   }
 
   DEBUG_printf(("file_find: \"%s\" not in web cache of %d files...\n", s, (int)web_files));
+#endif // HAVE_LIBCUPS
 
  /*
   * Make sure the filename is not quoted...
@@ -957,13 +1004,14 @@ file_nolocal(void)
  */
 
 void
-file_proxy(const char *url)	/* I - URL of proxy server */
+file_proxy(const char *url)		/* I - URL of proxy server */
 {
-   char	scheme[HTTP_MAX_URI],	/* Method name (must be HTTP) */
-	username[HTTP_MAX_URI],	/* Username:password information */
-	hostname[HTTP_MAX_URI],	/* Hostname */
-	resource[HTTP_MAX_URI];	/* Resource name */
-  int	port;			/* Port number */
+#ifdef HAVE_LIBCUPS
+   char	scheme[1024],			/* Scheme (must be "http") */
+	username[1024],			/* Username:password information */
+	hostname[1024],			/* Hostname */
+	resource[1024];			/* Resource name */
+  int	port;				/* Port number */
 
 
   if (url == NULL || url[0] == '\0')
@@ -983,6 +1031,9 @@ file_proxy(const char *url)	/* I - URL of proxy server */
       proxy_port = port;
     }
   }
+#else
+  (void)url;
+#endif // HAVE_LIBCUPS
 }
 
 
@@ -993,10 +1044,14 @@ file_proxy(const char *url)	/* I - URL of proxy server */
 void
 file_referer(const char *referer)	/* I - Referer URL */
 {
+#ifdef HAVE_LIBCUPS
   if (referer)
     strlcpy(referer_url, referer, sizeof(referer_url));
   else
     referer_url[0] = '\0';
+#else
+  (void)referer;
+#endif // HAVE_LIBCUPS
 }
 
 
@@ -1007,6 +1062,7 @@ file_referer(const char *referer)	/* I - Referer URL */
 const char *				/* O - URL or filename */
 file_rlookup(const char *filename)	/* I - Filename */
 {
+#ifdef HAVE_LIBCUPS
   int		i;			/* Looping var */
   cache_t	*wc;			/* Current cache file */
 
@@ -1021,6 +1077,7 @@ file_rlookup(const char *filename)	/* I - Filename */
         return (wc->url);
     }
   }
+#endif // HAVE_LIBCUPS
 
   return (filename);
 }

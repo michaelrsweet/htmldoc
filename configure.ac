@@ -70,9 +70,6 @@ AC_ARG_ENABLE(debug, AS_HELP_STRING([--enable-debug], [turn on debugging, defaul
     ])
 ])
 
-AC_ARG_WITH(gui, AS_HELP_STRING([--without-gui], [do not compile the GUI version of HTMLDOC, default=yes]))
-
-
 dnl Checks for programs...
 AC_PROG_AWK
 AC_PROG_CC(clang cc gcc)
@@ -158,35 +155,59 @@ AS_IF([test x$enable_largefile != xno], [
 AC_SUBST(LARGEFILE)
 
 
-dnl Check for CUPS libraries...
-AC_PATH_TOOL([CUPSCONFIG], [cups-config])
-AC_MSG_CHECKING([for CUPS library v2.2 or higher])
-AS_IF([$PKGCONFIG --exists cups], [
-    CUPS_VERSION="$($PKGCONFIG --modversion cups)"
-    AC_MSG_RESULT([yes, v$CUPS_VERSION])
+dnl Build with HTTP/HTTPS support?
+AC_ARG_WITH(http, AS_HELP_STRING([--without-http], [turn off CUPS HTTP/HTTPS support, default=auto]))
 
-    CPPFLAGS="$CPPFLAGS $($PKGCONFIG --cflags cups)"
-    LIBS="$LIBS $($PKGCONFIG --libs cups)"
-], [test "x$CUPSCONFIG" = x], [
-    AC_MSG_RESULT(no)
-    AC_MSG_ERROR([Sorry, this software requires libcups-dev.])
-], [
-    CUPS_VERSION="$($CUPSCONFIG --api-version)"
-    AS_CASE(["$CUPS_VERSION"],
-	[1.* | 2.0 | 2.1], [
-	    AC_MSG_RESULT(no)
-	    AC_MSG_ERROR([Sorry, you need CUPS 2.2.0 or higher.])
+AS_IF([test x$with_http != xno], [
+    dnl Check for CUPS libraries...
+    AC_PATH_TOOL([CUPSCONFIG], [cups-config])
+    AC_MSG_CHECKING([for CUPS library v2.2 or higher])
+    AS_IF([$PKGCONFIG --exists cups3], [
+	CUPS_VERSION="$($PKGCONFIG --modversion cups3)"
+	AC_MSG_RESULT([yes, v$CUPS_VERSION])
+
+        AC_DEFINE([HAVE_LIBCUPS], 1, [Have the CUPS library?])
+	CPPFLAGS="$CPPFLAGS $($PKGCONFIG --cflags cups3)"
+	LIBS="$LIBS $($PKGCONFIG --libs cups3)"
+    ], [$PKGCONFIG --exists cups], [
+	CUPS_VERSION="$($PKGCONFIG --modversion cups)"
+	AC_MSG_RESULT([yes, v$CUPS_VERSION])
+
+        AC_DEFINE([HAVE_LIBCUPS], 1, [Have the CUPS library?])
+	CPPFLAGS="$CPPFLAGS $($PKGCONFIG --cflags cups)"
+	LIBS="$LIBS $($PKGCONFIG --libs cups)"
+    ], [test "x$CUPSCONFIG" = x], [
+	AC_MSG_RESULT(no)
+	AS_IF([test x$with_http = xyes], [
+	    AC_MSG_ERROR([Sorry, this software requires libcups-dev.])
+	], [
+	    AC_MSG_WARN([libcups-dev not available so HTTP/HTTPS will not be supported.])
+	])
+    ], [
+	CUPS_VERSION="$($CUPSCONFIG --api-version)"
+	AS_CASE(["$CUPS_VERSION"],
+	    [1.* | 2.0 | 2.1], [
+		AC_MSG_RESULT(no)
+		AS_IF([test x$with_http = xyes], [
+		    AC_MSG_ERROR([Sorry, you need libcups-dev 2.2.0 or higher.])
+		], [
+		    AC_MSG_WARN([libcups-dev v$CUPS_VERSION is too old so HTTP/HTTPS will not be supported.])
+		])
+	    ], [*], [
+		AC_MSG_RESULT([yes, v$CUPS_VERSION])
+
+		AC_DEFINE([HAVE_LIBCUPS], 1, [Have the CUPS library?])
+		CPPFLAGS="$CPPFLAGS $($CUPSCONFIG --cflags)"
+		LDFLAGS="$LDFLAGS $($CUPSCONFIG --ldflags)"
+		LIBS="$LIBS $($CUPSCONFIG --libs)"
+	])
     ])
-
-    AC_MSG_RESULT([yes, v$CUPS_VERSION])
-
-    CPPFLAGS="$CPPFLAGS $($CUPSCONFIG --cflags)"
-    LDFLAGS="$LDFLAGS $($CUPSCONFIG --ldflags)"
-    LIBS="$LIBS $($CUPSCONFIG --libs)"
 ])
 
 
 dnl Check for GUI libraries...
+AC_ARG_WITH(gui, AS_HELP_STRING([--without-gui], [do not compile the GUI version of HTMLDOC, default=auto]))
+
 have_fltk=no
 POST=:
 AS_IF([test "x$with_gui" != xno], [
@@ -194,7 +215,7 @@ AS_IF([test "x$with_gui" != xno], [
         have_fltk=yes
 	CPPFLAGS="$CPPFLAGS $($FLTKCONFIG --use-images --cflags)"
 	LIBS="$LIBS $($FLTKCONFIG --use-images --ldflags)"
-	AC_DEFINE([HAVE_LIBFLTK], [1], [Do we have the FLTK library?])
+	AC_DEFINE([HAVE_LIBFLTK], [1], [Have the FLTK library?])
 	AC_DEFINE([HAVE_LIBJPEG], 1, [Have JPEG library?])
 	AC_DEFINE([HAVE_LIBPNG], 1, [Have PNG library?])
 	POST="$FLTKCONFIG --post"
@@ -217,7 +238,7 @@ dnl Check for image libraries...
 AC_MSG_CHECKING([for libjpeg])
 AS_IF([$PKGCONFIG --exists libjpeg], [
     AC_MSG_RESULT([yes]);
-    AC_DEFINE([HAVE_LIBJPEG], 1, [Have JPEG library?])
+    AC_DEFINE([HAVE_LIBJPEG], 1, [Have the JPEG library?])
     CPPFLAGS="$CPPFLAGS $($PKGCONFIG --cflags libjpeg)"
     LIBS="$LIBS $($PKGCONFIG --libs libjpeg)"
 ], [
@@ -244,7 +265,7 @@ AS_IF([$PKGCONFIG --exists zlib], [
 AC_MSG_CHECKING([for libpng-1.6.x])
 AS_IF([$PKGCONFIG --exists libpng16], [
     AC_MSG_RESULT([yes]);
-    AC_DEFINE([HAVE_LIBPNG], 1, [Have PNG library?])
+    AC_DEFINE([HAVE_LIBPNG], 1, [Have the PNG library?])
     CPPFLAGS="$CPPFLAGS $($PKGCONFIG --cflags libpng16)"
     LIBS="$($PKGCONFIG --libs libpng16) $LIBS"
 ], [

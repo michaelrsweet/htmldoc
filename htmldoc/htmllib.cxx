@@ -1,7 +1,7 @@
 //
 // HTML parsing routines for HTMLDOC, a HTML document processing program.
 //
-// Copyright 2011-2024 by Michael R Sweet.
+// Copyright 2011-2025 by Michael R Sweet.
 // Copyright 1997-2010 by Easy Software Products.  All rights reserved.
 //
 // This program is free software.  Distribution and use rights are outlined in
@@ -9,7 +9,9 @@
 //
 
 #include "htmldoc.h"
-#include <cups/http.h>
+#ifdef HAVE_LIBCUPS
+#  include <cups/http.h>
+#endif // HAVE_LIBCUPS
 #include <ctype.h>
 
 
@@ -3404,13 +3406,14 @@ fix_filename(char *filename,		// I - Original filename
       strncmp(filename, ".\\", 2) == 0)
     filename += 2;
 
+#ifdef HAVE_LIBCUPS
   if (strncmp(base, "http://", 7) == 0 || strncmp(base, "https://", 8) == 0)
   {
     // Base is a URL...
     char	scheme[32],		// URI scheme
 		userpass[256],		// Username:password
 		host[256],		// Hostname or IP address
-		resource[256];		// Resource path
+		resource[1024];		// Resource path
     int		port;			// Port number
 
     httpSeparateURI(HTTP_URI_CODING_ALL, base, scheme, sizeof(scheme), userpass, sizeof(userpass), host, sizeof(host), &port, resource, sizeof(resource));
@@ -3437,6 +3440,7 @@ fix_filename(char *filename,		// I - Original filename
     }
   }
   else
+#endif // HAVE_LIBCUPS
   {
     // Base is a filename...
     if (filename[0] == '/' || filename[0] == '\\' || base == NULL ||

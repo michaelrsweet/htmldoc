@@ -132,6 +132,7 @@ main(int  argc,				/* I - Number of command-line arguments */
 
   prefs_set_paths();
 
+#ifdef HAVE_LIBCUPS
  /*
   * Check if we are being executed as a CGI program...
   *
@@ -213,6 +214,7 @@ main(int  argc,				/* I - Number of command-line arguments */
       file_nolocal();
   }
   else
+#endif // HAVE_LIBCUPS
   {
    /*
     * Default to producing HTML files.
@@ -313,7 +315,7 @@ main(int  argc,				/* I - Number of command-line arguments */
 
 	if (_htmlBrowserWidth < 1.0f)
 	{
-	  progress_error(HD_ERROR_INTERNAL_ERROR, "Bad browser width \"%s\"!",
+	  progress_error(HD_ERROR_INTERNAL_ERROR, "Bad browser width \"%s\".",
 	                 argv[i]);
 	  usage();
 	}
@@ -390,7 +392,7 @@ main(int  argc,				/* I - Number of command-line arguments */
 
 	if (PDFEffectDuration < 0.0f)
 	{
-	  progress_error(HD_ERROR_INTERNAL_ERROR, "Bad effect duration \"%s\"!",
+	  progress_error(HD_ERROR_INTERNAL_ERROR, "Bad effect duration \"%s\".",
 	                 argv[i]);
 	  usage();
 	}
@@ -915,7 +917,7 @@ main(int  argc,				/* I - Number of command-line arguments */
 
 	if (PDFPageDuration < 1.0f)
 	{
-	  progress_error(HD_ERROR_INTERNAL_ERROR, "Bad page duration \"%s\"!",
+	  progress_error(HD_ERROR_INTERNAL_ERROR, "Bad page duration \"%s\".",
 	                 argv[i]);
 	  usage();
 	}
@@ -1186,6 +1188,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     }
   }
 
+#ifdef HAVE_LIBCUPS
   if (CGIMode)
   {
     char	url[1024];		// URL
@@ -1227,8 +1230,9 @@ main(int  argc,				/* I - Number of command-line arguments */
     }
     else
       progress_error(HD_ERROR_FILE_NOT_FOUND,
-                     "PATH_INFO is not set in the environment!");
+                     "PATH_INFO is not set in the environment.");
   }
+#endif // HAVE_LIBCUPS
 
  /*
   * Display the GUI if necessary...
@@ -1257,7 +1261,7 @@ main(int  argc,				/* I - Number of command-line arguments */
   */
 
   if (num_files == 0 || document == NULL)
-    usage("No HTML files!");
+    usage("No HTML files.");
 
  /*
   * Find the first one in the list...
@@ -1657,7 +1661,7 @@ prefs_set_paths(void)
     if (!RegQueryValueEx(key, "data", NULL, NULL, (unsigned char *)data, &size))
       _htmlData = data;
     else
-      progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to read \"data\" value from registry!");
+      progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to read \"data\" value from registry.");
 
 #  ifdef HAVE_LIBFLTK
     size = sizeof(doc);
@@ -1668,7 +1672,7 @@ prefs_set_paths(void)
     RegCloseKey(key);
   }
   else
-    progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to read HTMLDOC installation from registry!");
+    progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to read HTMLDOC installation from registry.");
 
   // See if the HTMLDOC program folder is in the system execution path...
   if (!RegOpenKeyEx(HKEY_LOCAL_MACHINE,
@@ -2626,6 +2630,7 @@ usage(const char *arg)			// I - Bad argument string
   puts("This copy of HTMLDOC has been built to support both http: and https: URLs.");
   puts("");
 
+#ifdef HAVE_LIBCUPS
   if (CGIMode)
   {
     puts("HTMLDOC is running in CGI mode.  To disable CGI mode when running");
@@ -2638,9 +2643,10 @@ usage(const char *arg)			// I - Bad argument string
     puts("to 'On' for the HTMLDOC/cgi-bin directory.");
   }
   else
+#endif // HAVE_LIBCUPS
   {
     if (arg && arg[0] == '-')
-      printf("ERROR: Bad option argument \"%s\"!\n\n", arg);
+      printf("ERROR: Bad option argument \"%s\".\n\n", arg);
     else
       printf("ERROR: %s\n", arg);
 

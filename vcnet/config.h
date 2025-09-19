@@ -123,7 +123,14 @@ typedef __int64 ssize_t;
 
 
 /*
- * Do we have the FLTK library?
+ * Have the CUPS library?
+ */
+
+#define HAVE_LIBCUPS 1
+
+
+/*
+ * Have the FLTK library?
  */
 
 #ifndef _CONSOLE
@@ -132,42 +139,42 @@ typedef __int64 ssize_t;
 
 
 /*
- * Do we have the JPEG library?
+ * Have the JPEG library?
  */
 
 #define HAVE_LIBJPEG 1
 
 
 /*
- * Do we have the PNG library?
+ * Have the PNG library?
  */
 
 #define HAVE_LIBPNG 1
 
 
 /*
- * Do we have the Xpm library?
+ * Have the Xpm library?
  */
 
 /* #undef HAVE_LIBXPM */
 
 
 /*
- * Do we need to use <strings.h>?
+ * Need to use <strings.h>?
  */
 
 /* #undef HAVE_STRINGS_H */
 
 
 /*
- * Do we have the <locale.h> header file?
+ * Have the <locale.h> header file?
  */
 
 #define HAVE_LOCALE_H 1
 
 
 /*
- * Do we have some of the "standard" string functions?
+ * Have some of the "standard" string functions?
  */
 
 #define HAVE_STRDUP 1
@@ -175,12 +182,6 @@ typedef __int64 ssize_t;
 #define HAVE_STRNCASECMP 1
 /* #undef HAVE_STRLCAT */
 /* #undef HAVE_STRLCPY */
-
-
-/*
- * How about snprintf() and vsnprintf()?
- */
-
 #define HAVE_SNPRINTF 1
 #define HAVE_VSNPRINTF 1
 

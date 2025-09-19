@@ -4,6 +4,9 @@ Changes in HTMLDOC
 v1.9.22 (YYYY-MM-DD)
 --------------------
 
+- Added a "--without-http" configure option to build without CUPS HTTP/HTTPS
+  support (Issue #547)
+- Updated HTTP/HTTPS support to work with both CUPS 2.x and 3.x.
 - Fixed a crash bug with certain markdown files (Issue #548)
 
 

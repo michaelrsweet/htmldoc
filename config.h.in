@@ -46,49 +46,56 @@
 
 
 /*
- * Do we have the FLTK library?
+ * Have the CUPS library?
+ */
+
+#undef HAVE_LIBCUPS
+
+
+/*
+ * Have the FLTK library?
  */
 
 #undef HAVE_LIBFLTK
 
 
 /*
- * Do we have the JPEG library?
+ * Have the JPEG library?
  */
 
 #undef HAVE_LIBJPEG
 
 
 /*
- * Do we have the PNG library?
+ * Have the PNG library?
  */
 
 #undef HAVE_LIBPNG
 
 
 /*
- * Do we have the Xpm library?
+ * Have the Xpm library?
  */
 
 #undef HAVE_LIBXPM
 
 
 /*
- * Do we need to use <strings.h>?
+ * Need to use <strings.h>?
  */
 
 #undef HAVE_STRINGS_H
 
 
 /*
- * Do we have the <locale.h> header file?
+ * Have the <locale.h> header file?
  */
 
 #undef HAVE_LOCALE_H
 
 
 /*
- * Do we have some of the "standard" string functions?
+ * Have some of the "standard" string functions?
  */
 
 #undef HAVE_STRDUP
@@ -96,12 +103,6 @@
 #undef HAVE_STRNCASECMP
 #undef HAVE_STRLCAT
 #undef HAVE_STRLCPY
-
-
-/*
- * How about snprintf() and vsnprintf()?
- */
-
 #undef HAVE_SNPRINTF
 #undef HAVE_VSNPRINTF
 
