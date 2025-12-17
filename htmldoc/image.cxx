@@ -1,7 +1,7 @@
 /*
  * Image handling routines for HTMLDOC, a HTML document processing program.
  *
- * Copyright © 2011-2022 by Michael R Sweet.
+ * Copyright © 2011-2025 by Michael R Sweet.
  * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -30,7 +30,7 @@ extern "C" {		/* Workaround for JPEG header problems... */
  * Limits...
  */
 
-#define IMAGE_MAX_DIM	37837		// Maximum dimension - sqrt(4GiB / 3)
+#define IMAGE_MAX_DIM	26754		// Maximum dimension - sqrt(2GiB / 3)
 
 
 /*

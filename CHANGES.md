@@ -7,6 +7,8 @@ v1.9.22 (YYYY-MM-DD)
 - Added a "--without-http" configure option to build without CUPS HTTP/HTTPS
   support (Issue #547)
 - Updated HTTP/HTTPS support to work with both CUPS 2.x and 3.x.
+- Updated the maximum image dimension to prevent integer overflow on 32-bit
+  platforms (Issue #550)
 - Fixed a crash bug with certain markdown files (Issue #548)
 
 
