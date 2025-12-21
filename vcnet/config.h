@@ -94,6 +94,13 @@ typedef __int64 ssize_t;
 
 
 /*
+ * Limits for input processing...
+ */
+
+#define MAX_INCLUDES	32	/* Maximum levels of included/embedded files */
+
+
+/*
  * Limits for the output "engines"...
  */
 

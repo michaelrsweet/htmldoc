@@ -10,6 +10,7 @@ v1.9.22 (YYYY-MM-DD)
 - Updated the maximum image dimension to prevent integer overflow on 32-bit
   platforms (Issue #550)
 - Fixed a crash bug with certain markdown files (Issue #548)
+- Fixed an unrestricted recursion bug when reading HTML (Issue #552)
 
 
 v1.9.21 (2025-09-12)

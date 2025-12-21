@@ -122,6 +122,7 @@ const char	*_htmlMarkups[] =
 
 const char	*_htmlCurrentFile = "UNKNOWN";
 					// Current file
+int		_htmlCurrentLevel = 0;	// Current include level
 const char	*_htmlData = HTML_DATA;	// Data directory
 float		_htmlPPI = 80.0f;	// Image resolution
 int		_htmlGrayscale = 0;	// Grayscale output?
@@ -301,6 +302,14 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 
   DEBUG_printf(("htmlReadFile(parent=%p, fp=%p, base=\"%s\")\n",
                 (void *)parent, (void *)fp, base ? base : "(null)"));
+
+  if (_htmlCurrentLevel >= MAX_INCLUDES)
+  {
+    progress_error(HD_ERROR_HTML_ERROR, "Too many levels of embedded HTML files (%d)", _htmlCurrentLevel);
+    return (NULL);
+  }
+
+  _htmlCurrentLevel ++;
 
 #ifdef DEBUG
   indent[0] = '\0';
@@ -1548,6 +1557,8 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
       prev   = NULL;
     }
   }
+
+  _htmlCurrentLevel --;
 
   return (tree);
 }
