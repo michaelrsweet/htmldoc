@@ -3924,8 +3924,7 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
                int    *heading,		/* IO - Heading # */
 	       tree_t *chap)		/* I - Chapter heading */
 {
-  tree_t	*doc = t->parent,	/* Top of tree */
-		*next;			/* Next node */
+  bool	descend;			/* Descend? */
 
 
   DEBUG_printf(("parse_contents(t=%p, left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, y=%.1f, page=%d, heading=%d, chap=%p)\n",
@@ -3933,9 +3932,9 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 
   while (t != NULL)
   {
-    DEBUG_printf(("parse_contents: t=%p(%s)\n", (void *)t, t->markup <= MARKUP_NONE ? "--" : _htmlMarkups[t->markup]));
+    DEBUG_printf(("parse_contents: t=%p(%s)\n", (void *)t, t->markup == MARKUP_NONE ? (char *)t->data : t->markup < MARKUP_NONE ? "--" : _htmlMarkups[t->markup]));
 
-    next = t->next;
+    descend = false;
 
     switch (t->markup)
     {
@@ -3991,9 +3990,6 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
             */
 
             (*heading) ++;
-
-            if (t->last_child->markup == MARKUP_UL)
-              next = t->last_child->child;
           }
 	  else if (t->next != NULL && t->next->markup == MARKUP_UL)
 	  {
@@ -4001,9 +3997,9 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
 	    * Skip children of omitted heading...
 	    */
 
-	    next = htmlWalkNext(doc, t->next, /*descend*/false);
+	    t = t->next;
 
-	    (*heading) += count_headings(t->next->child) + 1;
+	    (*heading) += count_headings(t->child) + 1;
 	  }
 	  else
 	  {
@@ -4012,11 +4008,11 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
           break;
 
       default :
-          next = htmlWalkNext(doc, t);
+          descend = true;
           break;
     }
 
-    t = next;
+    t = htmlWalkNext(NULL, t, descend);
   }
 }
 

@@ -3783,6 +3783,8 @@ utf8_getc(int  ch,                      // I - Initial character
   int  ch2 = -1, ch3 = -1;              // Temporary characters
 
 
+  start:
+
   if ((ch & 0xe0) == 0xc0)
   {
     // Two-byte sequence for 0x80 to 0x7ff...
@@ -3821,7 +3823,8 @@ utf8_getc(int  ch,                      // I - Initial character
     // them...  Try reading another character...
     //
     // TODO: Emit a warning about this...
-    return (utf8_getc(getc(fp), fp));
+    ch = getc(fp);
+    goto start;
   }
 
   return (htmlMapUnicode(ch));

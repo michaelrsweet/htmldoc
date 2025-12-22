@@ -113,8 +113,10 @@ add_heading(tree_t *toc,	/* I - Table of contents */
 static void			/* O - Tree of TOC entries */
 parse_tree(tree_t *t)		/* I - Document tree */
 {
-  tree_t	*parent;	/* Parent of toc entry (DD or LI) */
-  tree_t	*target,	/* Link target */
+  tree_t	*doc = t->parent,
+				/* Top of document */
+		*parent,	/* Parent of toc entry (DD or LI) */
+		*target,	/* Link target */
 		*temp;		/* Looping var */
   uchar		heading[255],	/* Heading numbers */
 		link[255],	/* Actual link */
@@ -122,10 +124,13 @@ parse_tree(tree_t *t)		/* I - Document tree */
 		*existing;	/* Existing link string */
   int		i, level;	/* Header level */
   uchar		*var;		/* Starting value/type for this level */
+  bool		descend;	/* Descend into children? */
 
 
   while (t != NULL)
   {
+    descend = false;
+
     switch (t->markup)
     {
       case MARKUP_H1 :
@@ -144,6 +149,7 @@ parse_tree(tree_t *t)		/* I - Document tree */
       case MARKUP_H14 :
       case MARKUP_H15 :
           level = t->markup - MARKUP_H1;
+          fprintf(stderr, "parse_tree: level=%d\n", level);
 
 	  if ((level - last_level) > 1)
 	  {
@@ -327,11 +333,10 @@ parse_tree(tree_t *t)		/* I - Document tree */
           break;
 
       default :
-          if (t->child != NULL)
-            parse_tree(t->child);
+          descend = true;
           break;
     }
 
-    t = t->next;
+    t = htmlWalkNext(doc, t, descend);
   }
 }
