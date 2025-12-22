@@ -277,6 +277,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
              FILE       *fp,		// I - File pointer
 	     const char *base)		// I - Base directory for file
 {
+  int		depth;			// Current depth in tree
   int		ch;			// Character from file
   uchar		*ptr,			// Pointer in string
 		entity[16],		// Character entity name (&#nnn; or &name;)
@@ -310,6 +311,9 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
   }
 
   _htmlCurrentLevel ++;
+
+  for (depth = 0, tree = parent; tree; tree = tree->parent)
+    depth ++;
 
 #ifdef DEBUG
   indent[0] = '\0';
@@ -442,7 +446,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	if (ch == '/')
 	{
 	  // Close markup; find matching markup...
-          for (temp = parent; temp != NULL; temp = temp->parent)
+          for (temp = parent, depth --; temp != NULL; temp = temp->parent, depth --)
           {
             if (temp->markup == t->markup)
             {
@@ -474,7 +478,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	else if (t->markup == MARKUP_EMBED)
 	{
 	  // Close any text blocks...
-          for (temp = parent; temp != NULL; temp = temp->parent)
+          for (temp = parent, depth --; temp != NULL; temp = temp->parent, depth --)
           {
             if (isblock(temp->markup) || islentry(temp->markup))
             {
@@ -489,7 +493,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	}
 	else if (issuper(t->markup))
 	{
-          for (temp = parent; temp != NULL; temp = temp->parent)
+          for (temp = parent, depth --; temp != NULL; temp = temp->parent, depth --)
           {
 	    if (istentry(temp->markup) || temp->markup == MARKUP_EMBED)
 	    {
@@ -500,7 +504,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	}
 	else if (islist(t->markup))
 	{
-          for (temp = parent; temp != NULL; temp = temp->parent)
+          for (temp = parent, depth --; temp != NULL; temp = temp->parent, depth --)
           {
             if (isblock(temp->markup))
 	    {
@@ -515,7 +519,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	}
 	else if (islentry(t->markup))
 	{
-          for (temp = parent; temp != NULL; temp = temp->parent)
+          for (temp = parent, depth --; temp != NULL; temp = temp->parent, depth --)
           {
             if (islentry(temp->markup))
             {
@@ -530,7 +534,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	}
 	else if (isblock(t->markup))
 	{
-          for (temp = parent; temp != NULL; temp = temp->parent)
+          for (temp = parent, depth --; temp != NULL; temp = temp->parent, depth --)
           {
             if (isblock(temp->markup))
             {
@@ -545,7 +549,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	}
 	else if (t->markup == MARKUP_THEAD || t->markup == MARKUP_TBODY || t->markup == MARKUP_TFOOT)
 	{
-          for (temp = parent; temp != NULL; temp = temp->parent)
+          for (temp = parent, depth --; temp != NULL; temp = temp->parent, depth --)
           {
 	    if (temp->markup == MARKUP_TABLE || temp->markup == MARKUP_EMBED)
 	    {
@@ -556,7 +560,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	}
 	else if (t->markup == MARKUP_TR)
 	{
-          for (temp = parent; temp != NULL; temp = temp->parent)
+          for (temp = parent, depth --; temp != NULL; temp = temp->parent, depth --)
           {
             if (temp->markup == MARKUP_TR)
             {
@@ -571,7 +575,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	}
 	else if (istentry(t->markup))
 	{
-          for (temp = parent; temp != NULL; temp = temp->parent)
+          for (temp = parent, depth --; temp != NULL; temp = temp->parent, depth --)
           {
             if (istentry(temp->markup))
             {
@@ -640,6 +644,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 	  // the root node created by the caller...
           if (temp->parent)
 	  {
+	    depth --;
 	    parent = temp->parent;
             prev   = parent->last_child;
 	  }
@@ -1531,8 +1536,15 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
       strlcat((char *)indent, "    ", sizeof(indent));
 #endif // DEBUG
 
+      depth ++;
       parent = t;
       prev   = NULL;
+
+      if (depth >= MAX_DEPTH)
+      {
+        progress_error(HD_ERROR_HTML_ERROR, "Document elements too deeply nested (%d levels).", depth);
+        return (NULL);
+      }
     }
   }
 
@@ -2105,8 +2117,9 @@ uchar *				// O - Content string
 htmlGetMeta(tree_t *tree,	// I - Document tree
             uchar  *name)	// I - Metadata name
 {
-  uchar	*tname,			// Name value from tree entry
-	*tcontent;		// Content value from tree entry
+  tree_t	*top = tree;	// Top of document tree
+  uchar		*tname,		// Name value from tree entry
+		*tcontent;	// Content value from tree entry
 
 
   while (tree != NULL)
@@ -2124,13 +2137,8 @@ htmlGetMeta(tree_t *tree,	// I - Document tree
       return (tcontent);
     }
 
-    // Check child entries...
-    if (tree->child != NULL)
-      if ((tcontent = htmlGetMeta(tree->child, name)) != NULL)
-        return (tcontent);
-
     // Next tree entry...
-    tree = tree->next;
+    tree = htmlWalkNext(top, tree);
   }
 
   return (NULL);
@@ -2496,6 +2504,55 @@ void
 htmlSetTextColor(uchar *color)	// I - Text color
 {
   strlcpy((char *)_htmlTextColor, (char *)color, sizeof(_htmlTextColor));
+}
+
+
+//
+// 'htmlWalkNext()' - "Walk" to the next logical node in the tree.
+//
+
+tree_t *				// O - Next logical node or `NULL` if none
+htmlWalkNext(tree_t *doc,		// I - Top of document
+             tree_t *tree,		// I - Current node in document
+             bool   descend)		// I - Descend into child node?
+{
+  if (descend && tree->child)
+  {
+    // Descend...
+    return (tree->child);
+  }
+  else if (tree == doc)
+  {
+    // At the top, stop...
+    return (NULL);
+  }
+  else if (tree->next)
+  {
+    // Visit sibling...
+    return (tree->next);
+  }
+  else if (tree->parent && tree->parent != doc)
+  {
+    // Ascend
+    tree = tree->parent;
+
+    while (tree && !tree->next)
+    {
+      // Get the next parent...
+      if (tree->parent == doc || !tree->parent)
+	tree = NULL;
+      else
+	tree = tree->parent;
+    }
+
+    // If we still have a node, resume at its sibling...
+    return (tree ? tree->next : NULL);
+  }
+  else
+  {
+    // No more...
+    return (NULL);
+  }
 }
 
 
@@ -3551,6 +3608,8 @@ htmlFixLinks(tree_t *doc,		// I - Top node
 	     uchar  *base)		// I - Base directory/path
 {
   uchar		*href;			// HREF attribute
+  int		num_bstack = 0;		// Number of base paths on the stack
+  uchar		*bstack[100];		// Stack of base paths
   char		full_href[1024];	// Full HREF value
   const char	*debug;			// HTMLDOC_DEBUG environment variable
   static int	show_debug = -1;	// Show debug messages?
@@ -3655,12 +3714,60 @@ htmlFixLinks(tree_t *doc,		// I - Top node
       }
     }
     else if (tree->markup == MARKUP_FILE)
+    {
+      // Save current base and get new base...
+      if (num_bstack < (int)(sizeof(bstack) / sizeof(bstack[0])))
+        bstack[num_bstack++] = base;
+
       base = htmlGetVariable(tree, (uchar *)"_HD_BASE");
+    }
 
+    // Walk to the next logical node in the tree...
     if (tree->child)
-      htmlFixLinks(doc, tree->child, base);
+    {
+      // Descend...
+      tree = tree->child;
+    }
+    else if (tree == doc)
+    {
+      // At the top, stop...
+      tree = NULL;
+    }
+    else if (tree->next)
+    {
+      // Visit sibling...
+      tree = tree->next;
+    }
+    else if (tree->parent && tree->parent != doc)
+    {
+      // Ascend
+      tree = tree->parent;
 
-    tree = tree->next;
+      while (tree && !tree->next)
+      {
+        if (tree->markup == MARKUP_FILE && num_bstack > 0)
+        {
+	  // Restore previous base...
+	  num_bstack --;
+	  base = bstack[num_bstack];
+	}
+
+        // Get the next parent...
+	if (tree->parent == doc || !tree->parent)
+	  tree = NULL;
+	else
+	  tree = tree->parent;
+      }
+
+      // If we still have a node, resume at its sibling...
+      if (tree)
+        tree = tree->next;
+    }
+    else
+    {
+      // No more...
+      tree = NULL;
+    }
   }
 }
 
@@ -3730,4 +3837,3 @@ utf8_getc(int  ch,                      // I - Initial character
 
   return (0);
 }
-

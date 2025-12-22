@@ -302,6 +302,7 @@ extern tree_t	*htmlAddTree(tree_t *parent, markup_t markup, uchar *data);
 extern int	htmlDeleteTree(tree_t *parent);
 extern tree_t	*htmlInsertTree(tree_t *parent, markup_t markup, uchar *data);
 extern tree_t	*htmlNewTree(tree_t *parent, markup_t markup, uchar *data);
+extern tree_t	*htmlWalkNext(tree_t *doc, tree_t *tree, bool descend = true);
 
 extern tree_t	*htmlFindFile(tree_t *doc, uchar *filename);
 extern tree_t	*htmlFindTarget(tree_t *doc, uchar *name);

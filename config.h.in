@@ -20,6 +20,7 @@
  * Limits for input processing...
  */
 
+#define MAX_DEPTH	1000	/* Maximum depth of document tree */
 #define MAX_INCLUDES	32	/* Maximum levels of included/embedded files */
 
 

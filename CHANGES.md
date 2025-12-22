@@ -12,7 +12,8 @@ v1.9.22 (YYYY-MM-DD)
 - Updated the HTML parser to correctly report the line number of errors in files
   with more than 2^32-1 lines (Issue #551)
 - Fixed a crash bug with certain markdown files (Issue #548)
-- Fixed an unrestricted recursion bug when reading HTML (Issue #552)
+- Fixed an unrestricted recursion bug when reading and formatting HTML
+  (Issue #552)
 
 
 v1.9.21 (2025-09-12)
