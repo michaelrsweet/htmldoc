@@ -306,7 +306,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 
   if (_htmlCurrentLevel >= MAX_INCLUDES)
   {
-    progress_error(HD_ERROR_HTML_ERROR, "Too many levels of embedded HTML files (%d)", _htmlCurrentLevel);
+    progress_error(HD_ERROR_NESTING_ERROR, "Too many levels of embedded HTML files (%d)", _htmlCurrentLevel);
     return (NULL);
   }
 
@@ -1542,7 +1542,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
 
       if (depth >= MAX_DEPTH)
       {
-        progress_error(HD_ERROR_HTML_ERROR, "Document elements too deeply nested (%d levels).", depth);
+        progress_error(HD_ERROR_NESTING_ERROR, "Document elements too deeply nested (%d levels).", depth);
         return (NULL);
       }
     }

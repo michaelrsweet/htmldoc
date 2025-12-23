@@ -4045,12 +4045,21 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 		height,		/* Height of rule */
 		rgb[3];		/* RGB color of rule */
   bool		descend;	/* Descend into children when walking to the next node? */
+  static int	levels = 0;	/* Number of levels of nested elements */
 
 
   DEBUG_printf(("parse_doc(t=%p(%s), left=%.1f, right=%.1f, bottom=%.1f, top=%.1f, x=%.1f, y=%.1f, page=%d, cpara=%p, needspace=%d\n",
                 (void *)t, t->markup <= MARKUP_NONE ? "--" : _htmlMarkups[t->markup], *left, *right, *bottom, *top, *x, *y, *page, (void *)cpara,
 	        *needspace));
   DEBUG_printf(("parse_doc: title_page = %d, chapter = %d\n", title_page, chapter));
+
+  if (levels >= MAX_INCLUDES)
+  {
+    progress_error(HD_ERROR_NESTING_ERROR, "Too many levels of nesting (%d).", levels);
+    return;
+  }
+
+  levels ++;
 
   if (cpara == NULL)
     para = htmlNewTree(NULL, MARKUP_P, NULL);
@@ -4633,6 +4642,8 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 
   if (cpara != para)
     htmlDeleteTree(para);
+
+  levels --;
 
   DEBUG_printf(("LEAVING parse_doc(), x = %.1f, y = %.1f, page = %d\n",
                 *x, *y, *page));
