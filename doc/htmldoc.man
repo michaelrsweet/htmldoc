@@ -7,7 +7,7 @@
 .\" This program is free software.  Distribution and use rights are outlined
 .\" in the file "COPYING".
 .\"
-.TH htmldoc 1 "HTMLDOC 1.9.21" "2025-01-24" "Michael R Sweet"
+.TH htmldoc 1 "HTMLDOC 1.9.22" "2025-12-23" "Michael R Sweet"
 .SH NAME
 htmldoc \- convert html source files into html, postscript, or pdf.
 .SH SYNOPSIS
@@ -396,8 +396,13 @@ current time
 .B u
 current filename or URL
 
+.SH EXIT STATUS
+.B Htmldoc
+exits with the number of errors that have occurred.
+
 .SH ENVIRONMENT
-HTMLDOC looks for several environment variables which can override the default directories, display additional debugging information, and disable CGI mode:
+.B Htmldoc
+looks for several environment variables which can override the default directories, display additional debugging information, and disable CGI mode:
 .TP 5
 .B HTMLDOC_DATA
 This environment variable specifies the location of
