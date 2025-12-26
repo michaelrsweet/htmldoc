@@ -2,7 +2,7 @@
 // Separated HTML export functions for HTMLDOC, a HTML document processing
 // program.
 //
-// Copyright © 2011-2024 by Michael R Sweet.
+// Copyright © 2011-2025 by Michael R Sweet.
 // Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
 //
 // This program is free software.  Distribution and use rights are outlined in
@@ -1113,6 +1113,7 @@ static void
 update_links(tree_t *t,			// I - Document tree
              int    *heading)		// I - Current heading
 {
+  tree_t	*doc = t->parent;	// Top of document
   link_t	*link;			// Link
   uchar		*href;			// Reference name
   uchar		newhref[1024];		// New reference name
@@ -1150,11 +1151,7 @@ update_links(tree_t *t,			// I - Document tree
       }
     }
 
-    // Descend the tree as needed...
-    if (t->child != NULL)
-      update_links(t->child, heading);
-
-    // Move to the next node at this level...
-    t = t->next;
+    // Advance to the next logical child...
+    t = htmlWalkNext(doc, t);
   }
 }

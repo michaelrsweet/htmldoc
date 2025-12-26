@@ -1,15 +1,11 @@
 /*
  * HTML exporting functions for HTMLDOC, a HTML document processing program.
  *
- * Copyright 2011-2021 by Michael R Sweet.
+ * Copyright 2011-2025 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
  * the file "COPYING".
- */
-
-/*
- * Include necessary headers.
  */
 
 #include "htmldoc.h"
@@ -1017,12 +1013,15 @@ scan_links(tree_t *t,		/* I - Document tree */
  */
 
 static void
-update_links(tree_t *t,		/* I - Document tree */
-             uchar  *filename)	/* I - Current filename */
+update_links(tree_t *t,			/* I - Document tree */
+             uchar  *filename)		/* I - Current filename */
 {
-  link_t	*link;		/* Link */
-  uchar		*href;		/* Reference name */
-  uchar		newhref[1024];	/* New reference name */
+  tree_t	*doc = t->parent;	/* Top of document */
+  link_t	*link;			/* Link */
+  uchar		*href;			/* Reference name */
+  uchar		newhref[1024];		/* New reference name */
+  int		num_fstack = 0;		/* Number of filenames on the stack */
+  uchar		*fstack[100];		/* Stack of filenames */
 
 
   filename = (uchar *)file_basename((char *)filename);
@@ -1059,16 +1058,58 @@ update_links(tree_t *t,		/* I - Document tree */
 	  }
 	}
       }
-
-      if (t->child != NULL)
+      else if (t->markup == MARKUP_FILE && num_fstack < (int)(sizeof(fstack) / sizeof(fstack[0])))
       {
-        if (t->markup == MARKUP_FILE)
-          update_links(t->child, htmlGetVariable(t, (uchar *)"_HD_FILENAME"));
-	else
-          update_links(t->child, filename);
+        fstack[num_fstack++] = filename;
+        filename             = (uchar *)file_basename((char *)htmlGetVariable(t, (uchar *)"_HD_FILENAME"));
       }
 
-      t = t->next;
+      // Walk to the next logical node in the tree...
+      if (t->child)
+      {
+	// Descend...
+	t = t->child;
+      }
+      else if (t == doc)
+      {
+	// At the top, stop...
+	t = NULL;
+      }
+      else if (t->next)
+      {
+	// Visit sibling...
+	t = t->next;
+      }
+      else if (t->parent && t->parent != doc)
+      {
+	// Ascend
+	t = t->parent;
+
+	while (t && !t->next)
+	{
+	  if (t->markup == MARKUP_FILE && num_fstack > 0)
+	  {
+	    // Restore previous base...
+	    num_fstack --;
+	    filename = fstack[num_fstack];
+	  }
+
+	  // Get the next parent...
+	  if (t->parent == doc || !t->parent)
+	    t = NULL;
+	  else
+	    t = t->parent;
+	}
+
+	// If we still have a node, resume at its sibling...
+	if (t)
+	  t = t->next;
+      }
+      else
+      {
+	// No more...
+	t = NULL;
+      }
     }
   }
   else
@@ -1094,10 +1135,8 @@ update_links(tree_t *t,		/* I - Document tree */
 	}
       }
 
-      if (t->child != NULL)
-        update_links(t->child, filename);
-
-      t = t->next;
+      // Advance to the next logical child...
+      t = htmlWalkNext(doc, t);
     }
   }
 }

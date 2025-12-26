@@ -149,7 +149,6 @@ parse_tree(tree_t *t)		/* I - Document tree */
       case MARKUP_H14 :
       case MARKUP_H15 :
           level = t->markup - MARKUP_H1;
-          fprintf(stderr, "parse_tree: level=%d\n", level);
 
 	  if ((level - last_level) > 1)
 	  {
