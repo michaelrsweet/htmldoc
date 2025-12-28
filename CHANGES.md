@@ -1,7 +1,7 @@
 Changes in HTMLDOC
 ==================
 
-v1.9.22 (YYYY-MM-DD)
+v1.9.22 (2025-12-28)
 --------------------
 
 - Added a "--without-http" configure option to build without CUPS HTTP/HTTPS
