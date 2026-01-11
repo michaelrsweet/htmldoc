@@ -1,7 +1,14 @@
 Changes in HTMLDOC
 ==================
 
-v1.9.22 (2025-12-28)
+v1.9.23 - YYYY-MM-DD
+--------------------
+
+- Fixed a regression in list handling that caused a crash for empty list items
+  (Issue #553)
+
+
+v1.9.22 - 2025-12-28
 --------------------
 
 - Added a "--without-http" configure option to build without CUPS HTTP/HTTPS
@@ -16,7 +23,7 @@ v1.9.22 (2025-12-28)
   (Issue #552)
 
 
-v1.9.21 (2025-09-12)
+v1.9.21 - 2025-09-12
 --------------------
 
 - Updated HTTP/HTTPS connection error reporting to include the reason.
@@ -30,7 +37,7 @@ v1.9.21 (2025-09-12)
 - Fixed paths in the HTMLDOC snap (Issue #545)
 
 
-v1.9.20 (2024-12-09)
+v1.9.20 - 2024-12-09
 --------------------
 
 - Fixed a regression that caused spaces to disappear between some words
@@ -38,7 +45,7 @@ v1.9.20 (2024-12-09)
 - Fixed resolution of relative links within a document (Issue #534)
 
 
-v1.9.19 (2024-11-21)
+v1.9.19 - 2024-11-21
 --------------------
 
 - Security: Fixed an issue with the `file_basename` implementation (Issue #532)
@@ -54,7 +61,7 @@ v1.9.19 (2024-11-21)
 - Fixed case sensitivity of link targets (Issue #530)
 
 
-v1.9.18 (2024-02-11)
+v1.9.18 - 2024-02-11
 --------------------
 
 - Fixed table rendering when there are missing `</tr>` (Issue #494)
@@ -64,7 +71,7 @@ v1.9.18 (2024-02-11)
 - Fixed markdown emphasized, strong, and struck-through text (Issue 517)
 
 
-v1.9.17 (2023-09-17)
+v1.9.17 - 2023-09-17
 --------------------
 
 - Added new `--pre-indent` option to control indentation of pre-formatted text
@@ -79,7 +86,7 @@ v1.9.17 (2023-09-17)
 - Fixed some minor CodeQL warnings.
 
 
-v1.9.16 (2022-05-19)
+v1.9.16 - 2022-05-19
 --------------------
 
 - Added support for `$DATE(format)` and `$TIME(format)` header/footer strings
@@ -94,7 +101,7 @@ v1.9.16 (2022-05-19)
 - Updated the GUI interface for current display fonts.
 
 
-v1.9.15 (2022-02-05)
+v1.9.15 - 2022-02-05
 --------------------
 
 - Fixed a potential heap overflow bug with GIF images (Issue #461)
@@ -107,7 +114,7 @@ v1.9.15 (2022-02-05)
 - Fixed a potential stack overflow bug with GIF images (Issue #470)
 
 
-v1.9.14 (2021-12-22)
+v1.9.14 - 2021-12-22
 --------------------
 
 - BMP image support is now deprecated and will be removed in a future
@@ -118,7 +125,7 @@ v1.9.14 (2021-12-22)
 - Fixed a compile issue when libpng was not available (Issue #458)
 
 
-v1.9.13 (2021-11-05)
+v1.9.13 - 2021-11-05
 --------------------
 
 - Now install a 32x32 icon for Linux (Issue #432)
@@ -131,7 +138,7 @@ v1.9.13 (2021-11-05)
 - Fixed a potential stack overflow bug with bogus BMP images (Issue #453)
 
 
-v1.9.12 (2021-05-17)
+v1.9.12 - 2021-05-17
 --------------------
 
 - Fixed a crash bug with "data:" URIs and EPUB output (Issue #410)
@@ -148,7 +155,7 @@ v1.9.12 (2021-05-17)
 - Removed the bundled libjpeg, libpng, and zlib.
 
 
-v1.9.11 (2020-12-24)
+v1.9.11 - 2020-12-24
 --------------------
 
 - Added high-resolution desktop icons for Linux.
@@ -160,7 +167,7 @@ v1.9.11 (2020-12-24)
   (Issue #405)
 
 
-v1.9.10 (2020-09-05)
+v1.9.10 - 2020-09-05
 --------------------
 
 - Updated local zlib to v1.2.11.
@@ -171,7 +178,7 @@ v1.9.10 (2020-09-05)
 - Page comments are now allowed in `pre` text (Issue #394)
 
 
-v1.9.9 (2020-06-11)
+v1.9.9 - 2020-06-11
 -------------------
 
 - Fixed a redirection issue - some sites (incorrectly) provide an incomplete
@@ -182,7 +189,7 @@ v1.9.9 (2020-06-11)
 - Added support for `<FONT FACE="monospace">` (Issue #385)
 
 
-v1.9.8 (2020-02-15)
+v1.9.8 - 2020-02-15
 -------------------
 
 - Added support for a `HTMLDOC.filename` META keyword that controls the filename
@@ -196,7 +203,7 @@ v1.9.8 (2020-02-15)
 - Updated the build documentation (Issue #374)
 
 
-v1.9.7 (2019-10-09)
+v1.9.7 - 2019-10-09
 -------------------
 
 - Refactored the PRE rendering code to work around compiler optimization bugs
@@ -205,7 +212,7 @@ v1.9.7 (2019-10-09)
 - Fixed a table rowspan + valign bug (Issue #360)
 
 
-v1.9.6 (2019-09-25)
+v1.9.6 - 2019-09-25
 -------------------
 
 - Added support for data URIs (Issue #340)
@@ -226,7 +233,7 @@ v1.9.6 (2019-09-25)
 - Title files can now be markdown.
 
 
-v1.9.5 (2019-01-23)
+v1.9.5 - 2019-01-23
 -------------------
 
 - The GUI did not support EPUB output.
@@ -241,7 +248,7 @@ v1.9.5 (2019-01-23)
 - Fixed an issue with HTML title pages and EPUB output.
 
 
-v1.9.4 (2018-08-31)
+v1.9.4 - 2018-08-31
 -------------------
 
 - Inline fixed-width text is no longer reduced in size automatically
@@ -249,7 +256,7 @@ v1.9.4 (2018-08-31)
 - Optimized initialization of font width data (Issue #334)
 
 
-v1.9.3 (2018-04-10)
+v1.9.3 - 2018-04-10
 -------------------
 
 - Fixed formatting bugs with aligned images (Issue #322, Issue #324)
@@ -259,14 +266,14 @@ v1.9.3 (2018-04-10)
 - The makefiles did not use the CPPFLAGS value (Issue #328)
 
 
-v1.9.2 (2018-02-03)
+v1.9.2 - 2018-02-03
 -------------------
 
 - Added Markdown table support.
 - Fixed parsing of TBODY, TFOOT, and THEAD elements in HTML files.
 
 
-v1.9.1 (2017-10-29)
+v1.9.1 - 2017-10-29
 -------------------
 
 - Fixed monospace font size issue (Issue #309)
@@ -280,7 +287,7 @@ v1.9.1 (2017-10-29)
 - Now support both NAME and ID for table-of-contents targets.
 
 
-v1.9.0 (2017-07-04)
+v1.9.0 - 2017-07-04
 -------------------
 
 - Added support for repeating a single header row for tables that span multiple

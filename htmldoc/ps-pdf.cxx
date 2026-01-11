@@ -6,7 +6,7 @@
  * broken into more manageable pieces once we make all of the output
  * "drivers" into classes...
  *
- * Copyright © 2011-2025 by Michael R Sweet.
+ * Copyright © 2011-2026 by Michael R Sweet.
  * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -4034,7 +4034,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
 	  int    *needspace)	/* I - Need whitespace before this element */
 {
   int		i;		/* Looping var */
-  tree_t	*doc = t->parent,
+  tree_t	*doc = t ? t->parent : NULL,
 				/* Top of current document tree */
 		*para,		/* Phoney paragraph tree entry */
 		*temp;		/* Paragraph entry */
