@@ -1,7 +1,7 @@
 /*
  * Visual Studio configuration file for HTMLDOC.
  *
- * Copyright © 2011-2025 by Michael R Sweet.
+ * Copyright © 2011-2026 by Michael R Sweet.
  * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -89,8 +89,8 @@ typedef __int64 ssize_t;
  * What is the version number and year for this software?
  */
 
-#define SVERSION "1.9.22"
-#define SYEAR "2025"
+#define SVERSION "1.9.23"
+#define SYEAR "2026"
 
 
 /*

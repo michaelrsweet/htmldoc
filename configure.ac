@@ -1,7 +1,7 @@
 dnl
 dnl Configuration script for HTMLDOC, an HTML document processing program.
 dnl
-dnl Copyright © 2011-2025 by Michael R Sweet.
+dnl Copyright © 2011-2026 by Michael R Sweet.
 dnl Copyright © 1997-2010 by Easy Software Products.
 dnl
 dnl This program is free software.  Distribution and use rights are outlined in
@@ -21,7 +21,7 @@ dnl We need at least autoconf 2.69 for the AS_HELP_STRING macro...
 AC_PREREQ([2.69])
 
 
-AC_INIT([HTMLDOC], [1.9.22], [https://github.com/michaelrsweet/htmldoc/issues], [htmldoc], [https://www.msweet.org/htmldoc])
+AC_INIT([HTMLDOC], [1.9.23], [https://github.com/michaelrsweet/htmldoc/issues], [htmldoc], [https://www.msweet.org/htmldoc])
 AC_CONFIG_HEADERS([config.h])
 
 
@@ -30,7 +30,7 @@ SVERSION="AC_PACKAGE_VERSION"
 AC_SUBST(SVERSION)
 AC_DEFINE_UNQUOTED(SVERSION, "$SVERSION")
 
-SYEAR="2025"
+SYEAR="2026"
 AC_SUBST(SYEAR)
 AC_DEFINE_UNQUOTED(SYEAR, "$SYEAR")
 
