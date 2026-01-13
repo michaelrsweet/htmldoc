@@ -3990,6 +3990,8 @@ parse_contents(tree_t *t,		/* I - Tree to parse */
             */
 
             (*heading) ++;
+
+            descend = true;
           }
 	  else if (t->next != NULL && t->next->markup == MARKUP_UL)
 	  {

@@ -6,6 +6,8 @@ v1.9.23 - YYYY-MM-DD
 
 - Fixed a regression in list handling that caused a crash for empty list items
   (Issue #553)
+- Fixed a regression in the number of rendered table of contents levels in PDF
+  and PostScript output (Issue #554)
 
 
 v1.9.22 - 2025-12-28
