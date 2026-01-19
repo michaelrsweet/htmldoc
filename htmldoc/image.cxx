@@ -1,7 +1,7 @@
 /*
  * Image handling routines for HTMLDOC, a HTML document processing program.
  *
- * Copyright © 2011-2025 by Michael R Sweet.
+ * Copyright © 2011-2026 by Michael R Sweet.
  * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -312,7 +312,7 @@ gif_read_image(FILE       *fp,		/* I - Input file */
   pass      = 0;
   code_size = (uchar)getc(fp);
 
-  if (code_size > 12)
+  if (code_size < 2 || code_size > 8)
   {
     progress_error(HD_ERROR_READ_ERROR, "Bad GIF file \"%s\" - invalid code size %d.", img->filename, code_size);
     return (-1);
