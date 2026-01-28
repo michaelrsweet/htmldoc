@@ -1,7 +1,7 @@
 Changes in HTMLDOC
 ==================
 
-v1.9.23 - YYYY-MM-DD
+v1.9.23 - 2026-01-28
 --------------------
 
 - Fixed a regression in list handling that caused a crash for empty list items
