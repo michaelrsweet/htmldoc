@@ -760,23 +760,19 @@ image_load(const char *filename,/* I - Name of image file */
 
   if ((realname = file_find(Path, filename)) == NULL)
   {
-    progress_error(HD_ERROR_FILE_NOT_FOUND,
-                   "Unable to find image file \"%s\"!", filename);
+    progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to find image file '%s'.", filename);
     return (NULL);
   }
 
   if ((fp = fopen(realname, "rb")) == NULL)
   {
-    progress_error(HD_ERROR_FILE_NOT_FOUND,
-                   "Unable to open image file \"%s\" (%s) for reading!",
-		   filename, realname);
+    progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to open image file '%s' (%s) for reading.", filename, realname);
     return (NULL);
   }
 
   if (fread(header, 1, sizeof(header), fp) == 0)
   {
-    progress_error(HD_ERROR_READ_ERROR,
-                   "Unable to read image file \"%s\"!", filename);
+    progress_error(HD_ERROR_READ_ERROR, "Unable to read image file '%s'.", filename);
     fclose(fp);
     return (NULL);
   }
@@ -812,9 +808,7 @@ image_load(const char *filename,/* I - Name of image file */
 
       if (temp == NULL)
       {
-	progress_error(HD_ERROR_OUT_OF_MEMORY,
-	               "Unable to allocate memory for %d images - %s",
-                       (int)alloc_images, strerror(errno));
+	progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for %d images.", (int)alloc_images);
 	fclose(fp);
 	return (NULL);
       }
@@ -823,12 +817,9 @@ image_load(const char *filename,/* I - Name of image file */
     }
 
     // Allocate memory...
-    img = (image_t *)calloc(sizeof(image_t), 1);
-
-    if (img == NULL)
+    if ((img = (image_t *)calloc(sizeof(image_t), 1)) == NULL)
     {
-      progress_error(HD_ERROR_READ_ERROR, "Unable to allocate memory for \"%s\"",
-                     filename);
+      progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for '%s'.", img->filename);
       fclose(fp);
       return (NULL);
     }
@@ -857,8 +848,7 @@ image_load(const char *filename,/* I - Name of image file */
 #endif // HAVE_LIBJPEG
   else
   {
-    progress_error(HD_ERROR_BAD_FORMAT, "Unknown image file format for \"%s\".",
-                   file_rlookup(filename));
+    progress_error(HD_ERROR_BAD_FORMAT, "Unknown image file format for '%s'.", file_rlookup(filename));
     fclose(fp);
     free(img);
     return (NULL);
@@ -868,8 +858,7 @@ image_load(const char *filename,/* I - Name of image file */
 
   if (status)
   {
-    progress_error(HD_ERROR_READ_ERROR, "Unable to load image file \"%s\"!",
-                   file_rlookup(filename));
+    progress_error(HD_ERROR_READ_ERROR, "Unable to load image file '%s'.", file_rlookup(filename));
     if (!match)
       free(img);
     return (NULL);
@@ -962,9 +951,11 @@ image_load_bmp(image_t *img,	/* I - Image to load into */
   if (!load_data)
     return (0);
 
-  img->pixels = (uchar *)malloc((size_t)(img->width * img->height * img->depth));
-  if (img->pixels == NULL)
+  if ((img->pixels = (uchar *)malloc((size_t)(img->width * img->height * img->depth))) == NULL)
+  {
+    progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for '%s'.", img->filename);
     return (-1);
+  }
 
   if (gray && depth <= 8)
   {
@@ -1370,9 +1361,11 @@ image_load_gif(image_t *img,	/* I - Image pointer */
 	  if (!load_data)
 	    return (0);
 
-          img->pixels = (uchar *)malloc((size_t)(img->width * img->height * img->depth));
-          if (img->pixels == NULL)
+          if ((img->pixels = (uchar *)malloc((size_t)(img->width * img->height * img->depth))) == NULL)
+          {
+	    progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for '%s'.", img->filename);
             return (-1);
+          }
 
 	  return (gif_read_image(fp, img, cmap, buf[8] & GIF_INTERLACE, transparent));
     }
@@ -1462,10 +1455,9 @@ JSAMPROW			row;		/* Sample row pointer */
     return (0);
   }
 
-  img->pixels = (uchar *)malloc((size_t)(img->width * img->height * img->depth));
-
-  if (img->pixels == NULL)
+  if ((img->pixels = (uchar *)malloc((size_t)(img->width * img->height * img->depth))) == NULL)
   {
+    progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for '%s'.", img->filename);
     jpeg_destroy_decompress(&cinfo);
     return (-1);
   }
@@ -1533,7 +1525,7 @@ image_load_png(image_t *img,	/* I - Image pointer */
 
   if (setjmp(png_jmpbuf(pp)))
   {
-    progress_error(HD_ERROR_BAD_FORMAT, "PNG file contains errors!");
+    progress_error(HD_ERROR_BAD_FORMAT, "PNG file contains errors.");
 
     png_destroy_read_struct(&pp, &info, NULL);
 
@@ -1649,6 +1641,8 @@ image_load_png(image_t *img,	/* I - Image pointer */
 
   if ((img->pixels = (uchar *)calloc(1, (size_t)(img->width * img->height * depth))) == NULL)
   {
+    progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for '%s'.", img->filename);
+
     png_destroy_read_struct(&pp, &info, NULL);
     return (-1);
   }
@@ -1659,6 +1653,8 @@ image_load_png(image_t *img,	/* I - Image pointer */
 
   if ((rows = (png_bytep *)calloc(png_get_image_height(pp, info), sizeof(png_bytep))) == NULL)
   {
+    progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for '%s'.", img->filename);
+
     free(img->pixels);
     img->pixels = NULL;
 
@@ -1793,7 +1789,8 @@ image_need_mask(image_t *img,		/* I - Image to add mask to */
     size           = (size_t)(img->maskwidth * img->height * scaling + 1);
   }
 
-  img->mask = (uchar *)calloc(size, 1);
+  if ((img->mask = (uchar *)calloc(size, 1)) == NULL)
+    progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for transparency mask for '%s'.", img->filename);
 }
 
 
