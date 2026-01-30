@@ -1,7 +1,7 @@
 /*
  * Filename routines for HTMLDOC, a HTML document processing program.
  *
- * Copyright © 2011-2025 by Michael R Sweet.
+ * Copyright © 2011-2026 by Michael R Sweet.
  * Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -228,7 +228,7 @@ file_cleanup(void)
 
     if (unlink(filename))
       progress_error(HD_ERROR_DELETE_ERROR,
-                     "Unable to delete temporary file \"%s\": %s",
+                     "Unable to delete temporary file '%s': %s",
                      filename, strerror(errno));
 
     web_files --;
@@ -463,7 +463,7 @@ file_find_check(const char *filename)	/* I - File or URL */
       if ((fp = file_temp(tempname, sizeof(tempname))) == NULL)
       {
 	progress_hide();
-	progress_error(HD_ERROR_WRITE_ERROR, "Unable to create temporary file \"%s\": %s", tempname, strerror(errno));
+	progress_error(HD_ERROR_WRITE_ERROR, "Unable to create temporary file '%s': %s", tempname, strerror(errno));
 	return (NULL);
       }
 
@@ -606,7 +606,7 @@ file_find_check(const char *filename)	/* I - File or URL */
     {
       progress_hide();
       progress_error(HD_ERROR_WRITE_ERROR,
-                     "Unable to create temporary file \"%s\": %s", tempname,
+                     "Unable to create temporary file '%s': %s", tempname,
                      strerror(errno));
       httpFlush(http);
       return (NULL);

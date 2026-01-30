@@ -314,7 +314,7 @@ gif_read_image(FILE       *fp,		/* I - Input file */
 
   if (code_size < 2 || code_size > 8)
   {
-    progress_error(HD_ERROR_READ_ERROR, "Bad GIF file \"%s\" - invalid code size %d.", img->filename, code_size);
+    progress_error(HD_ERROR_READ_ERROR, "Bad GIF file '%s': invalid code size %d.", img->filename, code_size);
     return (-1);
   }
 
@@ -579,15 +579,13 @@ image_copy(const char *src,		/* I - Source file */
 
   if ((in = fopen(realsrc, "rb")) == NULL)
   {
-    progress_error(HD_ERROR_READ_ERROR, "Unable to open \"%s\" - %s",
-                   realsrc, strerror(errno));
+    progress_error(HD_ERROR_READ_ERROR, "Unable to open '%s': %s", realsrc, strerror(errno));
     return;
   }
 
   if ((out = fopen(dest, "wb")) == NULL)
   {
-    progress_error(HD_ERROR_READ_ERROR, "Unable to create \"%s\" - %s",
-                   dest, strerror(errno));
+    progress_error(HD_ERROR_READ_ERROR, "Unable to create '%s': %s", dest, strerror(errno));
     fclose(in);
     return;
   }

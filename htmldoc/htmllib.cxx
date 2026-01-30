@@ -1,7 +1,7 @@
 //
 // HTML parsing routines for HTMLDOC, a HTML document processing program.
 //
-// Copyright 2011-2025 by Michael R Sweet.
+// Copyright 2011-2026 by Michael R Sweet.
 // Copyright 1997-2010 by Easy Software Products.  All rights reserved.
 //
 // This program is free software.  Distribution and use rights are outlined in
@@ -349,8 +349,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
     if (t == NULL)
     {
 #ifndef DEBUG
-      progress_error(HD_ERROR_OUT_OF_MEMORY,
-                     "Unable to allocate memory for HTML tree node!");
+      progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for HTML tree node.");
 #endif // !DEBUG
       break;
     }
@@ -1069,9 +1068,7 @@ htmlReadFile(tree_t     *parent,	// I - Parent tree entry
             }
 #ifndef DEBUG
 	    else
-	      progress_error(HD_ERROR_FILE_NOT_FOUND,
-                             "Unable to embed \"%s\" - %s", filename,
-	                     strerror(errno));
+	      progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to embed '%s': %s", filename, strerror(errno));
 #endif // !DEBUG
 	  }
           break;
@@ -2241,7 +2238,7 @@ htmlLoadFontWidths(int typeface, int style)
   if ((fp = fopen(filename, "r")) == NULL)
   {
 #ifndef DEBUG
-    progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to open font width file %s!", filename);
+    progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to open font width file '%s'.", filename);
 #endif // !DEBUG
     return;
   }
@@ -2423,8 +2420,7 @@ htmlSetCharSet(const char *cs)		// I - Character set file to load
     }
 #ifndef DEBUG
     else
-      progress_error(HD_ERROR_FILE_NOT_FOUND,
-                     "Unable to open psglyphs data file!");
+      progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to open psglyphs data file.");
 #endif // !DEBUG
   }
 
@@ -2458,8 +2454,7 @@ htmlSetCharSet(const char *cs)		// I - Character set file to load
   {
     // Can't open charset file; use ISO-8859-1...
 #ifndef DEBUG
-    progress_error(HD_ERROR_FILE_NOT_FOUND,
-                   "Unable to open character set file %s!", cs);
+    progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to open character set file '%s'.", cs);
 #endif // !DEBUG
 
     for (i = 0; i < 256; i ++)
@@ -2616,8 +2611,7 @@ insert_space(tree_t *parent,	// I - Parent node
   if (space == NULL)
   {
 #ifndef DEBUG
-    progress_error(HD_ERROR_OUT_OF_MEMORY,
-                   "Unable to allocate memory for HTML tree node!");
+    progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for HTML tree node.");
 #endif // !DEBUG
     return;
   }
@@ -3703,7 +3697,7 @@ htmlFixLinks(tree_t *doc,		// I - Top node
 	}
 
         if (show_debug)
-          progress_error(HD_ERROR_NONE, "DEBUG: Mapping \"%s\" to \"%s\"...", href, full_href);
+          progress_error(HD_ERROR_NONE, "DEBUG: Mapping '%s' to '%s'.", href, full_href);
 
 	htmlSetVariable(tree, (uchar *)"_HD_FULL_HREF", (uchar *)full_href);
       }

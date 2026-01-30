@@ -573,17 +573,14 @@ pspdf_export(tree_t *document,	/* I - Document to export */
       // Find the title file...
       if ((title_file = file_find(Path, TitleImage)) == NULL)
       {
-	progress_error(HD_ERROR_FILE_NOT_FOUND,
-	               "Unable to find title file \"%s\"!", TitleImage);
+	progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to find title file '%s'.", TitleImage);
 	return (1);
       }
 
       // Write a title page from HTML source...
       if ((fp = fopen(title_file, "rb")) == NULL)
       {
-	progress_error(HD_ERROR_FILE_NOT_FOUND,
-	               "Unable to open title file \"%s\" - %s!",
-                       TitleImage, strerror(errno));
+	progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to open title file '%s': %s", TitleImage, strerror(errno));
 	return (1);
       }
 
@@ -1215,12 +1212,17 @@ pspdf_prepare_outpages()
 
 
   // Allocate an output page array...
-  outpages = (outpage_t *)malloc(sizeof(outpage_t) * num_pages);
+  num_outpages = 0;
+
+  if ((outpages = (outpage_t *)malloc(sizeof(outpage_t) * num_pages)) == NULL)
+  {
+    progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for %d output pages.", (int)num_pages);
+    return;
+  }
 
   memset(outpages, -1, sizeof(outpage_t) * num_pages);
 
-  num_outpages = 0;
-  outpage      = outpages;
+  outpage = outpages;
 
   // Handle the title page, as needed...
   if (TitlePage)
@@ -2913,26 +2915,20 @@ pdf_write_contents(FILE   *out,			/* I - Output file */
 
   if ((entry_counts = (int *)calloc(sizeof(int), num_headings + 1)) == NULL)
   {
-    progress_error(HD_ERROR_OUT_OF_MEMORY,
-                   "Unable to allocate memory for %d headings - %s",
-                   (int)num_headings, strerror(errno));
+    progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for %d headings.", (int)num_headings);
     return;
   }
 
   if ((entry_objects = (int *)calloc(sizeof(int), num_headings + 1)) == NULL)
   {
-    progress_error(HD_ERROR_OUT_OF_MEMORY,
-                   "Unable to allocate memory for %d headings - %s",
-                   (int)num_headings, strerror(errno));
+    progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for %d headings.", (int)num_headings);
     free(entry_counts);
     return;
   }
 
   if ((entries = (tree_t **)calloc(sizeof(tree_t *), num_headings + 1)) == NULL)
   {
-    progress_error(HD_ERROR_OUT_OF_MEMORY,
-                   "Unable to allocate memory for %d headings - %s",
-                   (int)num_headings, strerror(errno));
+    progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for %d headings.", (int)num_headings);
     free(entry_objects);
     free(entry_counts);
     return;
@@ -3197,9 +3193,7 @@ pdf_start_object(FILE *out,	// I - File to write to
 
     if (temp == NULL)
     {
-      progress_error(HD_ERROR_OUT_OF_MEMORY,
-                     "Unable to allocate memory for %d objects - %s",
-                     (int)alloc_objects, strerror(errno));
+      progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for %d objects.", (int)alloc_objects);
       alloc_objects -= ALLOC_OBJECTS;
       return (0);
     }
@@ -3394,9 +3388,7 @@ pdf_write_links(FILE *out)		/* I - Output file */
 
   if ((lobjs = (int *)malloc(sizeof(int) * (size_t)alloc_lobjs)) == NULL)
   {
-    progress_error(HD_ERROR_OUT_OF_MEMORY,
-                   "Unable to allocate memory for %d link objects - %s",
-                   alloc_lobjs, strerror(errno));
+    progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for %d link objects.", alloc_lobjs);
     return;
   }
 
@@ -3518,9 +3510,7 @@ pdf_write_links(FILE *out)		/* I - Output file */
 		write_string(out, r->data.link, 0);
 
 		if (StrictHTML)
-		  progress_error(HD_ERROR_UNRESOLVED_LINK,
-		                 "Unable to resolve link to \"%s\"!",
-		                 r->data.link);
+		  progress_error(HD_ERROR_UNRESOLVED_LINK, "Unable to resolve link to '%s'.", r->data.link);
               }
 	    }
 	    else
@@ -4113,9 +4103,7 @@ parse_doc(tree_t *t,		/* I - Tree to parse */
       chapter ++;
       if (chapter >= MAX_CHAPTERS)
       {
-	progress_error(HD_ERROR_TOO_MANY_CHAPTERS,
-	               "Too many chapters/files in document (%d > %d)!",
-	               chapter, MAX_CHAPTERS);
+	progress_error(HD_ERROR_TOO_MANY_CHAPTERS, "Too many chapters/files in document (%d > %d).", chapter, MAX_CHAPTERS);
         chapter = MAX_CHAPTERS - 1;
       }
       else
@@ -4729,9 +4717,7 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
 
       if (temp == NULL)
       {
-        progress_error(HD_ERROR_OUT_OF_MEMORY,
-                       "Unable to allocate memory for %d headings - %s",
-	               (int)alloc_headings, strerror(errno));
+        progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for %d headings.", (int)alloc_headings);
 	alloc_headings -= ALLOC_HEADINGS;
 	return;
       }
@@ -4748,9 +4734,7 @@ parse_heading(tree_t *t,	/* I - Tree to parse */
 
       if (temp == NULL)
       {
-        progress_error(HD_ERROR_OUT_OF_MEMORY,
-                       "Unable to allocate memory for %d headings - %s",
-	               (int)alloc_headings, strerror(errno));
+        progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for %d headings.", (int)alloc_headings);
 	alloc_headings -= ALLOC_HEADINGS;
 	return;
       }
@@ -5356,9 +5340,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 
 	    if (((temp->width - right + left) > 0.001 ||
 	         (temp->height - top + bottom) > 0.001)  && OverflowErrors)
-	      progress_error(HD_ERROR_CONTENT_TOO_LARGE,
-	                     "Text on page %d too large - "
-			     "truncation or overlapping may occur!", *page + 1);
+	      progress_error(HD_ERROR_CONTENT_TOO_LARGE, "Text on page %d too large -  truncation or overlapping may occur.", *page + 1);
 
             if (linetype == NULL)
             {
@@ -5399,9 +5381,7 @@ parse_paragraph(tree_t *t,	/* I - Tree to parse */
 	                    temp->width, temp->height,
 			    right - left, top - bottom));
 
-	      progress_error(HD_ERROR_CONTENT_TOO_LARGE,
-	                     "Image on page %d too large - "
-			     "truncation or overlapping may occur!", *page + 1);
+	      progress_error(HD_ERROR_CONTENT_TOO_LARGE, "Image on page %d too large - truncation or overlapping may occur.", *page + 1);
             }
 
 	    if ((border = htmlGetVariable(temp, (uchar *)"BORDER")) != NULL)
@@ -5744,9 +5724,7 @@ parse_pre(tree_t *t,		/* I - Tree to parse */
     }
 
     if ((*x - right) > 0.001 && OverflowErrors)
-      progress_error(HD_ERROR_CONTENT_TOO_LARGE,
-	             "Preformatted text on page %d too long - "
-		     "truncation or overlapping may occur!", *page + 1);
+      progress_error(HD_ERROR_CONTENT_TOO_LARGE, "Preformatted text on page %d too long -  truncation or overlapping may occur.", *page + 1);
 
     *y -= _htmlSpacings[t->size] - _htmlSizes[t->size];
   }
@@ -6642,18 +6620,16 @@ parse_table(tree_t *t,			// I - Tree to parse
 	else
 	  cells = (tree_t ***)realloc(cells, sizeof(tree_t **) * (size_t)alloc_rows);
 
-        if (cells == (tree_t ***)0)
+        if (cells == NULL)
 	{
-	  progress_error(HD_ERROR_OUT_OF_MEMORY,
-                         "Unable to allocate memory for table!");
+	  progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for table.");
 	  return;
 	}
       }
 
       if ((cells[table.num_rows] = (tree_t **)calloc(sizeof(tree_t *), MAX_COLUMNS)) == NULL)
       {
-	progress_error(HD_ERROR_OUT_OF_MEMORY,
-                       "Unable to allocate memory for table!");
+	progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for table.");
         free(cells);
 	return;
       }
@@ -7088,7 +7064,7 @@ parse_table(tree_t *t,			// I - Tree to parse
   }
 
   if ((width - right + left) > 0.001f && OverflowErrors)
-    progress_error(HD_ERROR_CONTENT_TOO_LARGE, "Table on page %d too wide - truncation or overlapping may occur!", *page + 1);
+    progress_error(HD_ERROR_CONTENT_TOO_LARGE, "Table on page %d too wide - truncation or overlapping may occur.", *page + 1);
 
   DEBUG_puts("");
 
@@ -8341,8 +8317,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       }
       else
       {
-        progress_error(HD_ERROR_BAD_COMMENT,
-                       "Bad HEADER position: \"%s\"", comment);
+        progress_error(HD_ERROR_BAD_COMMENT, "Bad HEADER position '%s'.", comment);
 	return;
       }
 
@@ -8351,8 +8326,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (*comment != '\"')
       {
-        progress_error(HD_ERROR_BAD_COMMENT,
-                       "Bad HEADER string: \"%s\"", comment);
+        progress_error(HD_ERROR_BAD_COMMENT, "Bad HEADER string '%s'.", comment);
 	return;
       }
 
@@ -8452,8 +8426,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       }
       else
       {
-        progress_error(HD_ERROR_BAD_COMMENT,
-                       "Bad HEADER1 position: \"%s\"", comment);
+        progress_error(HD_ERROR_BAD_COMMENT, "Bad HEADER1 position '%s'.", comment);
 	return;
       }
 
@@ -8462,8 +8435,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (*comment != '\"')
       {
-        progress_error(HD_ERROR_BAD_COMMENT,
-                       "Bad HEADER1 string: \"%s\"", comment);
+        progress_error(HD_ERROR_BAD_COMMENT, "Bad HEADER1 string: '%s'.", comment);
 	return;
       }
 
@@ -8556,8 +8528,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
       }
       else
       {
-        progress_error(HD_ERROR_BAD_COMMENT,
-                       "Bad FOOTER position: \"%s\"", comment);
+        progress_error(HD_ERROR_BAD_COMMENT, "Bad FOOTER position: '%s'.", comment);
 	return;
       }
 
@@ -8566,8 +8537,7 @@ parse_comment(tree_t *t,	/* I - Tree to parse */
 
       if (*comment != '\"')
       {
-        progress_error(HD_ERROR_BAD_COMMENT,
-                       "Bad FOOTER string: \"%s\"", comment);
+        progress_error(HD_ERROR_BAD_COMMENT, "Bad FOOTER string: '%s'.", comment);
 	return;
       }
 
@@ -8849,7 +8819,9 @@ new_render(int      page,		/* I - Page number (0-n) */
   }
 
   if ((type != RENDER_TEXT && type != RENDER_LINK) || data == NULL)
+  {
     r = (render_t *)calloc(sizeof(render_t), 1);
+  }
   else
   {
     datalen = strlen((char *)data);
@@ -8858,8 +8830,7 @@ new_render(int      page,		/* I - Page number (0-n) */
 
   if (r == NULL)
   {
-    progress_error(HD_ERROR_OUT_OF_MEMORY,
-                   "Unable to allocate memory on page %d\n", (int)page + 1);
+    progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory on page %d.", (int)page + 1);
     memset(&dummy, 0, sizeof(dummy));
     return (&dummy);
   }
@@ -8960,9 +8931,7 @@ check_pages(int page)	// I - Current page
 
     if (temp == NULL)
     {
-      progress_error(HD_ERROR_OUT_OF_MEMORY,
-                     "Unable to allocate memory for %d pages - %s",
-	             (int)alloc_pages, strerror(errno));
+      progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for %d pages.", (int)alloc_pages);
       alloc_pages -= ALLOC_PAGES;
       return;
     }
@@ -9064,7 +9033,7 @@ add_link(tree_t *html,		/* I - HTML node */
 
     if (temp == NULL)
     {
-      progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for %d links - %s", (int)alloc_links, strerror(errno));
+      progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for %d links.", (int)alloc_links);
       alloc_links -= ALLOC_LINKS;
       return;
     }
@@ -9706,7 +9675,12 @@ flatten_tree(tree_t *t)		/* I - Markup tree to flatten */
       case MARKUP_BR :
       case MARKUP_SPACER :
       case MARKUP_IMG :
-	  temp = (tree_t *)calloc(sizeof(tree_t), 1);
+	  if ((temp = (tree_t *)calloc(sizeof(tree_t), 1)) == NULL)
+	  {
+	    progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for node.");
+	    break;
+	  }
+
 	  memcpy(temp, t, sizeof(tree_t));
 	  temp->parent = parent;
 	  temp->child  = NULL;
@@ -9723,7 +9697,12 @@ flatten_tree(tree_t *t)		/* I - Markup tree to flatten */
       case MARKUP_A :
           if (htmlGetVariable(t, (uchar *)"NAME") != NULL)
           {
-	    temp = (tree_t *)calloc(sizeof(tree_t), 1);
+	    if ((temp = (tree_t *)calloc(sizeof(tree_t), 1)) == NULL)
+	    {
+	      progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for node.");
+	      break;
+	    }
+
 	    memcpy(temp, t, sizeof(tree_t));
 	    temp->parent = parent;
 	    temp->child  = NULL;
@@ -9762,7 +9741,12 @@ flatten_tree(tree_t *t)		/* I - Markup tree to flatten */
       case MARKUP_DT :
       case MARKUP_TR :
       case MARKUP_CAPTION :
-	  temp = (tree_t *)calloc(sizeof(tree_t), 1);
+	  if ((temp = (tree_t *)calloc(sizeof(tree_t), 1)) == NULL)
+	  {
+	    progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for node.");
+	    break;
+	  }
+
 	  temp->markup = MARKUP_BR;
 	  temp->parent = parent;
 	  temp->child  = NULL;
@@ -10534,6 +10518,12 @@ write_image(FILE     *out,		/* I - Output file */
     indices  = (uchar *)calloc((size_t)indwidth, (size_t)(img->height + 1));
 					// height + 1 for PS odd-row-count bug
 
+    if (indices == NULL)
+    {
+      progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for image '%s'.", img->filename);
+      return;
+    }
+
     if (img->depth == 1)
     {
      /*
@@ -11037,22 +11027,27 @@ write_image(FILE     *out,		/* I - Output file */
 
 	    if (img->mask && img->maskscale == 8)
 	    {
-	      data = (uchar *)malloc((size_t)(img->width * 2));
-
-	      for (i = 0, maskptr = img->mask, indptr = indices;
-	           i < img->height;
-		   i ++)
+	      if ((data = (uchar *)malloc((size_t)(img->width * 2))) == NULL)
 	      {
-	        for (j = img->width, dataptr = data; j > 0; j --)
+	        progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for '%s'.", img->filename);
+	      }
+	      else
+	      {
+		for (i = 0, maskptr = img->mask, indptr = indices;
+		     i < img->height;
+		     i ++)
 		{
-		  *dataptr++ = *maskptr++;
-		  *dataptr++ = *indptr++;
+		  for (j = img->width, dataptr = data; j > 0; j --)
+		  {
+		    *dataptr++ = *maskptr++;
+		    *dataptr++ = *indptr++;
+		  }
+
+		  flate_write(out, data, img->width * 2);
 		}
 
-		flate_write(out, data, img->width * 2);
+		free(data);
 	      }
-
-	      free(data);
 	    }
 	    else
 	      flate_write(out, indices, indwidth * img->height);
@@ -11117,35 +11112,40 @@ write_image(FILE     *out,		/* I - Output file */
 
 	    if (img->mask && img->maskscale == 8)
 	    {
-	      data = (uchar *)malloc((size_t)(img->width * (img->depth + 1)));
-
-	      for (i = 0, maskptr = img->mask, pixel = img->pixels;
-	           i < img->height;
-		   i ++)
+	      if ((data = (uchar *)malloc((size_t)(img->width * (img->depth + 1)))) == NULL)
 	      {
-	        if (img->depth == 1)
-		{
-	          for (j = img->width, dataptr = data; j > 0; j --)
-		  {
-		    *dataptr++ = *maskptr++;
-		    *dataptr++ = *pixel++;
-		  }
-		}
-		else
-		{
-	          for (j = img->width, dataptr = data; j > 0; j --)
-		  {
-		    *dataptr++ = *maskptr++;
-		    *dataptr++ = *pixel++;
-		    *dataptr++ = *pixel++;
-		    *dataptr++ = *pixel++;
-		  }
-		}
-
-		flate_write(out, data, img->width * (img->depth + 1));
+		progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for '%s'.", img->filename);
 	      }
+	      else
+	      {
+		for (i = 0, maskptr = img->mask, pixel = img->pixels;
+		     i < img->height;
+		     i ++)
+		{
+		  if (img->depth == 1)
+		  {
+		    for (j = img->width, dataptr = data; j > 0; j --)
+		    {
+		      *dataptr++ = *maskptr++;
+		      *dataptr++ = *pixel++;
+		    }
+		  }
+		  else
+		  {
+		    for (j = img->width, dataptr = data; j > 0; j --)
+		    {
+		      *dataptr++ = *maskptr++;
+		      *dataptr++ = *pixel++;
+		      *dataptr++ = *pixel++;
+		      *dataptr++ = *pixel++;
+		    }
+		  }
 
-	      free(data);
+		  flate_write(out, data, img->width * (img->depth + 1));
+		}
+
+		free(data);
+	      }
 	    }
 	    else
 	      flate_write(out, img->pixels,
@@ -11808,9 +11808,7 @@ write_prolog(FILE  *out,		/* I - Output file */
       }
       else
       {
-	progress_error(HD_ERROR_FILE_NOT_FOUND,
-                       "Unable to open data file \"%s\" - %s", temp,
-                       strerror(errno));
+	progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to open data file '%s': %s", temp, strerror(errno));
 
 	fprintf(out, "%%%%BeginResource: procset htmldoc-device 1.9 %s\n", version + 4);
 	fputs("languagelevel 1 eq{/setpagedevice{pop}BD}if\n", out);
@@ -12587,8 +12585,7 @@ write_type1(FILE       *out,		/* I - File to write to */
   if ((fp = fopen(filename, "r")) == NULL)
   {
 #ifndef DEBUG
-    progress_error(HD_ERROR_FILE_NOT_FOUND,
-                   "Unable to open font file %s!", filename);
+    progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to open font file '%s'.", filename);
 #endif /* !DEBUG */
     return (0);
   }
@@ -12709,8 +12706,7 @@ write_type1(FILE       *out,		/* I - File to write to */
     if ((fp = fopen(filename, "r")) == NULL)
     {
 #ifndef DEBUG
-      progress_error(HD_ERROR_FILE_NOT_FOUND,
-                     "Unable to open font width file %s!", filename);
+      progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to open font width file '%s'.", filename);
 #endif /* !DEBUG */
       return (0);
     }

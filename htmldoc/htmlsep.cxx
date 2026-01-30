@@ -2,7 +2,7 @@
 // Separated HTML export functions for HTMLDOC, a HTML document processing
 // program.
 //
-// Copyright © 2011-2025 by Michael R Sweet.
+// Copyright © 2011-2026 by Michael R Sweet.
 // Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
 //
 // This program is free software.  Distribution and use rights are outlined in
@@ -91,7 +91,7 @@ htmlsep_export(tree_t *document,	// I - Document to export
   // We only support writing to a directory...
   if (!OutputFiles)
   {
-    progress_error(HD_ERROR_INTERNAL_ERROR, "Unable to generate separated HTML to a single file!");
+    progress_error(HD_ERROR_INTERNAL_ERROR, "Unable to generate separated HTML to a single file.");
     return (-1);
   }
 
@@ -235,9 +235,7 @@ write_header(FILE   **out,		// IO - Output file
 
   if (*out == NULL)
   {
-    progress_error(HD_ERROR_WRITE_ERROR,
-                   "Unable to create output file \"%s\" - %s.\n",
-                   realname, strerror(errno));
+    progress_error(HD_ERROR_WRITE_ERROR, "Unable to create output file '%s': %s", realname, strerror(errno));
     return;
   }
 
@@ -413,17 +411,14 @@ write_title(FILE  *out,			// I - Output file
     // Find the title page file...
     if ((title_file = file_find(Path, TitleImage)) == NULL)
     {
-      progress_error(HD_ERROR_FILE_NOT_FOUND,
-                     "Unable to find title file \"%s\"!", TitleImage);
+      progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to find title file '%s'.", TitleImage);
       return;
     }
 
     // Write a title page from HTML source...
     if ((fp = fopen(title_file, "rb")) == NULL)
     {
-      progress_error(HD_ERROR_FILE_NOT_FOUND,
-                     "Unable to open title file \"%s\" - %s!",
-                     TitleImage, strerror(errno));
+      progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to open title file '%s': %s", TitleImage, strerror(errno));
       return;
     }
 

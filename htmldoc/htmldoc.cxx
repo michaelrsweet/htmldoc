@@ -1,7 +1,7 @@
 /*
  * Main entry for HTMLDOC, a HTML document processing program.
  *
- * Copyright 2011-2025 by Michael R Sweet.
+ * Copyright 2011-2026 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -315,8 +315,7 @@ main(int  argc,				/* I - Number of command-line arguments */
 
 	if (_htmlBrowserWidth < 1.0f)
 	{
-	  progress_error(HD_ERROR_INTERNAL_ERROR, "Bad browser width \"%s\".",
-	                 argv[i]);
+	  progress_error(HD_ERROR_INTERNAL_ERROR, "Bad browser width '%s'.", argv[i]);
 	  usage();
 	}
       }
@@ -392,8 +391,7 @@ main(int  argc,				/* I - Number of command-line arguments */
 
 	if (PDFEffectDuration < 0.0f)
 	{
-	  progress_error(HD_ERROR_INTERNAL_ERROR, "Bad effect duration \"%s\".",
-	                 argv[i]);
+	  progress_error(HD_ERROR_INTERNAL_ERROR, "Bad effect duration '%s'.", argv[i]);
 	  usage();
 	}
       }
@@ -917,8 +915,7 @@ main(int  argc,				/* I - Number of command-line arguments */
 
 	if (PDFPageDuration < 1.0f)
 	{
-	  progress_error(HD_ERROR_INTERNAL_ERROR, "Bad page duration \"%s\".",
-	                 argv[i]);
+	  progress_error(HD_ERROR_INTERNAL_ERROR, "Bad page duration '%s'.", argv[i]);
 	  usage();
 	}
       }
@@ -1222,7 +1219,7 @@ main(int  argc,				/* I - Number of command-line arguments */
 	strlcat(url, query, sizeof(url));
       }
 
-      progress_error(HD_ERROR_NONE, "INFO: HTMLDOC converting \"%s\".", url);
+      progress_error(HD_ERROR_NONE, "INFO: HTMLDOC converting '%s'.", url);
 
       num_files ++;
 
@@ -1834,8 +1831,7 @@ load_book(const char   *filename,	// I  - Book file
 
   if ((fp = fopen(local, "rb")) == NULL)
   {
-    progress_error(HD_ERROR_READ_ERROR, "Unable to open book file \"%s\": %s",
-                   local, strerror(errno));
+    progress_error(HD_ERROR_READ_ERROR, "Unable to open book file '%s': %s", local, strerror(errno));
     return (0);
   }
 
@@ -1844,8 +1840,7 @@ load_book(const char   *filename,	// I  - Book file
   if (strncmp(line, "#HTMLDOC", 8) != 0)
   {
     fclose(fp);
-    progress_error(HD_ERROR_BAD_FORMAT,
-                   "Bad or missing #HTMLDOC header in \"%s\".", filename);
+    progress_error(HD_ERROR_BAD_FORMAT, "Bad or missing #HTMLDOC header in '%s'.", filename);
     return (0);
   }
 
@@ -2522,13 +2517,13 @@ read_file(const char *filename,		// I  - File/URL to read
     else
     {
       file = NULL;
-      progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to open \"%s\" for reading...", filename);
+      progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to open '%s' for reading.", filename);
     }
   }
   else
   {
     file = NULL;
-    progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to find \"%s\"...", filename);
+    progress_error(HD_ERROR_FILE_NOT_FOUND, "Unable to find '%s'.", filename);
   }
 
   return (file != NULL);
@@ -2646,7 +2641,7 @@ usage(const char *arg)			// I - Bad argument string
 #endif // HAVE_LIBCUPS
   {
     if (arg && arg[0] == '-')
-      printf("ERROR: Bad option argument \"%s\".\n\n", arg);
+      printf("ERROR: Bad option argument '%s'.\n\n", arg);
     else
       printf("ERROR: %s\n", arg);
 
