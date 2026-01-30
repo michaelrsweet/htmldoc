@@ -89,7 +89,7 @@ typedef __int64 ssize_t;
  * What is the version number and year for this software?
  */
 
-#define SVERSION "1.9.23"
+#define SVERSION "1.9.24"
 #define SYEAR "2026"
 
 
