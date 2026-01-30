@@ -30,7 +30,7 @@ extern "C" {		/* Workaround for JPEG header problems... */
  * Limits...
  */
 
-#define IMAGE_MAX_DIM	26754		// Maximum dimension - sqrt(2GiB / 3)
+#define IMAGE_MAX_DIM	23170		// Maximum dimension - sqrt(2GiB / 4)
 
 
 /*
@@ -1647,13 +1647,24 @@ image_load_png(image_t *img,	/* I - Image pointer */
     return (0);
   }
 
-  img->pixels = (uchar *)calloc(1, (size_t)(img->width * img->height * depth));
+  if ((img->pixels = (uchar *)calloc(1, (size_t)(img->width * img->height * depth))) == NULL)
+  {
+    png_destroy_read_struct(&pp, &info, NULL);
+    return (-1);
+  }
 
  /*
   * Allocate pointers...
   */
 
-  rows = (png_bytep *)calloc(png_get_image_height(pp, info), sizeof(png_bytep));
+  if ((rows = (png_bytep *)calloc(png_get_image_height(pp, info), sizeof(png_bytep))) == NULL)
+  {
+    free(img->pixels);
+    img->pixels = NULL;
+
+    png_destroy_read_struct(&pp, &info, NULL);
+    return (-1);
+  }
 
   for (i = 0; i < (int)png_get_image_height(pp, info); i ++)
     rows[i] = img->pixels + i * img->width * depth;
@@ -1739,7 +1750,6 @@ image_load_png(image_t *img,	/* I - Image pointer */
   * Free memory and return...
   */
 
-  png_read_end(pp, info);
   png_destroy_read_struct(&pp, &info, NULL);
 
   free(rows);
