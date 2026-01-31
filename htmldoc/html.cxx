@@ -1010,7 +1010,8 @@ static void
 update_links(tree_t *t,			/* I - Document tree */
              uchar  *filename)		/* I - Current filename */
 {
-  tree_t	*doc = t->parent;	/* Top of document */
+  tree_t	*doc = t ? t->parent : NULL;
+					/* Top of document */
   link_t	*link;			/* Link */
   uchar		*href;			/* Reference name */
   uchar		newhref[1024];		/* New reference name */
