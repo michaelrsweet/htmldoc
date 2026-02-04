@@ -1,7 +1,7 @@
 /*
  * HTML parsing definitions for HTMLDOC, a HTML document processing program.
  *
- * Copyright 2011-2019 by Michael R Sweet.
+ * Copyright 2011-2026 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -306,7 +306,7 @@ extern tree_t	*htmlWalkNext(tree_t *doc, tree_t *tree, bool descend = true);
 
 extern tree_t	*htmlFindFile(tree_t *doc, uchar *filename);
 extern tree_t	*htmlFindTarget(tree_t *doc, uchar *name);
-extern void	htmlFixLinks(tree_t *doc, tree_t *tree, uchar *base = 0);
+extern void	htmlFixLinks(tree_t *tree, uchar *base = 0);
 
 extern uchar	*htmlGetText(tree_t *tree);
 extern uchar	*htmlGetMeta(tree_t *tree, uchar *name);

@@ -1,7 +1,7 @@
 //
 // GUI routines for HTMLDOC, an HTML document processing program.
 //
-// Copyright © 2011-2025 by Michael R Sweet.
+// Copyright © 2011-2026 by Michael R Sweet.
 // Copyright © 1997-2010 by Easy Software Products.  All rights reserved.
 //
 // This program is free software.  Distribution and use rights are outlined in
@@ -4172,7 +4172,7 @@ GUI::generateBookCB(Fl_Widget *w,	// I - Widget
       document = document->prev;
 
     // Fix links...
-    htmlFixLinks(document, document);
+    htmlFixLinks(document);
 
     // Show debug info...
     htmlDebugStats("Document Tree", document);

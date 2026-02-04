@@ -7,9 +7,12 @@ v1.9.24 - YYYY-MM-DD
 - Updated the maximum image dimensions for RGBA images (Issue #557)
 - Added/updated memory allocation checks (Issue #558)
 - Updated error messages for consistency.
+- Optimized the page resources dictionary in PDF output to provide a modest
+  reduction in output size.
 - Fixed document depth tracking (Issue #559)
 - Fixed a crash bug when generating HTML output from empty HTML input files
   (Issue #560)
+- Fixed a regression with rendering links in PDF documents (Issue #561)
 
 
 v1.9.23 - 2026-01-28

@@ -593,7 +593,7 @@ pspdf_export(tree_t *document,	/* I - Document to export */
       else
 	t = htmlReadFile(NULL, fp, file_directory(TitleImage));
 
-      htmlFixLinks(t, t, (uchar *)file_directory(TitleImage));
+      htmlFixLinks(t, (uchar *)file_directory(TitleImage));
       fclose(fp);
 
       page            = 0;
@@ -2496,10 +2496,9 @@ pdf_write_resources(FILE *out,		/* I - Output file */
 
 
   memset(fonts_used, 0, sizeof(fonts_used));
-  images_used = background_image != NULL;
-  text_used   = 0;
-
-  op = outpages + outpage;
+  images_used  = background_image != NULL;
+  text_used    = 0;
+  op           = outpages + outpage;
   for (i = 0; i < op->nup; i ++)
   {
     if (op->pages[i] < 0)
@@ -2508,19 +2507,25 @@ pdf_write_resources(FILE *out,		/* I - Output file */
     p = pages + op->pages[i];
 
     for (r = p->start; r != NULL; r = r->next)
+    {
       if (r->type == RENDER_IMAGE)
+      {
 	images_used = 1;
+      }
       else if (r->type == RENDER_TEXT)
       {
 	text_used = 1;
 	fonts_used[r->data.text.typeface * 4 + r->data.text.style] = 1;
       }
+    }
   }
 
   fputs("/Resources<<", out);
 
   if (!images_used)
+  {
     fputs("/ProcSet[/PDF/Text]", out);
+  }
   else if (PDFVersion >= 12)
   {
     if (OutputColor)
@@ -2542,28 +2547,35 @@ pdf_write_resources(FILE *out,		/* I - Output file */
     for (i = 0; i < (TYPE_MAX * STYLE_MAX); i ++)
       if (fonts_used[i])
 	fprintf(out, "/F%x %d 0 R", i, font_objects[i]);
-    fputs(">>", out);
+    fputs(">>", out); // End of Font
   }
 
-  fputs("/XObject<<", out);
-
-  for (i = 0; i < op->nup; i ++)
+  if (images_used)
   {
-    if (op->pages[i] < 0)
-      break;
+    fputs("/XObject<<", out);
 
-    p = pages + op->pages[i];
+    for (i = 0; i < op->nup; i ++)
+    {
+      if (op->pages[i] < 0)
+	break;
 
-    for (r = p->start; r != NULL; r = r->next)
-      if (r->type == RENDER_IMAGE && r->data.image->obj)
-	fprintf(out, "/I%d %d 0 R", r->data.image->obj, r->data.image->obj);
+      p = pages + op->pages[i];
+
+      for (r = p->start; r != NULL; r = r->next)
+      {
+	if (r->type == RENDER_IMAGE && r->data.image->obj)
+	  fprintf(out, "/I%d %d 0 R", r->data.image->obj, r->data.image->obj);
+      }
+    }
+
+    if (background_image)
+      fprintf(out, "/I%d %d 0 R", background_image->obj,
+	      background_image->obj);
+
+    fputs(">>", out); // End of XObject
   }
 
-  if (background_image)
-    fprintf(out, "/I%d %d 0 R", background_image->obj,
-            background_image->obj);
-
-  fputs(">>>>", out);
+  fputs(">>", out); // End of Resources
 
   if (PDFEffect)
     fprintf(out, "/Dur %.0f/Trans<</Type/Trans/D %.1f%s>>", PDFPageDuration,
@@ -3363,6 +3375,7 @@ pdf_write_links(FILE *out)		/* I - Output file */
       p = pages + op->pages[i];
 
       for (r = p->start; r != NULL; r = r->next)
+      {
 	if (r->type == RENDER_LINK)
 	{
           if (find_link(r->data.link) != NULL)
@@ -3370,6 +3383,7 @@ pdf_write_links(FILE *out)		/* I - Output file */
           else
             num_lobjs += 2;
 	}
+      }
     }
 
     if (num_lobjs > 0)
@@ -3569,17 +3583,8 @@ static void
 pdf_write_names(FILE *out)		/* I - Output file */
 {
   int		i;			/* Looping var */
-  uchar		*s;			/* Current character in name */
   link_t	*link;			/* Local link */
 
-
- /*
-  * Convert all link names to lowercase...
-  */
-
-  for (i = num_links, link = links; i > 0; i --, link ++)
-    for (s = link->name; *s != '\0'; s ++)
-      *s = (uchar)tolower(*s);
 
  /*
   * Write the root name tree entry...
@@ -9006,12 +9011,18 @@ add_link(tree_t *html,		/* I - HTML node */
          int    top)		/* I - Y position */
 {
   link_t	*temp;		/* New name */
+  char		*nameptr;	/* Pointer into name */
 
 
   if (name == NULL)
     return;
 
   DEBUG_printf(("add_link(name=\"%s\", page=%d, top=%d)\n", name, page, top));
+
+  if ((nameptr = strrchr((char *)name, '/')) != NULL)
+    name = (uchar *)nameptr + 1;
+  else if ((nameptr = strrchr((char *)name, '\\')) != NULL)
+    name = (uchar *)nameptr + 1;
 
   if (!html && (temp = find_link(name)) != NULL)
   {
@@ -9071,11 +9082,12 @@ add_link(tree_t *html,		/* I - HTML node */
  * 'find_link()' - Find a named link...
  */
 
-static link_t *
-find_link(uchar *name)	/* I - Name to find */
+static link_t *				/* O - Matching link */
+find_link(uchar *name)			/* I - Name to find */
 {
-  link_t	key,	/* Search key */
-		*match;	/* Matching name entry */
+  char		*nameptr;		/* Pointer into name */
+  link_t	key,			/* Search key */
+		*match;			/* Matching name entry */
 
 
   if (name == NULL || num_links == 0)
@@ -9083,6 +9095,10 @@ find_link(uchar *name)	/* I - Name to find */
 
   if (name[0] == '#')
     name ++;
+  else if ((nameptr = strrchr((char *)name, '/')) != NULL)
+    name = (uchar *)nameptr + 1;
+  else if ((nameptr = strrchr((char *)name, '\\')) != NULL)
+    name = (uchar *)nameptr + 1;
 
   strlcpy((char *)key.name, (char *)name, sizeof(key.name));
   match = (link_t *)bsearch(&key, links, num_links, sizeof(link_t), (compare_func_t)compare_links);

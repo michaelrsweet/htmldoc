@@ -431,7 +431,7 @@ write_title(FILE  *out,			// I - Output file
     else
       t = htmlReadFile(NULL, fp, file_directory(TitleImage));
 
-    htmlFixLinks(t, t, (uchar *)file_directory(TitleImage));
+    htmlFixLinks(t, (uchar *)file_directory(TitleImage));
     fclose(fp);
 
     write_all(out, t, 0);

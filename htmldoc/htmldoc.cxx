@@ -1268,7 +1268,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     document = document->prev;
 
   // Fix links...
-  htmlFixLinks(document, document);
+  htmlFixLinks(document);
 
   load_time = get_seconds();
 

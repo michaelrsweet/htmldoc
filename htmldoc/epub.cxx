@@ -195,7 +195,7 @@ epub_export(tree_t *document,           /* I - Document to export */
       else
         title_tree = htmlReadFile(NULL, fp, file_directory(TitleImage));
 
-      htmlFixLinks(title_tree, title_tree, (uchar *)file_directory(TitleImage));
+      htmlFixLinks(title_tree, (uchar *)file_directory(TitleImage));
       fclose(fp);
 
       status |= copy_images(epub, title_tree);

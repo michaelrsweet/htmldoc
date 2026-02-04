@@ -3604,8 +3604,7 @@ htmlFindFile(tree_t *doc,		// I - Document pointer
 //
 
 void
-htmlFixLinks(tree_t *doc,		// I - Top node
-             tree_t *tree,		// I - Current node
+htmlFixLinks(tree_t *tree,		// I - Current node
 	     uchar  *base)		// I - Base directory/path
 {
   uchar		*href;			// HREF attribute
@@ -3615,6 +3614,8 @@ htmlFixLinks(tree_t *doc,		// I - Top node
   const char	*debug;			// HTMLDOC_DEBUG environment variable
   static int	show_debug = -1;	// Show debug messages?
 
+
+  DEBUG_printf(("htmlFixLinks(tree=%p, base=\"%s\")\n", (void *)tree, (char *)base));
 
   if (show_debug < 0)
   {
@@ -3628,15 +3629,13 @@ htmlFixLinks(tree_t *doc,		// I - Top node
       progress_error(HD_ERROR_NONE, "DEBUG: Updating links in document.");
   }
 
-  DEBUG_printf(("htmlFixLinks: base=\"%s\"\n", (char *)base));
-
   while (tree)
   {
     if (tree->markup == MARKUP_A && base && base[0] &&
         (href = htmlGetVariable(tree, (uchar *)"HREF")) != NULL)
     {
       // Check if the link needs to be localized...
-      DEBUG_printf(("htmlFixLinks: href=\"%s\", file_method(href)=\"%s\", file_method(base)=\"%s\"\\n", (char *)href, file_method((char *)href), file_method((char *)base)));
+      DEBUG_printf(("htmlFixLinks: href=\"%s\", file_method(href)=\"%s\", file_method(base)=\"%s\"\n", (char *)href, file_method((char *)href), file_method((char *)base)));
 
       if (href[0] != '#' && file_method((char *)href) == NULL)
       {
@@ -3729,17 +3728,12 @@ htmlFixLinks(tree_t *doc,		// I - Top node
       // Descend...
       tree = tree->child;
     }
-    else if (tree == doc)
-    {
-      // At the top, stop...
-      tree = NULL;
-    }
     else if (tree->next)
     {
       // Visit sibling...
       tree = tree->next;
     }
-    else if (tree->parent && tree->parent != doc)
+    else if (tree->parent)
     {
       // Ascend
       tree = tree->parent;
@@ -3754,10 +3748,7 @@ htmlFixLinks(tree_t *doc,		// I - Top node
 	}
 
         // Get the next parent...
-	if (tree->parent == doc || !tree->parent)
-	  tree = NULL;
-	else
-	  tree = tree->parent;
+	tree = tree->parent;
       }
 
       // If we still have a node, resume at its sibling...
