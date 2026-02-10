@@ -13,6 +13,8 @@ v1.9.24 - YYYY-MM-DD
 - Fixed a crash bug when generating HTML output from empty HTML input files
   (Issue #560)
 - Fixed a regression with rendering links in PDF documents (Issue #561)
+- Fixed a use-after-free bug when loading an unsupported image format
+  (Issue #562)
 
 
 v1.9.23 - 2026-01-28

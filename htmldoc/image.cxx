@@ -848,7 +848,8 @@ image_load(const char *filename,/* I - Name of image file */
   {
     progress_error(HD_ERROR_BAD_FORMAT, "Unknown image file format for '%s'.", file_rlookup(filename));
     fclose(fp);
-    free(img);
+    if (!match)
+      free(img);
     return (NULL);
   }
 
