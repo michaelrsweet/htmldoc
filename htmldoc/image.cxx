@@ -817,7 +817,7 @@ image_load(const char *filename,/* I - Name of image file */
     // Allocate memory...
     if ((img = (image_t *)calloc(sizeof(image_t), 1)) == NULL)
     {
-      progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for '%s'.", img->filename);
+      progress_error(HD_ERROR_OUT_OF_MEMORY, "Unable to allocate memory for '%s'.", filename);
       fclose(fp);
       return (NULL);
     }
