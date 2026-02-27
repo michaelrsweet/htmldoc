@@ -3894,6 +3894,9 @@ count_headings(tree_t *t)		// I - Tree to count
       case MARKUP_LI :
           count ++;
 	  break;
+
+      default :
+          break;
     }
 
     t = htmlWalkNext(doc, t);
