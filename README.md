@@ -39,6 +39,7 @@ servers.  However, it does not support many things in "the modern web", such as:
 
 - Emoji: The fonts bundled with HTMLDOC do not include Unicode Emoji characters.
 
+- HTML: only the first 10K bytes of a variable is parsed, so data URLs are limited to 8K.
 
 Resources
 ---------
