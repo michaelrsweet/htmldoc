@@ -245,6 +245,7 @@ static int	parse_variable(tree_t *t, FILE *fp, long *linenum);
 static int	compute_size(tree_t *t);
 static int	compute_color(tree_t *t, uchar *color);
 static int	get_alignment(tree_t *t);
+static int	variable_append(uchar **value, size_t *valuesize, uchar **ptr, int ch);
 static const char *fix_filename(char *path, char *base);
 static int      utf8_getc(int ch, FILE *fp);
 
@@ -2865,6 +2866,44 @@ parse_markup(tree_t *t,		// I - Current tree entry
 
 
 //
+// 'variable_append()' - Append a character to a variable value buffer,
+//                       growing the buffer as needed.
+//
+
+static int				// O - 0 on success, -1 on error
+variable_append(uchar **value,		// IO - Value buffer
+                size_t *valuesize,	// IO - Size of value buffer
+                uchar **ptr,		// IO - Current position in value buffer
+                int    ch)		// I - Character to append
+{
+  uchar		*oldvalue;		// Old buffer pointer
+
+
+  if (*ptr >= *value + *valuesize - 1)
+  {
+    // Grow the value buffer (attribute values such as data: URIs can be
+    // larger than the initial 10KB)...
+    size_t	oldsize = *valuesize;	// Old buffer size
+
+    *valuesize *= 2;
+    if ((oldvalue = (uchar *)realloc(*value, *valuesize)) == NULL)
+    {
+      free(*value);
+      return (-1);
+    }
+
+    *value = oldvalue;
+    *ptr   = *value + oldsize - 1;
+  }
+
+  if (ch)
+    *(*ptr)++ = (uchar)ch;
+
+  return (0);
+}
+
+
+//
 // 'parse_variable()' - Parse a markup variable string.
 //
 
@@ -2985,27 +3024,7 @@ parse_variable(tree_t *t,		// I - Current tree entry
 	      else if (ptr < (value + valuesize - 1))
 	        *ptr++ = (uchar)ch;
 	    }
-	    else if (ptr >= (value + valuesize - 1) &&
-	             ch != '\n' && ch != '\r')
-	    {
-	      // Grow the value buffer (attribute values such as data: URIs
-	      // can be larger than the initial 10KB)...
-	      size_t	oldsize = valuesize;
-	      uchar	*oldvalue;
-
-	      valuesize *= 2;
-	      if ((oldvalue = (uchar *)realloc(value, valuesize)) == NULL)
-	      {
-	        free(value);
-		return (-1);
-	      }
-	      value = oldvalue;
-	      ptr   = value + oldsize - 1;
-	      if (ch)
-	        *ptr++ = (uchar)ch;
-	    }
-            else if (ptr < (value + valuesize - 1) &&
-	             ch != '\n' && ch != '\r')
+            else if (ch != '\n' && ch != '\r')
             {
               if ((ch & 0x80) && _htmlUTF8)
               {
@@ -3013,13 +3032,13 @@ parse_variable(tree_t *t,		// I - Current tree entry
                 ch = utf8_getc(ch, fp);
               }
 
-              if (ch)
-                *ptr++ = (uchar)ch;
+              if (variable_append(&value, &valuesize, &ptr, ch) < 0)
+                return (-1);
             }
 	    else if (ch == '\n')
 	    {
-	      if (ptr < (value + valuesize - 1))
-	        *ptr++ = ' ';
+	      if (variable_append(&value, &valuesize, &ptr, ' ') < 0)
+	        return (-1);
 
 	      (*linenum) ++;
 	    }
@@ -3074,27 +3093,7 @@ parse_variable(tree_t *t,		// I - Current tree entry
 	      else if (ptr < (value + valuesize - 1))
 	        *ptr++ = (uchar)ch;
 	    }
-	    else if (ptr >= (value + valuesize - 1) &&
-	             ch != '\n' && ch != '\r')
-	    {
-	      // Grow the value buffer (attribute values such as data: URIs
-	      // can be larger than the initial 10KB)...
-	      size_t	oldsize = valuesize;
-	      uchar	*oldvalue;
-
-	      valuesize *= 2;
-	      if ((oldvalue = (uchar *)realloc(value, valuesize)) == NULL)
-	      {
-	        free(value);
-		return (-1);
-	      }
-	      value = oldvalue;
-	      ptr   = value + oldsize - 1;
-	      if (ch)
-	        *ptr++ = (uchar)ch;
-	    }
-            else if (ptr < (value + valuesize - 1) &&
-	             ch != '\n' && ch != '\r')
+            else if (ch != '\n' && ch != '\r')
             {
               if ((ch & 0x80) && _htmlUTF8)
               {
@@ -3102,13 +3101,13 @@ parse_variable(tree_t *t,		// I - Current tree entry
                 ch = utf8_getc(ch, fp);
               }
 
-              if (ch)
-                *ptr++ = (uchar)ch;
+              if (variable_append(&value, &valuesize, &ptr, ch) < 0)
+                return (-1);
             }
 	    else if (ch == '\n')
 	    {
-	      if (ptr < (value + valuesize - 1))
-	        *ptr++ = ' ';
+	      if (variable_append(&value, &valuesize, &ptr, ' ') < 0)
+	        return (-1);
 
 	      (*linenum) ++;
 	    }
@@ -3164,25 +3163,7 @@ parse_variable(tree_t *t,		// I - Current tree entry
 	      else if (ptr < (value + valuesize - 1))
 	        *ptr++ = (uchar)ch;
 	    }
-	    else if (ptr >= (value + valuesize - 1))
-	    {
-	      // Grow the value buffer (attribute values such as data: URIs
-	      // can be larger than the initial 10KB)...
-	      size_t	oldsize = valuesize;
-	      uchar	*oldvalue;
-
-	      valuesize *= 2;
-	      if ((oldvalue = (uchar *)realloc(value, valuesize)) == NULL)
-	      {
-	        free(value);
-		return (-1);
-	      }
-	      value = oldvalue;
-	      ptr   = value + oldsize - 1;
-	      if (ch)
-	        *ptr++ = (uchar)ch;
-	    }
-            else if (ptr < (value + valuesize - 1))
+            else
             {
               if ((ch & 0x80) && _htmlUTF8)
               {
@@ -3190,8 +3171,8 @@ parse_variable(tree_t *t,		// I - Current tree entry
                 ch = utf8_getc(ch, fp);
               }
 
-              if (ch)
-                *ptr++ = (uchar)ch;
+              if (variable_append(&value, &valuesize, &ptr, ch) < 0)
+                return (-1);
             }
 	  }
 
