@@ -750,7 +750,11 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
 
   if (strncmp(s, "http:", 5) == 0 ||
       strncmp(s, "https:", 6) == 0 ||
-      strncmp(s, "//", 2) == 0)
+      strncmp(s, "//", 2) == 0 ||
+      strncmp(s, "data:", 5) == 0 ||
+      strncmp(s, "ftp:", 4) == 0 ||
+      strncmp(s, "file:", 5) == 0 ||
+      strncmp(s, "mailto:", 7) == 0)
   {
     DEBUG_puts("file_find: Resetting path to NULL since filename is a URL...");
     path = NULL;

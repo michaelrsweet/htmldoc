@@ -2874,10 +2874,11 @@ parse_variable(tree_t *t,		// I - Current tree entry
 	       long   *linenum)		// I - Current line number
 {
   uchar	name[1024],			// Name of variable
-	value[10240],			// Value of variable
+	*value,				// Value of variable (dynamically allocated)
 	*ptr,				// Temporary pointer
 	entity[16],			// Character entity name
 	*eptr;				// Pointer into name
+  size_t	valuesize = 10240;	// Size of value buffer
   int	ch;				// Character from file
 
 
@@ -2922,6 +2923,9 @@ parse_variable(tree_t *t,		// I - Current tree entry
     case EOF :
         return (-1);
     case '=' :
+        if ((value = (uchar *)malloc(valuesize)) == NULL)
+          return (-1);
+
         ptr = value;
         ch  = getc(fp);
 
@@ -2929,7 +2933,10 @@ parse_variable(tree_t *t,		// I - Current tree entry
           ch = getc(fp);
 
         if (ch == EOF)
+        {
+          free(value);
           return (-1);
+        }
 
         if (ch == '\'')
         {
@@ -2959,26 +2966,45 @@ parse_variable(tree_t *t,		// I - Current tree entry
 	      {
 		progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %ld of %s.", *linenum, _htmlCurrentFile);
 
-        	if (ptr < (value + sizeof(value) - 1))
+        	if (ptr < (value + valuesize - 1))
 		  *ptr++ = '&';
-                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (size_t)(ptr - value));
+                strlcpy((char *)ptr, (char *)entity, valuesize - (size_t)(ptr - value));
 		ptr += strlen((char *)ptr);
 	      }
 	      else if ((ch = iso8859(entity)) == 0)
 	      {
 		progress_error(HD_ERROR_HTML_ERROR, "Unknown character entity \"&%s;\" on line %ld of %s.", entity, *linenum, _htmlCurrentFile);
 
-        	if (ptr < (value + sizeof(value) - 1))
+        	if (ptr < (value + valuesize - 1))
 		  *ptr++ = '&';
-                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (size_t)(ptr - value));
+                strlcpy((char *)ptr, (char *)entity, valuesize - (size_t)(ptr - value));
 		ptr += strlen((char *)ptr);
-        	if (ptr < (value + sizeof(value) - 1))
+        	if (ptr < (value + valuesize - 1))
 		  *ptr++ = ';';
 	      }
-	      else if (ptr < (value + sizeof(value) - 1))
+	      else if (ptr < (value + valuesize - 1))
 	        *ptr++ = (uchar)ch;
 	    }
-            else if (ptr < (value + sizeof(value) - 1) &&
+	    else if (ptr >= (value + valuesize - 1) &&
+	             ch != '\n' && ch != '\r')
+	    {
+	      // Grow the value buffer (attribute values such as data: URIs
+	      // can be larger than the initial 10KB)...
+	      size_t	oldsize = valuesize;
+	      uchar	*oldvalue;
+
+	      valuesize *= 2;
+	      if ((oldvalue = (uchar *)realloc(value, valuesize)) == NULL)
+	      {
+	        free(value);
+		return (-1);
+	      }
+	      value = oldvalue;
+	      ptr   = value + oldsize - 1;
+	      if (ch)
+	        *ptr++ = (uchar)ch;
+	    }
+            else if (ptr < (value + valuesize - 1) &&
 	             ch != '\n' && ch != '\r')
             {
               if ((ch & 0x80) && _htmlUTF8)
@@ -2992,7 +3018,7 @@ parse_variable(tree_t *t,		// I - Current tree entry
             }
 	    else if (ch == '\n')
 	    {
-	      if (ptr < (value + sizeof(value) - 1))
+	      if (ptr < (value + valuesize - 1))
 	        *ptr++ = ' ';
 
 	      (*linenum) ++;
@@ -3029,26 +3055,45 @@ parse_variable(tree_t *t,		// I - Current tree entry
 	      {
 		progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %ld of %s.", *linenum, _htmlCurrentFile);
 
-        	if (ptr < (value + sizeof(value) - 1))
+        	if (ptr < (value + valuesize - 1))
 		  *ptr++ = '&';
-                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (size_t)(ptr - value));
+                strlcpy((char *)ptr, (char *)entity, valuesize - (size_t)(ptr - value));
 		ptr += strlen((char *)ptr);
 	      }
 	      else if ((ch = iso8859(entity)) == 0)
 	      {
 		progress_error(HD_ERROR_HTML_ERROR, "Unknown character entity \"&%s;\" on line %ld of %s.", entity, *linenum, _htmlCurrentFile);
 
-        	if (ptr < (value + sizeof(value) - 1))
+        	if (ptr < (value + valuesize - 1))
 		  *ptr++ = '&';
-                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (size_t)(ptr - value));
+                strlcpy((char *)ptr, (char *)entity, valuesize - (size_t)(ptr - value));
 		ptr += strlen((char *)ptr);
-        	if (ptr < (value + sizeof(value) - 1))
+        	if (ptr < (value + valuesize - 1))
 		  *ptr++ = ';';
 	      }
-	      else if (ptr < (value + sizeof(value) - 1))
+	      else if (ptr < (value + valuesize - 1))
 	        *ptr++ = (uchar)ch;
 	    }
-            else if (ptr < (value + sizeof(value) - 1) &&
+	    else if (ptr >= (value + valuesize - 1) &&
+	             ch != '\n' && ch != '\r')
+	    {
+	      // Grow the value buffer (attribute values such as data: URIs
+	      // can be larger than the initial 10KB)...
+	      size_t	oldsize = valuesize;
+	      uchar	*oldvalue;
+
+	      valuesize *= 2;
+	      if ((oldvalue = (uchar *)realloc(value, valuesize)) == NULL)
+	      {
+	        free(value);
+		return (-1);
+	      }
+	      value = oldvalue;
+	      ptr   = value + oldsize - 1;
+	      if (ch)
+	        *ptr++ = (uchar)ch;
+	    }
+            else if (ptr < (value + valuesize - 1) &&
 	             ch != '\n' && ch != '\r')
             {
               if ((ch & 0x80) && _htmlUTF8)
@@ -3062,7 +3107,7 @@ parse_variable(tree_t *t,		// I - Current tree entry
             }
 	    else if (ch == '\n')
 	    {
-	      if (ptr < (value + sizeof(value) - 1))
+	      if (ptr < (value + valuesize - 1))
 	        *ptr++ = ' ';
 
 	      (*linenum) ++;
@@ -3100,26 +3145,44 @@ parse_variable(tree_t *t,		// I - Current tree entry
 	      {
 		progress_error(HD_ERROR_HTML_ERROR, "Unquoted & on line %ld of %s.", *linenum, _htmlCurrentFile);
 
-        	if (ptr < (value + sizeof(value) - 1))
+        	if (ptr < (value + valuesize - 1))
 		  *ptr++ = '&';
-                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (size_t)(ptr - value));
+                strlcpy((char *)ptr, (char *)entity, valuesize - (size_t)(ptr - value));
 		ptr += strlen((char *)ptr);
 	      }
 	      else if ((ch = iso8859(entity)) == 0)
 	      {
 		progress_error(HD_ERROR_HTML_ERROR, "Unknown character entity \"&%s;\" on line %ld of %s.", entity, *linenum, _htmlCurrentFile);
 
-        	if (ptr < (value + sizeof(value) - 1))
+        	if (ptr < (value + valuesize - 1))
 		  *ptr++ = '&';
-                strlcpy((char *)ptr, (char *)entity, sizeof(value) - (size_t)(ptr - value));
+                strlcpy((char *)ptr, (char *)entity, valuesize - (size_t)(ptr - value));
 		ptr += strlen((char *)ptr);
-        	if (ptr < (value + sizeof(value) - 1))
+        	if (ptr < (value + valuesize - 1))
 		  *ptr++ = ';';
 	      }
-	      else if (ptr < (value + sizeof(value) - 1))
+	      else if (ptr < (value + valuesize - 1))
 	        *ptr++ = (uchar)ch;
 	    }
-            else if (ptr < (value + sizeof(value) - 1))
+	    else if (ptr >= (value + valuesize - 1))
+	    {
+	      // Grow the value buffer (attribute values such as data: URIs
+	      // can be larger than the initial 10KB)...
+	      size_t	oldsize = valuesize;
+	      uchar	*oldvalue;
+
+	      valuesize *= 2;
+	      if ((oldvalue = (uchar *)realloc(value, valuesize)) == NULL)
+	      {
+	        free(value);
+		return (-1);
+	      }
+	      value = oldvalue;
+	      ptr   = value + oldsize - 1;
+	      if (ch)
+	        *ptr++ = (uchar)ch;
+	    }
+            else if (ptr < (value + valuesize - 1))
             {
               if ((ch & 0x80) && _htmlUTF8)
               {
@@ -3140,7 +3203,10 @@ parse_variable(tree_t *t,		// I - Current tree entry
             ungetc(ch, fp);
         }
 
-        return (htmlSetVariable(t, name, value));
+        htmlSetVariable(t, name, value);
+        free(value);
+
+        return (0);
   }
 }
 
@@ -3437,7 +3503,8 @@ fix_filename(char *filename,		// I - Original filename
     filename = temp;
   }
 
-  if (strcmp(base, ".") == 0 || strstr(filename, "//") != NULL)
+  if (strcmp(base, ".") == 0 || strstr(filename, "//") != NULL ||
+      file_method(filename) != NULL)
     return (file_find(Path, filename));
 
   if (strncmp(filename, "./", 2) == 0 ||
