@@ -444,7 +444,7 @@ file_find_check(const char *filename)	/* I - File or URL */
 
     const char	*data;			/* Pointer to data */
     size_t	len;			/* Number of bytes */
-    char	buffer[8192];		/* Data buffer */
+    char	*buffer;		/* Data buffer */
 
     for (i = 0; i < (int)web_files; i ++)
     {
@@ -457,18 +457,35 @@ file_find_check(const char *filename)	/* I - File or URL */
 
     if ((data = strstr(filename, ";base64,")) != NULL)
     {
-      len = sizeof(buffer);
+      len = strlen(data + 8);
+
+      /* Allocate a buffer large enough for the decoded data (base64
+       * expands 3 bytes to 4 characters, so the decoded data is at most
+       * 3/4 the length of the base64 data). */
+      buffer = (char *)malloc(len * 3 / 4 + 3);
+      if (buffer == NULL)
+      {
+	progress_hide();
+	progress_error(HD_ERROR_OUT_OF_MEMORY,
+	               "Unable to allocate memory for data URL: %s",
+		       strerror(errno));
+	return (NULL);
+      }
+
+      len = len * 3 / 4 + 3;
       httpDecode64(buffer, &len, data + 8, /*end*/NULL);
 
       if ((fp = file_temp(tempname, sizeof(tempname))) == NULL)
       {
 	progress_hide();
 	progress_error(HD_ERROR_WRITE_ERROR, "Unable to create temporary file '%s': %s", tempname, strerror(errno));
+	free(buffer);
 	return (NULL);
       }
 
       fwrite(buffer, 1, len, fp);
       fclose(fp);
+      free(buffer);
 
       progress_hide();
 
@@ -733,7 +750,11 @@ file_find(const char *path,		/* I - Path "dir;dir;dir" */
 
   if (strncmp(s, "http:", 5) == 0 ||
       strncmp(s, "https:", 6) == 0 ||
-      strncmp(s, "//", 2) == 0)
+      strncmp(s, "//", 2) == 0 ||
+      strncmp(s, "data:", 5) == 0 ||
+      strncmp(s, "ftp:", 4) == 0 ||
+      strncmp(s, "file:", 5) == 0 ||
+      strncmp(s, "mailto:", 7) == 0)
   {
     DEBUG_puts("file_find: Resetting path to NULL since filename is a URL...");
     path = NULL;
