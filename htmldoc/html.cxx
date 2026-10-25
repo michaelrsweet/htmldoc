@@ -14,17 +14,6 @@
 
 
 /*
- * Named link structure...
- */
-
-typedef struct
-{
-  uchar		*filename;	/* File for link */
-  uchar		name[124];	/* Reference name */
-} link_t;
-
-
-/*
  * Local globals...
  */
 

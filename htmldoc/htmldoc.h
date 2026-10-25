@@ -1,7 +1,7 @@
 /*
  * Header file for HTMLDOC, a HTML document processing program.
  *
- * Copyright 2011-2023 by Michael R Sweet.
+ * Copyright 2011-2026 by Michael R Sweet.
  * Copyright 1997-2010 by Easy Software Products.  All rights reserved.
  *
  * This program is free software.  Distribution and use rights are outlined in
@@ -107,6 +107,14 @@ enum	/* PDF document permissions */
   PDF_PERM_COPY = 16,
   PDF_PERM_ANNOTATE = 32
 };
+
+typedef struct				/* Named link structure */
+{
+  uchar		*filename;		/* File for link (EPUB/HTML/HTMLSEP) */
+  short		page,			/* Page # (PS/PDF) */
+		top;			/* Top position (PS/PDF) */
+  uchar		name[244];		/* Reference name */
+} link_t;
 
 
 /*

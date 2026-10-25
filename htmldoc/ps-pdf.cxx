@@ -108,13 +108,6 @@ typedef struct render_str		/**** Render entity structure ****/
   }	data;
 } render_t;
 
-typedef struct				/**** Named link position structure */
-{
-  short		page,			/* Page # */
-		top;			/* Top position */
-  uchar		name[252];		/* Reference name */
-} link_t;
-
 typedef struct				//// Page information
 {
   int		width,			// Width of page in points
