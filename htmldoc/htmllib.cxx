@@ -2874,7 +2874,7 @@ parse_variable(tree_t *t,		// I - Current tree entry
 	       long   *linenum)		// I - Current line number
 {
   uchar	name[1024],			// Name of variable
-	value[10240],			// Value of variable
+	value[MAX_DATAURL],		// Value of variable
 	*ptr,				// Temporary pointer
 	entity[16],			// Character entity name
 	*eptr;				// Pointer into name

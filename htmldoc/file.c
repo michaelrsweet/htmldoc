@@ -444,7 +444,7 @@ file_find_check(const char *filename)	/* I - File or URL */
 
     const char	*data;			/* Pointer to data */
     size_t	len;			/* Number of bytes */
-    char	buffer[8192];		/* Data buffer */
+    char	buffer[MAX_DATAURL];	/* Data buffer */
 
     for (i = 0; i < (int)web_files; i ++)
     {
