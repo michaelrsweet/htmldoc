@@ -13,10 +13,10 @@
     <ROW Property="ARPPRODUCTICON" Value="htmldoc.exe" Type="8"/>
     <ROW Property="ARPURLINFOABOUT" Value="https://www.msweet.org/htmldoc"/>
     <ROW Property="Manufacturer" Value="Michael R Sweet"/>
-    <ROW Property="ProductCode" Value="1033:{7E0C8F51-97CA-4DC9-A4F2-1D363093AA2B} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{24113A1B-88DD-402B-8B16-B366E0958658} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="HTMLDOC"/>
-    <ROW Property="ProductVersion" Value="1.9.24.0" Options="32"/>
+    <ROW Property="ProductVersion" Value="1.9.25.0" Options="32"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:ReallySuppress"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{4016A37E-404B-4785-B768-D4FF161DE6E9}"/>
