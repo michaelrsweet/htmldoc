@@ -5,6 +5,8 @@ v1.9.25 - YYYY-MM-DD
 --------------------
 
 - Updated the maximum length of "data:" URLs to 32k (Issue #573)
+- Fixed the Windows installer metadata that was preventing upgrades from prior
+  releases (Issue #572)
 - Fixed an issue in the source code that prevented GCC from successfully
   building with LTO optimization settings (Issue #576)
 
