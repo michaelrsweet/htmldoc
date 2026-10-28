@@ -1,7 +1,7 @@
 Changes in HTMLDOC
 ==================
 
-v1.9.25 - YYYY-MM-DD
+v1.9.25 - 2026-10-28
 --------------------
 
 - Updated the maximum length of "data:" URLs to 32k (Issue #573)
